@@ -14,5 +14,3 @@ public class DesktopLauncher {
 		new Lwjgl3Application(new Catan(), config);
 	}
 }
-// how to add button?
-// https://stackoverflow.com/questions/12506141/how-to-add-a-button-in-libgdx
