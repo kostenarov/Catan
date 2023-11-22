@@ -1,67 +1,94 @@
 package com.game.catan.server;
 
-import com.badlogic.gdx.net.Socket;
-import com.game.catan.player.catanPlayer;
-
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-//socket server
-class catanServer {
-    private static class catanServerHolder {
-        private static final catanServer INSTANCE = new catanServer();
+public class catanServer {
+    private ServerSocket serverSocket;
+    private List<ClientHandler> clients;
+    private int currentPlayerIndex;
 
-        private Socket clientSocket;
+    public catanServer() {
+        clients = new ArrayList<>();
 
-        private catanServerHolder() {
+        try {
+            serverSocket = new ServerSocket(12345);
+            System.out.println("Server started. Waiting for clients...");
+
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected: " + clientSocket);
+
+                ClientHandler clientHandler = new ClientHandler(clientSocket);
+                clients.add(clientHandler);
+
+                // Notify all clients about the current player's turn
+                broadcastTurnNotification();
+
+                // Create a new thread to handle the client
+                new Thread(clientHandler).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void broadcastTurnNotification() {
+        for (ClientHandler client : clients) {
+            client.sendTurnNotification(currentPlayerIndex);
+        }
+    }
+
+    private class ClientHandler implements Runnable {
+        private Socket socket;
+        private ObjectOutputStream outputStream;
+        private ObjectInputStream inputStream;
+
+        public ClientHandler(Socket socket) {
+            this.socket = socket;
             try {
-                clientSocket = new Socket() {
-                    @Override
-                    public void dispose() {
+                outputStream = new ObjectOutputStream(socket.getOutputStream());
+                inputStream = new ObjectInputStream(socket.getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-                    }
+        public void sendTurnNotification(int currentPlayerIndex) {
+            try {
+                outputStream.writeObject(currentPlayerIndex);
+                outputStream.reset(); // Ensure the object is resent
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-                    @Override
-                    public boolean isConnected() {
-                        return false;
-                    }
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    // Handle client requests, for simplicity, assume it's "End Turn" for now
+                    // You may want to implement a more sophisticated communication protocol
+                    inputStream.readObject(); // Wait for client message
 
-                    @Override
-                    public InputStream getInputStream() {
-                        return null;
-                    }
-
-                    @Override
-                    public OutputStream getOutputStream() {
-                        return null;
-                    }
-
-                    @Override
-                    public String getRemoteAddress() {
-                        return null;
-                    }
-                };
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
+                    // Rotate players and notify clients about the new turn
+                    currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                    broadcastTurnNotification();
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                // Handle client disconnection
+                clients.remove(this);
+                System.out.println("Client disconnected: " + socket);
             }
         }
     }
-    private static final int PORT = 1234;
-    List<catanPlayer> players = new ArrayList<catanPlayer>();
 
-    catanPlayer currentPlayer;
     public static void main(String[] args) {
-
-
-    }
-
-    public void addPlayer(catanPlayer player) {
-        players.add(player);
-    }
-
-    public void removePlayer(catanPlayer player) {
-        players.remove(player);
+    	new catanServer();
     }
 }
