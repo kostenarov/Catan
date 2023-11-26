@@ -17,7 +17,6 @@ public class catanPlayer extends ApplicationAdapter {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private int currentPlayerIndex;
-
     private SpriteBatch batch;
     private Texture buttonTexture;
 

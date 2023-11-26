@@ -1,12 +1,14 @@
-package com.game.catan.server.Villages;
+package com.game.catan.Villages;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.game.catan.player.catanPlayer;
 
 public class Village {
     private Texture villageTexture;
     private ImageButton.ImageButtonStyle villageStyle;
+    private catanPlayer owner;
 
 
     public Village(String path) {

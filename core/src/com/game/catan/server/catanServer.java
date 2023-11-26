@@ -27,10 +27,8 @@ public class catanServer {
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clients.add(clientHandler);
 
-                // Notify all clients about the current player's turn
                 broadcastTurnNotification();
 
-                // Create a new thread to handle the client
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {
