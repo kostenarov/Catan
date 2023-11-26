@@ -82,4 +82,9 @@ public class resourceCell extends Cell {
     public ImageButton.ImageButtonStyle getResourceStyle() {
         return this.resourceStyle;
     }
+    public void addNeighbour(Cell cell) {
+        if (cell instanceof resourceCell) {
+            super.addNeighbour(cell);
+        }
+    }
 }

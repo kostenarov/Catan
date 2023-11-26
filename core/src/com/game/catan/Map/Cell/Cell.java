@@ -6,7 +6,7 @@ import java.util.List;
 public abstract class Cell {
     private final int x;
     private final int y;
-    private List<Cell> neighbours = new ArrayList<>();
+    private final List<Cell> neighbours = new ArrayList<>();
 
     public Cell(int x, int y) {
         this.x = x;
@@ -19,5 +19,9 @@ public abstract class Cell {
 
     public int getY() {
         return y;
+    }
+
+    public void addNeighbour(Cell neighbour) {
+        neighbours.add(neighbour);
     }
 }

@@ -1,10 +1,14 @@
 package com.game.catan.Map;
 
-import com.badlogic.gdx.maps.tiled.TiledMapImageLayer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.game.catan.Map.Cell.ResourceType;
+import com.game.catan.Map.Cell.resourceCell;
 
 public class Map {
-    private TiledMapTileLayer logicLayer;
-    private TiledMapImageLayer imageLayer;
+    private resourceCell robberCell;
+    private resourceCell centerCell;
+    public Map() {
+        centerCell = new resourceCell(0, 0, ResourceType.BRICK);
+        centerCell.addNeighbour(new resourceCell(1, 0, ResourceType.WOOD));
+    }
 
 }
