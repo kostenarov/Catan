@@ -24,4 +24,8 @@ public abstract class Cell {
     public void addNeighbour(Cell neighbour) {
         neighbours.add(neighbour);
     }
+
+    public List<Cell> getNeighbours() {
+        return neighbours;
+    }
 }

@@ -8,12 +8,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class catanServer {
+public class CatanServer {
     private ServerSocket serverSocket;
-    private List<ClientHandler> clients;
+    private final List<ClientHandler> clients;
     private int currentPlayerIndex;
 
-    public catanServer() {
+    public CatanServer() {
         clients = new ArrayList<>();
 
         try {
@@ -87,6 +87,6 @@ public class catanServer {
     }
 
     public static void main(String[] args) {
-    	new catanServer();
+    	new CatanServer();
     }
 }

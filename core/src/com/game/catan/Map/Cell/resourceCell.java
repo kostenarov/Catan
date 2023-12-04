@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+import java.util.ArrayList;
+
 public class resourceCell extends Cell {
     private final ResourceType type;
     private final int diceThrow;
@@ -86,5 +88,15 @@ public class resourceCell extends Cell {
         if (cell instanceof resourceCell) {
             super.addNeighbour(cell);
         }
+    }
+
+    public ArrayList<VillageCell> getVillages() {
+        ArrayList<VillageCell> neighbours = new ArrayList<>();
+        for(Cell neighbour : getNeighbours()) {
+            if(neighbour instanceof VillageCell) {
+                neighbours.add((VillageCell) neighbour);
+            }
+        }
+        return neighbours;
     }
 }

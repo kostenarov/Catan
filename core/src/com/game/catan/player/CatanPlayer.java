@@ -6,19 +6,25 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.game.catan.Map.Cell.Cell;
+import com.game.catan.Map.Cell.VillageCell;
+import com.game.catan.Map.Map;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashSet;
 
-public class catanPlayer extends ApplicationAdapter {
+public class CatanPlayer extends ApplicationAdapter {
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private int currentPlayerIndex;
     private SpriteBatch batch;
     private Texture buttonTexture;
+    private Map map;
+    private VillageCell startVillage;
 
     @Override
     public void create() {
@@ -26,7 +32,7 @@ public class catanPlayer extends ApplicationAdapter {
         buttonTexture = new Texture("button.png"); // Replace with your button texture
 
         try {
-            socket = new Socket("localhost", 12345);
+            socket = new Socket("172.23.32.1", 12345);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
 
@@ -78,6 +84,17 @@ public class catanPlayer extends ApplicationAdapter {
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void drawField() {
+        HashSet<VillageCell> villages = map.getVillageNeighbours(startVillage);
+        HashSet<Cell> allCells = new HashSet<>();
+        for(VillageCell village : villages) {
+            allCells.addAll(village.getNeighbours());
+        }
+        for(Cell cell : allCells) {
+            //draw cell
         }
     }
 
