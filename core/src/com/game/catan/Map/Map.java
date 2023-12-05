@@ -36,4 +36,35 @@ public class Map {
         }
         return neighbours;
     }
+
+    public HashSet<Cell> getMap() {
+        HashSet<Cell> map = new HashSet<>();
+        map.add(centerCell);
+        for(Cell cell : centerCell.getNeighbours()) {
+            map.add(cell);
+            map.addAll(getMapNeighbours(cell));
+        }
+        return map;
+    }
+
+    public HashSet<Cell> getMapNeighbours(Cell cell) {
+        HashSet<Cell> neighbours = new HashSet<>();
+        for(Cell neighbour : cell.getNeighbours()) {
+            neighbours.add(neighbour);
+            neighbours.addAll(getMapNeighbours(neighbour));
+        }
+        return neighbours;
+    }
+
+    public void drawMap() {
+        for(Cell cell : getMap()) {
+            cell.draw();
+        }
+    }
+
+    public void dispose() {
+        for(Cell cell : getMap()) {
+            cell.dispose();
+        }
+    }
 }

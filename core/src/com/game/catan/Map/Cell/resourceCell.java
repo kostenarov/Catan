@@ -10,8 +10,6 @@ public class resourceCell extends Cell {
     private final ResourceType type;
     private final int diceThrow;
     private boolean hasRobber = false;
-    private Texture texture;
-    private ImageButton.ImageButtonStyle resourceStyle;
 
 
     public resourceCell(int x, int y, ResourceType type) {
@@ -49,8 +47,8 @@ public class resourceCell extends Cell {
                 this.texture = new Texture("empty.png");
                 break;
         }
-        this.resourceStyle = new ImageButton.ImageButtonStyle();
-        this.resourceStyle.imageUp = new TextureRegionDrawable(this.texture);
+        this.style = new ImageButton.ImageButtonStyle();
+        this.style.imageUp = new TextureRegionDrawable(this.texture);
     }
 
     public String getResource() {
@@ -65,25 +63,14 @@ public class resourceCell extends Cell {
         return (int) (Math.random() * 10) + 2;
     }
 
-    public void setHasRobber(boolean hasRobber) {
+    public void setRobber(boolean hasRobber) {
         this.hasRobber = hasRobber;
     }
 
-    public boolean getHasRobber() {
+    public boolean HasRobber() {
         return this.hasRobber;
     }
 
-    public Texture getTexture() {
-        return this.texture;
-    }
-
-    public void dispose() {
-        this.texture.dispose();
-    }
-
-    public ImageButton.ImageButtonStyle getResourceStyle() {
-        return this.resourceStyle;
-    }
     public void addNeighbour(Cell cell) {
         if (cell instanceof resourceCell) {
             super.addNeighbour(cell);
@@ -98,5 +85,17 @@ public class resourceCell extends Cell {
             }
         }
         return neighbours;
+    }
+
+    @Override
+    public void draw() {
+        if(hasRobber) {
+            texture = new Texture("robber.png");
+            this.style.imageUp = new TextureRegionDrawable(texture);
+        }
+        else {
+            texture = new Texture("empty.png");
+            this.style.imageUp = new TextureRegionDrawable(texture);
+        }
     }
 }

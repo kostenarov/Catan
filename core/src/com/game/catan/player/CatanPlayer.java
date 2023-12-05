@@ -25,6 +25,8 @@ public class CatanPlayer extends ApplicationAdapter {
     private Texture buttonTexture;
     private Map map;
     private VillageCell startVillage;
+    private String villagePath;
+    private String roadPath;
 
     @Override
     public void create() {
@@ -88,19 +90,20 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void drawField() {
-        HashSet<VillageCell> villages = map.getVillageNeighbours(startVillage);
-        HashSet<Cell> allCells = new HashSet<>();
-        for(VillageCell village : villages) {
-            allCells.addAll(village.getNeighbours());
-        }
-        for(Cell cell : allCells) {
-            //draw cell
-        }
+        map.drawMap();
     }
 
     @Override
     public void dispose() {
         batch.dispose();
         buttonTexture.dispose();
+    }
+
+    public String getVillagePath() {
+        return villagePath;
+    }
+
+    public String getRoadPath() {
+        return roadPath;
     }
 }

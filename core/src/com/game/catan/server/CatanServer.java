@@ -1,5 +1,7 @@
 package com.game.catan.server;
 
+import com.game.catan.Map.Map;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,6 +14,7 @@ public class CatanServer {
     private ServerSocket serverSocket;
     private final List<ClientHandler> clients;
     private int currentPlayerIndex;
+    private Map map;
 
     public CatanServer() {
         clients = new ArrayList<>();

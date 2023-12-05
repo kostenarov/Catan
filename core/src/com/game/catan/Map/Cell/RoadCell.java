@@ -37,4 +37,17 @@ public class RoadCell extends Cell {
         }
         return neighbours;
     }
+
+    @Override
+    public void draw() {
+        if(owner != null) {
+            roadTexture = new Texture(owner.getRoadPath());
+            roadStyle.imageUp = new TextureRegionDrawable(roadTexture);
+        }
+        else {
+            roadTexture = null;
+            roadStyle = new ImageButton.ImageButtonStyle();
+            roadStyle.imageUp = new TextureRegionDrawable(roadTexture);
+        }
+    }
 }
