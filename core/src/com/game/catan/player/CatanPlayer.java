@@ -28,6 +28,10 @@ public class CatanPlayer extends ApplicationAdapter {
     private String villagePath;
     private String roadPath;
 
+    public CatanPlayer(Map map) {
+        this.map = map;
+    }
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -42,6 +46,7 @@ public class CatanPlayer extends ApplicationAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        drawField();
     }
 
     @Override
@@ -62,7 +67,7 @@ public class CatanPlayer extends ApplicationAdapter {
                 e.printStackTrace();
             }
         }
-
+        renderMap();
         // Handle updates on the main thread
         handleUpdates();
     }
@@ -90,7 +95,18 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void drawField() {
-        map.drawMap();
+        for(Cell cell : map.getMap()) {
+            Texture tempTexture = new Texture(cell.getTexturePath());
+        }
+    }
+
+    private void renderMap() {
+        for(Cell cell : map.getMap()) {
+            Texture tempTexture = new Texture(cell.getTexturePath());
+            batch.begin();
+            batch.draw(tempTexture, cell.getX(), cell.getY());
+            batch.end();
+        }
     }
 
     @Override
@@ -105,5 +121,8 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public String getRoadPath() {
         return roadPath;
+    }
+    public void setMap(Map map) {
+        this.map = map;
     }
 }

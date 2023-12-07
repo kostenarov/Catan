@@ -1,54 +1,54 @@
 package com.game.catan.Map.Cell;
 
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import java.util.ArrayList;
 
-public class resourceCell extends Cell {
+public class ResourceCell extends Cell{
     private final ResourceType type;
     private final int diceThrow;
     private boolean hasRobber = false;
 
 
-    public resourceCell(int x, int y, ResourceType type) {
+    public ResourceCell(int x, int y, ResourceType type) {
         super(x, y);
         this.type = type;
-        setTextureAndStyle(type);
+        setTexturePath(type);
         this.diceThrow = randomDiceThrow();
     }
 
-    public resourceCell(int x, int y, ResourceType type, int diceThrow) {
+    public ResourceCell(int x, int y, ResourceType type, int diceThrow) {
         super(x, y);
         this.type = type;
-        setTextureAndStyle(type);
+        setTexturePath(type);
         this.diceThrow = diceThrow;
     }
 
-    public void setTextureAndStyle(ResourceType type){
+    public void setTexturePath(ResourceType type){
         switch (type) {
             case WOOD:
-                this.texture = new Texture("wood.png");
+                this.texturePath = "wood.png";
                 break;
             case BRICK:
-                this.texture = new Texture("brick.png");
+                this.texturePath = "brick.png";
                 break;
             case SHEEP:
-                this.texture = new Texture("sheep.png");
+                this.texturePath = "sheep.png";
                 break;
             case WHEAT:
-                this.texture = new Texture("wheat.png");
+                this.texturePath = "wheat.png";
                 break;
             case STONE:
-                this.texture = new Texture("stone.png");
+                this.texturePath = "stone.png";
                 break;
             case EMPTY:
-                this.texture = new Texture("empty.png");
+                this.texturePath = "empty.png";
                 break;
         }
-        this.style = new ImageButton.ImageButtonStyle();
-        this.style.imageUp = new TextureRegionDrawable(this.texture);
     }
 
     public String getResource() {
@@ -72,7 +72,7 @@ public class resourceCell extends Cell {
     }
 
     public void addNeighbour(Cell cell) {
-        if (cell instanceof resourceCell) {
+        if (cell instanceof ResourceCell) {
             super.addNeighbour(cell);
         }
     }
@@ -85,17 +85,5 @@ public class resourceCell extends Cell {
             }
         }
         return neighbours;
-    }
-
-    @Override
-    public void draw() {
-        if(hasRobber) {
-            texture = new Texture("robber.png");
-            this.style.imageUp = new TextureRegionDrawable(texture);
-        }
-        else {
-            texture = new Texture("empty.png");
-            this.style.imageUp = new TextureRegionDrawable(texture);
-        }
     }
 }

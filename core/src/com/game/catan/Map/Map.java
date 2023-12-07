@@ -6,11 +6,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Map {
-    private resourceCell robberCell;
-    private final resourceCell centerCell;
+    private ResourceCell robberCell;
+    private final ResourceCell centerCell;
     public Map() {
-        centerCell = new resourceCell(0, 0, ResourceType.BRICK);
-        centerCell.addNeighbour(new resourceCell(1, 0, ResourceType.WOOD));
+        centerCell = new ResourceCell(0, 0, ResourceType.BRICK);
+        centerCell.addNeighbour(new ResourceCell(1, 0, ResourceType.WOOD));
+        ResourceCell tempCell = new ResourceCell(1, 1, ResourceType.WHEAT);
+        tempCell.setRobber(true);
+        centerCell.addNeighbour(tempCell);
+        findRobber();
     }
 
     public VillageCell getSpecificVillage(int x, int y) {
@@ -23,7 +27,7 @@ public class Map {
         return null;
     }
 
-    public HashSet<VillageCell> getVillageNeighbours(VillageCell villageCell) {
+    private HashSet<VillageCell> getVillageNeighbours(VillageCell villageCell) {
         HashSet<VillageCell> neighbours = new HashSet<>();
         for(Cell cell : villageCell.getNeighbours()) {
             if(cell instanceof RoadCell) {
@@ -47,7 +51,7 @@ public class Map {
         return map;
     }
 
-    public HashSet<Cell> getMapNeighbours(Cell cell) {
+    private HashSet<Cell> getMapNeighbours(Cell cell) {
         HashSet<Cell> neighbours = new HashSet<>();
         for(Cell neighbour : cell.getNeighbours()) {
             neighbours.add(neighbour);
@@ -56,15 +60,35 @@ public class Map {
         return neighbours;
     }
 
-    public void drawMap() {
+    /*public void drawMap() {
         for(Cell cell : getMap()) {
             cell.draw();
         }
-    }
+    }*/
 
-    public void dispose() {
+    /*public void dispose() {
         for(Cell cell : getMap()) {
             cell.dispose();
         }
+    }*/
+
+    private void findRobber() {
+        for(ResourceCell resourceCell : getResourceCells(centerCell)) {
+            if(resourceCell.HasRobber()) {
+                robberCell = resourceCell;
+                break;
+            }
+        }
+    }
+
+    private HashSet<ResourceCell> getResourceCells(ResourceCell resourceCell) {
+        HashSet<ResourceCell> resourceCells = new HashSet<>();
+        for(Cell cell : resourceCell.getNeighbours()) {
+            if(cell instanceof ResourceCell) {
+                resourceCells.add((ResourceCell) cell);
+                resourceCells.addAll(getResourceCells((ResourceCell) cell));
+            }
+        }
+        return resourceCells;
     }
 }

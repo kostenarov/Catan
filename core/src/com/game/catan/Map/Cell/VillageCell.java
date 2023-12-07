@@ -27,17 +27,4 @@ public class VillageCell extends Cell {
     public boolean hasNeighbours() {
         return !getNeighbours().isEmpty();
     }
-
-    @Override
-    public void draw() {
-        if(owner != null) {
-            villageTexture = new Texture(owner.getVillagePath());
-            villageStyle.imageUp = new TextureRegionDrawable(villageTexture);
-        }
-        else {
-            villageTexture = null;
-            villageStyle = new ImageButton.ImageButtonStyle();
-            villageStyle.imageUp = new TextureRegionDrawable(villageTexture);
-        }
-    }
 }
