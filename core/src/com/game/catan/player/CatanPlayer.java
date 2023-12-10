@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.HashSet;
 
 public class CatanPlayer extends ApplicationAdapter {
     private Socket socket;
@@ -32,13 +31,17 @@ public class CatanPlayer extends ApplicationAdapter {
         this.map = map;
     }
 
+    public CatanPlayer() {
+        this.map = null;
+    }
+
     @Override
     public void create() {
         batch = new SpriteBatch();
         buttonTexture = new Texture("button.png"); // Replace with your button texture
 
         try {
-            socket = new Socket("172.23.32.1", 12345);
+            socket = new Socket("localhost", 12345);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
 
@@ -46,7 +49,6 @@ public class CatanPlayer extends ApplicationAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        drawField();
     }
 
     @Override
@@ -91,12 +93,6 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void drawField() {
-        for(Cell cell : map.getMap()) {
-            Texture tempTexture = new Texture(cell.getTexturePath());
         }
     }
 
