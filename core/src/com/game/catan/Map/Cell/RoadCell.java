@@ -1,6 +1,7 @@
 package com.game.catan.Map.Cell;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.player.CatanPlayer;
@@ -37,4 +38,7 @@ public class RoadCell extends Cell {
         }
         return neighbours;
     }
+
+    @Override
+    public void buttonFunc(Stage stage){}
 }

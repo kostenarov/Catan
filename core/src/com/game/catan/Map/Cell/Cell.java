@@ -2,6 +2,7 @@ package com.game.catan.Map.Cell;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 
 import java.util.ArrayList;
@@ -37,4 +38,6 @@ public abstract class Cell{
     public String getTexturePath() {
         return texturePath;
     }
+
+    public abstract void buttonFunc(Stage stage);
 }

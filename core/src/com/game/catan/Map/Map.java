@@ -9,11 +9,16 @@ public class Map {
     private ResourceCell robberCell;
     private final ResourceCell centerCell;
     public Map() {
-        centerCell = new ResourceCell(0, 0, ResourceType.BRICK);
-        centerCell.addNeighbour(new ResourceCell(1, 0, ResourceType.WOOD));
-        ResourceCell tempCell = new ResourceCell(1, 1, ResourceType.WHEAT);
+        centerCell = new ResourceCell(960, 540, ResourceType.BRICK);
+        centerCell.addNeighbour(new ResourceCell(960, 200, ResourceType.WOOD));
+        ResourceCell tempCell = new ResourceCell(760, 540, ResourceType.WHEAT);
         tempCell.setRobber(true);
         centerCell.addNeighbour(tempCell);
+        VillageCell tempVillage = new VillageCell(760, 840);
+        tempVillage.addNeighbour(centerCell);
+        tempVillage.addNeighbour(tempCell);
+        tempCell.addNeighbour(tempVillage);
+        centerCell.addNeighbour(tempVillage);
         findRobber();
     }
 

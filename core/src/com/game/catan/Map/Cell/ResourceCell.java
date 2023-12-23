@@ -3,6 +3,7 @@ package com.game.catan.Map.Cell;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
@@ -85,5 +86,20 @@ public class ResourceCell extends Cell{
             }
         }
         return neighbours;
+    }
+
+    @Override
+    public void buttonFunc(Stage stage) {
+        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        ImageButton button = new ImageButton(style);
+        button.setPosition(this.getX(), this.getY());
+        stage.addActor(button);
+        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                System.out.println("Button clicked");
+                return true;
+            }
+        });
     }
 }
