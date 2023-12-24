@@ -110,7 +110,7 @@ public class Map {
         return roadCells;
     }
 
-    private HashSet<ResourceCell> getResourceCells(ResourceCell resourceCell) {
+    public HashSet<ResourceCell> getResourceCells(ResourceCell resourceCell) {
         HashSet<ResourceCell> resourceCells = new HashSet<>();
         for(Cell cell : resourceCell.getNeighbours()) {
             if(cell instanceof ResourceCell) {
@@ -128,5 +128,9 @@ public class Map {
             }
         }
         return null;
+    }
+
+    public ResourceCell getCenterCell() {
+        return centerCell;
     }
 }
