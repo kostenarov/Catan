@@ -41,4 +41,19 @@ public class RoadCell extends Cell {
 
     @Override
     public void buttonFunc(Stage stage){}
+
+    public boolean isBuilt() {
+        if(owner == null) {
+            return false;
+        }
+        return true;
+    }
+
+    public void setOwner(CatanPlayer owner) {
+        this.owner = owner;
+    }
+
+    public CatanPlayer getOwner() {
+        return owner;
+    }
 }

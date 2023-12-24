@@ -1,6 +1,7 @@
 package com.game.catan.Map;
 
 import com.game.catan.Map.Cell.*;
+import com.game.catan.player.CatanPlayer;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,6 +73,41 @@ public class Map {
                 break;
             }
         }
+    }
+
+    private CatanPlayer findLongestRoad() {
+        HashSet<RoadCell> takenRoads = new HashSet<>();
+        for(Cell cell : getMap()) {
+            if(cell instanceof RoadCell) {
+                if(((RoadCell) cell).isBuilt()) {
+                    takenRoads.add((RoadCell) cell);
+                }
+            }
+        }
+        if(takenRoads.size() < 5) {
+            return null;
+        }
+        HashSet<RoadCell> longestRoad = new HashSet<>();
+        for(RoadCell roadCell : takenRoads) {
+            HashSet<RoadCell> tempRoad = connectRoads(roadCell);
+            if(tempRoad.size() > longestRoad.size()) {
+                longestRoad = tempRoad;
+            }
+        }
+        return longestRoad.iterator().next().getOwner();
+    }
+
+    private HashSet<RoadCell> connectRoads(RoadCell roadCell) {
+        HashSet<RoadCell> roadCells = new HashSet<>();
+        for(Cell cell : roadCell.getNeighbours()) {
+            if(cell instanceof VillageCell) {
+                if(((RoadCell) cell).getOwner() == roadCell.getOwner()) {
+                    roadCells.add((RoadCell) cell);
+                    roadCells.addAll(connectRoads((RoadCell) cell));
+                }
+            }
+        }
+        return roadCells;
     }
 
     private HashSet<ResourceCell> getResourceCells(ResourceCell resourceCell) {
