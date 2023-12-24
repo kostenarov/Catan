@@ -93,7 +93,7 @@ public class ResourceCell extends Cell{
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
         ImageButton button = new ImageButton(style);
-        button.setPosition(this.getX(), this.getY());
+        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {

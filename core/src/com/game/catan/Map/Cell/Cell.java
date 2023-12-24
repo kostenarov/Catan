@@ -9,22 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Cell{
-    private final int x;
-    private final int y;
+    private static int idCounter = 0;
+    private final int id = idCounter++;
+    private final Point cellCords;
     private final List<Cell> neighbours = new ArrayList<>();
     protected String texturePath;
 
     public Cell(int x, int y) {
-        this.x = x;
-        this.y = y;
+        cellCords = new Point(x, y);
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
+    public Point getCellCords() {
+        return cellCords;
     }
 
     public void addNeighbour(Cell neighbour) {
@@ -40,4 +36,8 @@ public abstract class Cell{
     }
 
     public abstract void buttonFunc(Stage stage);
+
+    public int getId() {
+        return id;
+    }
 }

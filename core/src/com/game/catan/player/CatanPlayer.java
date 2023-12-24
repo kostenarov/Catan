@@ -47,18 +47,17 @@ public class CatanPlayer extends ApplicationAdapter {
         batch = new SpriteBatch();
         stage = new Stage(new ScreenViewport());
 
-        for(Cell cell : map.getMap()) {
-            cell.buttonFunc(stage);
-        }
-
-        Gdx.input.setInputProcessor(stage);
-
         try {
             socket = new Socket("localhost", 12345);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
+            getMapFromServer();
 
-            // Do not use a separate thread for listening in libGDX
+            for(Cell cell : map.getMap()) {
+                cell.buttonFunc(stage);
+            }
+
+            Gdx.input.setInputProcessor(stage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,8 +70,34 @@ public class CatanPlayer extends ApplicationAdapter {
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
         //renderMap();
-        // Handle updates on the main thread
         handleUpdates();
+    }
+
+    public void getMapFromServer() {
+        try {
+            // Assuming outputStream and inputStream are instances of ObjectOutputStream and ObjectInputStream
+            Object temp = inputStream.readObject();
+            if(temp instanceof Map) {
+                map = (Map) temp;
+            }
+            else {
+                System.out.println("Error: Map not received");
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            // Close resources properly
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void endTurnButton () {
@@ -113,25 +138,14 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void handleUpdates() {
-        try {
-            // Check for updates from the server
-            if (inputStream.available() > 0) {
-                // Receive updates from the server
-                currentPlayerIndex = (int) inputStream.readObject();
 
-                // Handle the update on the main thread
-                System.out.println("Current player index: " + currentPlayerIndex);
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
     private void renderMap() {
         for(Cell cell : map.getMap()) {
             Texture tempTexture = new Texture(cell.getTexturePath());
             batch.begin();
-            batch.draw(tempTexture, cell.getX(), cell.getY());
+            batch.draw(tempTexture, cell.getCellCords().getX(), cell.getCellCords().getY());
             batch.end();
         }
     }

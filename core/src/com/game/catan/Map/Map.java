@@ -25,7 +25,7 @@ public class Map {
     public VillageCell getSpecificVillage(int x, int y) {
         centerCell.getVillages().get(0);
         for(VillageCell villageCell : getVillageNeighbours(centerCell.getVillages().get(0))) {
-            if(villageCell.getX() == x && villageCell.getY() == y) {
+            if(villageCell.getCellCords().getX() == x && villageCell.getCellCords().getY() == y) {
                 return villageCell;
             }
         }
@@ -65,18 +65,6 @@ public class Map {
         return neighbours;
     }
 
-    /*public void drawMap() {
-        for(Cell cell : getMap()) {
-            cell.draw();
-        }
-    }*/
-
-    /*public void dispose() {
-        for(Cell cell : getMap()) {
-            cell.dispose();
-        }
-    }*/
-
     private void findRobber() {
         for(ResourceCell resourceCell : getResourceCells(centerCell)) {
             if(resourceCell.HasRobber()) {
@@ -95,5 +83,14 @@ public class Map {
             }
         }
         return resourceCells;
+    }
+
+    private Cell getCellById(int id) {
+        for(Cell cell : getMap()) {
+            if(cell.getId() == id) {
+                return cell;
+            }
+        }
+        return null;
     }
 }

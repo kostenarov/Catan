@@ -30,7 +30,7 @@ public class CatanServer {
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clients.add(clientHandler);
 
-                broadcastTurnNotification();
+                clientHandler.sendMap(map);
 
                 new Thread(clientHandler).start();
             }
@@ -55,6 +55,7 @@ public class CatanServer {
             try {
                 outputStream = new ObjectOutputStream(socket.getOutputStream());
                 inputStream = new ObjectInputStream(socket.getInputStream());
+                outputStream.writeObject(map);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -86,6 +87,15 @@ public class CatanServer {
                 clients.remove(this);
                 System.out.println("Client disconnected: " + socket);
             }
+        }
+
+        public void sendMap(Map map) {
+        	try {
+        		outputStream.writeObject(map);
+        		outputStream.reset();
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
         }
     }
 

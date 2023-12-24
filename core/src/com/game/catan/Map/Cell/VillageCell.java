@@ -49,7 +49,7 @@ public class VillageCell extends Cell {
     }
 
     public void drawVillage(Batch batch) {
-        batch.draw(villageTexture, this.getX(), this.getY());
+        batch.draw(villageTexture, this.getCellCords().getX(), this.getCellCords().getY());
     }
 
     public void setOwner(CatanPlayer owner) {
