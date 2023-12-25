@@ -62,14 +62,6 @@ public class CatanPlayer extends ApplicationAdapter {
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
             //getMapFromServer();
-
-            for(Cell cell : map.getMap()) {
-                cell.buttonFunc(stage);
-            }
-            int diceThrow = diceThrowButton(stage);
-            getResources(diceThrow);
-
-            Gdx.input.setInputProcessor(stage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,6 +78,11 @@ public class CatanPlayer extends ApplicationAdapter {
         }
         int diceThrow = diceThrowButton(stage);
         getResources(diceThrow);
+        try {
+            endTurn();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //renderMap();
         handleUpdates();
         Gdx.input.setInputProcessor(stage);
@@ -119,8 +116,8 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
-    private void endTurnButton () {
-        //create a button that when pressed does something
+    private void endTurn() throws IOException {
+        // Send a message to the server indicating the end of the turn
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
         textButtonStyle.font.getData().setScale(2f);
@@ -132,28 +129,19 @@ public class CatanPlayer extends ApplicationAdapter {
         TextButton button = new TextButton("End Turn", textButtonStyle);
         button.setPosition(600, 600);
         button.setSize(200, 100);
-        SpriteBatch batch = new SpriteBatch();
-        batch.begin();
-        button.draw(batch, 1);
+        stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 try {
                     System.out.println("End turn");
-                    endTurn();
+                    outputStream.writeObject("End Turn");
+                    outputStream.reset(); // Ensure the object is resent
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return true;
             }
         });
-
-    }
-
-    private void endTurn() throws IOException {
-        // Send a message to the server indicating the end of the turn
-        outputStream.writeObject(new Object()); // Send any object to the server
-        Gdx.gl.glClearColor(200, 1, 1, 1);
-        outputStream.reset(); // Ensure the object is resent
     }
 
     private void handleUpdates() {
@@ -188,12 +176,10 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public void getResources(int diceThrow) {
         for(ResourceCell cell : map.getResourceCells(map.getCenterCell())) {
-            if(cell.getDiceThrow() == diceThrow) {
-                resources.put(ResourceType.valueOf(cell.getResource()), resources.get(ResourceType.valueOf(cell.getResource())) + 1);
+            if(cell.getDiceThrow() == diceThrow && !cell.HasRobber()) {
+                System.out.println(cell.getResource());
+                resources.put(ResourceType.valueOf(cell.getResource()), resources.get(ResourceType.valueOf(cell.getResource())) + cell.getNumberOfPlayerVillages(this));
             }
-        }
-        for(ResourceType resource : resources.keySet()) {
-            System.out.println(resource + ": " + resources.get(resource));
         }
     }
 
@@ -211,7 +197,6 @@ public class CatanPlayer extends ApplicationAdapter {
         TextButton button = new TextButton("Throw Dice", textButtonStyle);
         button.setPosition(1720, 980);
         button.setSize(200, 100);
-        SpriteBatch batch = new SpriteBatch();
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {

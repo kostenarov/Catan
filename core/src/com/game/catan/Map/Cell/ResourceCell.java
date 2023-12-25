@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.game.catan.player.CatanPlayer;
 
 import java.util.ArrayList;
 
@@ -61,7 +62,12 @@ public class ResourceCell extends Cell{
     }
 
     public int randomDiceThrow() {
-        return (int) (Math.random() * 10) + 2;
+        int temp = randomDiceThrow();
+        while(temp == 7)
+        {
+            temp = randomDiceThrow();
+        }
+        return temp;
     }
 
     public void setRobber(boolean hasRobber) {
@@ -101,5 +107,15 @@ public class ResourceCell extends Cell{
                 return true;
             }
         });
+    }
+
+    public int getNumberOfPlayerVillages(CatanPlayer player) {
+        int numberOfPlayerVillages = 0;
+        for(VillageCell villageCell : getVillages()) {
+            if(villageCell.getOwner() == player) {
+                numberOfPlayerVillages++;
+            }
+        }
+        return numberOfPlayerVillages;
     }
 }

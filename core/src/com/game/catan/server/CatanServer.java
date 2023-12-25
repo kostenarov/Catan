@@ -98,8 +98,4 @@ public class CatanServer {
         	}
         }
     }
-
-    public static void main(String[] args) {
-    	new CatanServer();
-    }
 }

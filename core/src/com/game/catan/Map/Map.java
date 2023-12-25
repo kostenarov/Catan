@@ -20,6 +20,7 @@ public class Map {
         tempVillage.addNeighbour(tempCell);
         tempCell.addNeighbour(tempVillage);
         centerCell.addNeighbour(tempVillage);
+        System.out.println(centerCell.getDiceThrow());
         findRobber();
     }
 
