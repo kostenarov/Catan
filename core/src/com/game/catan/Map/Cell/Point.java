@@ -1,6 +1,8 @@
 package com.game.catan.Map.Cell;
 
-public class Point {
+import java.io.Serializable;
+
+public class Point implements Serializable {
     private final int x, y;
 
     public Point(int x, int y) {

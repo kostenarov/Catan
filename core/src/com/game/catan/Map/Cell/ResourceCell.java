@@ -1,7 +1,5 @@
 package com.game.catan.Map.Cell;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -62,10 +60,9 @@ public class ResourceCell extends Cell{
     }
 
     public int randomDiceThrow() {
-        int temp = randomDiceThrow();
-        while(temp == 7)
-        {
-            temp = randomDiceThrow();
+        int temp = (int) (Math.random() * 10 + 2);
+        if(temp == 7) {
+            return randomDiceThrow();
         }
         return temp;
     }

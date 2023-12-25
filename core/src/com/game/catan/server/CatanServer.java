@@ -14,10 +14,11 @@ public class CatanServer {
     private ServerSocket serverSocket;
     private final List<ClientHandler> clients;
     private int currentPlayerIndex;
-    private Map map;
+    private final Map map;
 
-    public CatanServer() {
+    public CatanServer(Map map) {
         clients = new ArrayList<>();
+        this.map = map;
 
         try {
             serverSocket = new ServerSocket(12345);
@@ -52,9 +53,11 @@ public class CatanServer {
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
+
             try {
                 outputStream = new ObjectOutputStream(socket.getOutputStream());
                 inputStream = new ObjectInputStream(socket.getInputStream());
+                System.out.println(map.getCenterCell());
                 outputStream.writeObject(map);
             } catch (IOException e) {
                 e.printStackTrace();

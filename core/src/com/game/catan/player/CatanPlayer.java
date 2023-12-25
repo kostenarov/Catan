@@ -2,21 +2,15 @@ package com.game.catan.player;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.game.catan.Map.Cell.Cell;
-import com.game.catan.Map.Cell.ResourceCell;
-import com.game.catan.Map.Cell.ResourceType;
-import com.game.catan.Map.Cell.VillageCell;
 import com.game.catan.Map.Map;
+import com.game.catan.Map.Cell.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,9 +20,10 @@ import java.util.HashMap;
 
 public class CatanPlayer extends ApplicationAdapter {
     private Socket socket;
+    private int id;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-    private int currentPlayerIndex;
+    private int currentPlayerId;
     private SpriteBatch batch;
     private Stage stage;
     private Texture buttonTexture;
@@ -61,9 +56,12 @@ public class CatanPlayer extends ApplicationAdapter {
             socket = new Socket("localhost", 12345);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
-            //getMapFromServer();
+            Map receivedMap = (Map) inputStream.readObject();
+            System.out.println(receivedMap.getCenterCell().getDiceThrow());
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -83,7 +81,6 @@ public class CatanPlayer extends ApplicationAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //renderMap();
         handleUpdates();
         Gdx.input.setInputProcessor(stage);
 
@@ -91,7 +88,6 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public void getMapFromServer() {
         try {
-            // Assuming outputStream and inputStream are instances of ObjectOutputStream and ObjectInputStream
             Object temp = inputStream.readObject();
             if(temp instanceof Map) {
                 map = (Map) temp;

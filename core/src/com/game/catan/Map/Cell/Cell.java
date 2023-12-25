@@ -1,14 +1,12 @@
 package com.game.catan.Map.Cell;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Cell{
+public abstract class Cell implements Serializable{
     private static int idCounter = 0;
     private final int id = idCounter++;
     private final Point cellCords;
