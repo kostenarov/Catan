@@ -1,5 +1,6 @@
 package com.game.catan.server;
 
+import com.game.catan.Functionality.Functionality;
 import com.game.catan.Map.Map;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ public class CatanServer {
     private final List<ClientHandler> clients;
     private int currentPlayerIndex;
     private final Map map;
+    private final Functionality functionality = new Functionality();
 
     public CatanServer(Map map) {
         clients = new ArrayList<>();
@@ -47,7 +49,7 @@ public class CatanServer {
     }
 
     private class ClientHandler implements Runnable {
-        private Socket socket;
+        private final Socket socket;
         private ObjectOutputStream outputStream;
         private ObjectInputStream inputStream;
 
@@ -77,16 +79,22 @@ public class CatanServer {
         public void run() {
             try {
                 while (true) {
-                    // Handle client requests, for simplicity, assume it's "End Turn" for now
-                    // You may want to implement a more sophisticated communication protocol
-                    inputStream.readObject(); // Wait for client message
-
-                    // Rotate players and notify clients about the new turn
-                    currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
-                    broadcastTurnNotification();
+                    Object input = inputStream.readObject();
+                    System.out.println("Received from client: " + input);
+                    if(input instanceof String) {
+                        if(input.equals("End Turn")) {
+                            currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                        }
+                        else if(input.equals("Dice Throw")) {
+                            int diceThrow = functionality.diceThrow();
+                            System.out.println(diceThrow);
+                            outputStream.writeObject(diceThrow);
+                            outputStream.reset();
+                        }
+                    }
+                    //broadcastTurnNotification();
                 }
             } catch (IOException | ClassNotFoundException e) {
-                // Handle client disconnection
                 clients.remove(this);
                 System.out.println("Client disconnected: " + socket);
             }

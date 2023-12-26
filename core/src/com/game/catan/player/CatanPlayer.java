@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.game.catan.Map.Map;
 import com.game.catan.Map.Cell.*;
+import com.game.catan.Functionality.Functionality;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,12 +27,13 @@ public class CatanPlayer extends ApplicationAdapter {
     private int currentPlayerId;
     private SpriteBatch batch;
     private Stage stage;
-    private Texture buttonTexture;
     private Map map;
     private VillageCell startVillage;
     private String villagePath;
     private String roadPath;
     private HashMap<ResourceType, Integer> resources;
+    private final Functionality functionality = new Functionality();
+    private boolean isTurn = true;
 
     public CatanPlayer(Map map) {
         this.map = map;
@@ -71,73 +73,79 @@ public class CatanPlayer extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-        for(Cell cell : map.getMap()) {
-            cell.buttonFunc(stage);
-        }
-        int diceThrow = diceThrowButton(stage);
-        getResources(diceThrow);
-        try {
-            endTurn();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (isTurn) {
+            renderMap();
+            int diceThrow = diceThrowButton(stage);
+            resources = functionality.getResources(diceThrow, map, resources, this);
+            try {
+                endTurnButton();
+                isTurn = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         handleUpdates();
         Gdx.input.setInputProcessor(stage);
 
     }
 
-    public void getMapFromServer() {
-        try {
-            Object temp = inputStream.readObject();
-            if(temp instanceof Map) {
-                map = (Map) temp;
-            }
-            else {
-                System.out.println("Error: Map not received");
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            // Close resources properly
-            try {
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void endTurn() throws IOException {
-        // Send a message to the server indicating the end of the turn
+    private TextButton setUpTextButton(String text, int x, int y, int width, int height) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
         textButtonStyle.font.getData().setScale(2f);
         textButtonStyle.fontColor = com.badlogic.gdx.graphics.Color.BLACK;
-        buttonTexture = new Texture("sheep.png");
+        Texture buttonTexture = new Texture("sheep.png");
         textButtonStyle.up = new TextureRegionDrawable(buttonTexture);
         textButtonStyle.down = new TextureRegionDrawable(buttonTexture);
 
-        TextButton button = new TextButton("End Turn", textButtonStyle);
-        button.setPosition(600, 600);
-        button.setSize(200, 100);
+        TextButton button = new TextButton(text, textButtonStyle);
+        button.setPosition(x, y);
+        button.setSize(width, height);
+        return button;
+    }
+
+    private void endTurnButton() throws IOException {
+        TextButton button = setUpTextButton("End Turn", 1720, 0, 200, 100);
+        if(isTurn) {
+        stage.addActor(button);
+        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+                public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                    try {
+                        isTurn = false;
+                        System.out.println("End turn");
+                        outputStream.writeObject("End Turn");
+                        outputStream.reset();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return true;
+                }
+            });
+        }
+    }
+
+    public int diceThrowButton(Stage stage) {
+        final int[] diceThrow = new int[1];
+        TextButton button = setUpTextButton("Throw Dice", 1720, 100, 200, 100);
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 try {
-                    System.out.println("End turn");
-                    outputStream.writeObject("End Turn");
-                    outputStream.reset(); // Ensure the object is resent
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("Dice thrown");
+                    outputStream.writeObject("Dice Throw");
+                    outputStream.reset();
+                    Object input = inputStream.readObject();
+                    if(input instanceof Integer) {
+                        diceThrow[0] = (int) input;
+                        System.out.println(diceThrow[0]);
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
                 return true;
             }
         });
+        return diceThrow[0];
     }
 
     private void handleUpdates() {
@@ -146,19 +154,15 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void renderMap() {
         for(Cell cell : map.getMap()) {
-            Texture tempTexture = new Texture(cell.getTexturePath());
-            batch.begin();
-            batch.draw(tempTexture, cell.getCellCords().getX(), cell.getCellCords().getY());
-            batch.end();
+            cell.buttonFunc(stage);
         }
     }
 
     @Override
     public void dispose() {
         batch.dispose();
-        buttonTexture.dispose();
+        stage.dispose();
     }
-
     public String getVillagePath() {
         return villagePath;
     }
@@ -168,39 +172,5 @@ public class CatanPlayer extends ApplicationAdapter {
     }
     public void setMap(Map map) {
         this.map = map;
-    }
-
-    public void getResources(int diceThrow) {
-        for(ResourceCell cell : map.getResourceCells(map.getCenterCell())) {
-            if(cell.getDiceThrow() == diceThrow && !cell.HasRobber()) {
-                System.out.println(cell.getResource());
-                resources.put(ResourceType.valueOf(cell.getResource()), resources.get(ResourceType.valueOf(cell.getResource())) + cell.getNumberOfPlayerVillages(this));
-            }
-        }
-    }
-
-    public int diceThrowButton(Stage stage) {
-        final int[] diceThrow = new int[1];
-        //add button at bottom right that when clicked generates a random number between 2 and 12
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
-        textButtonStyle.font.getData().setScale(2f);
-        textButtonStyle.fontColor = com.badlogic.gdx.graphics.Color.BLACK;
-        buttonTexture = new Texture("sheep.png");
-        textButtonStyle.up = new TextureRegionDrawable(buttonTexture);
-        textButtonStyle.down = new TextureRegionDrawable(buttonTexture);
-
-        TextButton button = new TextButton("Throw Dice", textButtonStyle);
-        button.setPosition(1720, 980);
-        button.setSize(200, 100);
-        stage.addActor(button);
-        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                diceThrow[0] = (int) (Math.random() * 10) + 2;
-                System.out.println(diceThrow[0]);
-                return true;
-            }
-        });
-        return diceThrow[0];
     }
 }
