@@ -15,7 +15,7 @@ public class CatanServer {
     private ServerSocket serverSocket;
     private final List<ClientHandler> clients;
     private int currentPlayerIndex;
-    private final Map map;
+    private Map map;
     private final Functionality functionality = new Functionality();
 
     public CatanServer(Map map) {
@@ -40,6 +40,10 @@ public class CatanServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setMap(Map map) {
+    	this.map = map;
     }
 
     private void broadcastTurnNotification() {
@@ -75,10 +79,12 @@ public class CatanServer {
         public void sendTurnNotification(int currentPlayerIndex) {
             try {
                 if(currentPlayerIndex == clients.indexOf(this)) {
-                    outputStream.writeObject("Your turn:" + currentPlayerIndex);
+                    outputStream.writeObject("Your turn:" + currentPlayerIndex + 1);
+                    outputStream.reset();
+                    sendMap(map);
                 }
                 else {
-                    outputStream.writeObject("Not your turn:" + currentPlayerIndex);
+                    outputStream.writeObject("Not your turn:" + currentPlayerIndex + 1);
                 }
                 outputStream.reset();
             } catch (IOException e) {
@@ -105,6 +111,11 @@ public class CatanServer {
                         if(input.equals("End Turn")) {
                             currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
                             broadcastTurnNotification();
+                            Object map = inputStream.readObject();
+                            if(map instanceof Map) {
+                                setMap((Map) map);
+                                sendMap((Map) map);
+                            }
                         }
                         else if(input.equals("Dice Throw")) {
                             int diceThrow = functionality.diceThrow();

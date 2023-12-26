@@ -156,6 +156,15 @@ public class CatanPlayer extends ApplicationAdapter {
         return diceThrow[0];
     }
 
+    public void sendMap() {
+        try {
+            outputStream.writeObject(map);
+            outputStream.reset();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void renderMap() {
         for(Cell cell : map.getMap()) {
             cell.buttonFunc(stage);
@@ -167,6 +176,7 @@ public class CatanPlayer extends ApplicationAdapter {
         batch.dispose();
         stage.dispose();
     }
+
     public String getVillagePath() {
         return villagePath;
     }
