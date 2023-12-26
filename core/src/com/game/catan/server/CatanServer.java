@@ -28,12 +28,12 @@ public class CatanServer {
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket);
+                System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
 
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clients.add(clientHandler);
 
-                clientHandler.sendMap(map);
+                //clientHandler.sendMap(map);
 
                 new Thread(clientHandler).start();
             }
@@ -48,6 +48,12 @@ public class CatanServer {
         }
     }
 
+    private void broadcastDiceThrow(int diceThrow) {
+    	for (ClientHandler client : clients) {
+    		client.sendDiceThrow(diceThrow);
+    	}
+    }
+
     private class ClientHandler implements Runnable {
         private final Socket socket;
         private ObjectOutputStream outputStream;
@@ -55,12 +61,12 @@ public class CatanServer {
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
-
             try {
                 outputStream = new ObjectOutputStream(socket.getOutputStream());
                 inputStream = new ObjectInputStream(socket.getInputStream());
-                System.out.println(map.getCenterCell());
-                outputStream.writeObject(map);
+                sendMap(map);
+                outputStream.writeObject(clients.size());
+                outputStream.reset();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -68,11 +74,25 @@ public class CatanServer {
 
         public void sendTurnNotification(int currentPlayerIndex) {
             try {
-                outputStream.writeObject(currentPlayerIndex);
-                outputStream.reset(); // Ensure the object is resent
+                if(currentPlayerIndex == clients.indexOf(this)) {
+                    outputStream.writeObject("Your turn:" + currentPlayerIndex);
+                }
+                else {
+                    outputStream.writeObject("Not your turn:" + currentPlayerIndex);
+                }
+                outputStream.reset();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        public void sendDiceThrow(int diceThrow) {
+        	try {
+        		outputStream.writeObject(diceThrow);
+        		outputStream.reset();
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
         }
 
         @Override
@@ -84,12 +104,12 @@ public class CatanServer {
                     if(input instanceof String) {
                         if(input.equals("End Turn")) {
                             currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                            broadcastTurnNotification();
                         }
                         else if(input.equals("Dice Throw")) {
                             int diceThrow = functionality.diceThrow();
                             System.out.println(diceThrow);
-                            outputStream.writeObject(diceThrow);
-                            outputStream.reset();
+                            broadcastDiceThrow(diceThrow);
                         }
                     }
                     //broadcastTurnNotification();
