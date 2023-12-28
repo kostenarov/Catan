@@ -79,12 +79,13 @@ public class CatanServer {
         public void sendTurnNotification(int currentPlayerIndex) {
             try {
                 if(currentPlayerIndex == clients.indexOf(this)) {
-                    outputStream.writeObject("Your turn:" + currentPlayerIndex + 1);
+                    outputStream.writeObject(100);
                     outputStream.reset();
-                    sendMap(map);
+                    //sendMap(map);
                 }
                 else {
-                    outputStream.writeObject("Not your turn:" + currentPlayerIndex + 1);
+                    outputStream.writeObject(200);
+                    outputStream.reset();
                 }
                 outputStream.reset();
             } catch (IOException e) {

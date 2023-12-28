@@ -20,19 +20,22 @@ public class UpdateListenerThread extends Thread{
                 Object input = in.readObject();
                 System.out.println(input);
                 if (input instanceof Integer) {
-                    player.setDiceThrow((Integer) input);
-                }
-                else if(input instanceof String) {
-                    if(input.equals("Your Turn:" + player.getId())) {
+                    if((int) input < 20) {
+                        player.setDiceThrow((Integer) input);
+                    }
+                    else if((int) input == 100) {
+                        System.out.println("Your turn");
                         player.setIsTurn(true);
                         player.setDiceThrown(false);
                     }
-                    else if(input.equals("Not your turn:" + player.getId())) {
+                    else if((int) input == 200) {
+                        System.out.println("Not your turn");
                         player.setIsTurn(false);
                         player.sendMap();
                     }
                 }
                 else if(input instanceof Map) {
+                    System.out.println("Map received");
                     player.setMap((Map) input);
                 }
             } catch (Exception e) {

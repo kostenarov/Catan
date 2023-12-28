@@ -13,34 +13,29 @@ import com.game.catan.Map.Map;
 import com.game.catan.Map.Cell.*;
 import com.game.catan.Functionality.Functionality;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class CatanPlayer extends ApplicationAdapter {
-    private Socket socket;
     private int id;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
-    private int currentPlayerId;
-    private SpriteBatch batch;
-    private Stage stage;
-    private Map map;
-    private VillageCell startVillage;
-    private String villagePath;
-    private String roadPath;
-    private HashMap<ResourceType, Integer> resources;
-    private final Functionality functionality = new Functionality();
+    private int diceThrow;
     private boolean isTurn = true;
     private boolean isDiceThrown = false;
+    private String roadPath;
+    private String villagePath;
+    private Socket socket;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+    private Stage stage;
+    private SpriteBatch batch;
+    private HashMap<ResourceType, Integer> resources;
+    private Map map;
+    private VillageCell startVillage;
     private UpdateListenerThread updateThread;
-    private int diceThrow;
+    private final Functionality functionality = new Functionality();
 
     public CatanPlayer(Map map) {
         this.map = map;
@@ -99,7 +94,7 @@ public class CatanPlayer extends ApplicationAdapter {
         Gdx.input.setInputProcessor(stage);
     }
 
-    private TextButton setUpTextButton(String text, int x, int y, int width, int height) {
+    private TextButton setUpTextButton(String text, int x, int y) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
         textButtonStyle.font.getData().setScale(2f);
@@ -110,18 +105,17 @@ public class CatanPlayer extends ApplicationAdapter {
 
         TextButton button = new TextButton(text, textButtonStyle);
         button.setPosition(x, y);
-        button.setSize(width, height);
+        button.setSize(200, 100);
         return button;
     }
 
     private void endTurnButton() throws IOException, ClassNotFoundException {
-        TextButton button = setUpTextButton("End Turn", 1720, 0, 200, 100);
+        TextButton button = setUpTextButton("End Turn", 1720, 0);
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
                 public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                     try {
                         if(isTurn) {
-                            isTurn = false;
                             System.out.println("End turn");
                             outputStream.writeObject("End Turn");
                             outputStream.reset();
@@ -136,7 +130,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public int diceThrowButton(Stage stage) {
         final int[] diceThrow = new int[1];
-        TextButton button = setUpTextButton("Throw Dice", 1720, 100, 200, 100);
+        TextButton button = setUpTextButton("Throw Dice", 1720, 100);
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
