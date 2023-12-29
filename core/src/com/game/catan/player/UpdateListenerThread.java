@@ -39,7 +39,6 @@ public class UpdateListenerThread extends Thread{
                     player.setMap((Map) input);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
