@@ -148,7 +148,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void renderMap() {
         for(Cell cell : map.getMap()) {
-            cell.buttonFunc(stage);
+            cell.buttonFunc(stage, outputStream);
         }
     }
 

@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import com.game.catan.player.CatanPlayer;
 
+import java.io.ObjectOutputStream;
+
 public class VillageCell extends Cell {
     public CatanPlayer owner = null;
     private Texture villageTexture;
@@ -24,7 +26,7 @@ public class VillageCell extends Cell {
     }
 
     @Override
-    public void buttonFunc(Stage stage) {
+    public void buttonFunc(Stage stage, ObjectOutputStream outputStream) {
         villageTexture = new Texture("button.png"); // Replace with your button texture
         TextureRegion buttonTextureRegion = new TextureRegion(villageTexture);
 

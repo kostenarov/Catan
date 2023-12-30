@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import com.game.catan.player.CatanPlayer;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class ResourceCell extends Cell{
@@ -72,7 +74,7 @@ public class ResourceCell extends Cell{
         this.hasRobber = hasRobber;
     }
 
-    public boolean HasRobber() {
+    public boolean hasRobber() {
         return this.hasRobber;
     }
 
@@ -93,7 +95,7 @@ public class ResourceCell extends Cell{
     }
 
     @Override
-    public void buttonFunc(Stage stage) {
+    public void buttonFunc(Stage stage, final ObjectOutputStream outputStream) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
         ImageButton button = new ImageButton(style);
@@ -102,6 +104,11 @@ public class ResourceCell extends Cell{
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("Button clicked");
+                try {
+                    outputStream.writeObject("Clicked");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 return true;
             }
         });

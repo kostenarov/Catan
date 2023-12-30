@@ -3,6 +3,7 @@ package com.game.catan.Map;
 import com.game.catan.Map.Cell.*;
 import com.game.catan.player.CatanPlayer;
 
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -70,7 +71,7 @@ public class Map implements Serializable {
 
     private void findRobber() {
         for(ResourceCell resourceCell : getResourceCells(centerCell)) {
-            if(resourceCell.HasRobber()) {
+            if(resourceCell.hasRobber()) {
                 robberCell = resourceCell;
                 break;
             }

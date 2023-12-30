@@ -2,11 +2,12 @@ package com.game.catan.Map.Cell;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Cell implements Serializable{
+public abstract class Cell implements Serializable {
     private static int idCounter = 0;
     private final int id = idCounter++;
     private final Point cellCords;
@@ -32,9 +33,7 @@ public abstract class Cell implements Serializable{
     public String getTexturePath() {
         return texturePath;
     }
-
-    public abstract void buttonFunc(Stage stage);
-
+    public abstract void buttonFunc(Stage stage, ObjectOutputStream outputStream);
     public int getId() {
         return id;
     }

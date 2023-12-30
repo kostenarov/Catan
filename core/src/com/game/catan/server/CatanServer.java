@@ -102,6 +102,7 @@ public class CatanServer {
                     if(input instanceof String) {
                         if(input.equals("End Turn")) {
                             currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                            System.out.println("Current player index: " + currentPlayerIndex);
                             broadcastTurnNotification();
                             broadcastMap();
                         }
