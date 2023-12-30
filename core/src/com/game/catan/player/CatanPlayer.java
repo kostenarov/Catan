@@ -1,23 +1,25 @@
 package com.game.catan.player;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
+import com.game.catan.Functionality.Deck;
 import com.game.catan.Map.Map;
 import com.game.catan.Map.Cell.*;
 import com.game.catan.Functionality.Functionality;
 
+import java.net.Socket;
+import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.HashMap;
 
 public class CatanPlayer extends ApplicationAdapter {
     private int id;
@@ -31,7 +33,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private ObjectOutputStream outputStream;
     private Stage stage;
     private SpriteBatch batch;
-    private HashMap<ResourceType, Integer> resources;
+    private Deck deck = new Deck();
     private Map map;
     private VillageCell startVillage;
     private UpdateListenerThread updateThread;
@@ -39,13 +41,6 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public CatanPlayer(Map map) {
         this.map = map;
-        resources = new HashMap<>();
-        resources.put(ResourceType.BRICK, 0);
-        resources.put(ResourceType.WOOD, 0);
-        resources.put(ResourceType.STONE, 0);
-        resources.put(ResourceType.SHEEP, 0);
-        resources.put(ResourceType.WHEAT, 0);
-
     }
 
     public CatanPlayer() {
@@ -85,7 +80,6 @@ public class CatanPlayer extends ApplicationAdapter {
         stage.draw();
         renderMap();
         this.diceThrow = diceThrowButton(stage);
-        resources = functionality.getResources(diceThrow, map, resources, this);
         try {
             endTurnButton();
         } catch (IOException | ClassNotFoundException e) {
@@ -187,8 +181,8 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized void setDiceThrow(int diceThrow) {
         this.diceThrow = diceThrow;
     }
-    public synchronized void setResources(HashMap<ResourceType, Integer> resources) {
-        this.resources = resources;
+    public synchronized void setDeck(Deck deck) {
+        this.deck = deck;
     }
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;
@@ -201,5 +195,9 @@ public class CatanPlayer extends ApplicationAdapter {
     }
     public synchronized int getId() {
         return id;
+    }
+
+    public synchronized Deck getDeck() {
+        return deck;
     }
 }

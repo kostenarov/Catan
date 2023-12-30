@@ -14,7 +14,7 @@ public class Functionality {
 
     public HashMap<ResourceType, Integer> getResources(int diceThrow, Map map, HashMap<ResourceType, Integer> resources, CatanPlayer player) {
         for(ResourceCell cell : map.getResourceCells(map.getCenterCell())) {
-            if(cell.getDiceThrow() == diceThrow && !cell.HasRobber()) {
+            if(!cell.HasRobber()) {
                 System.out.println(cell.getResource());
                 resources.put(ResourceType.valueOf(cell.getResource()), resources.get(ResourceType.valueOf(cell.getResource())) + cell.getNumberOfPlayerVillages(player));
             }
