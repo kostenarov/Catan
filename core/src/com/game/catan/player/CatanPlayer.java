@@ -16,7 +16,6 @@ import com.game.catan.Map.Cell.*;
 import com.game.catan.Functionality.Functionality;
 
 import java.net.Socket;
-import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -43,10 +42,6 @@ public class CatanPlayer extends ApplicationAdapter {
         this.map = map;
     }
 
-    public CatanPlayer() {
-        this.map = null;
-    }
-
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -63,9 +58,7 @@ public class CatanPlayer extends ApplicationAdapter {
             if(id != 0) {
                 isTurn = false;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         updateThread = new UpdateListenerThread(this, inputStream);
@@ -83,7 +76,7 @@ public class CatanPlayer extends ApplicationAdapter {
         try {
             endTurnButton();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         Gdx.input.setInputProcessor(stage);
     }
@@ -115,7 +108,7 @@ public class CatanPlayer extends ApplicationAdapter {
                             outputStream.reset();
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.println("Could not send end turn");
                     }
                     return true;
                 }
@@ -136,7 +129,7 @@ public class CatanPlayer extends ApplicationAdapter {
                         setDiceThrown(true);
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    System.out.println("Could not send dice throw");
                 }
                 return true;
             }
@@ -149,7 +142,7 @@ public class CatanPlayer extends ApplicationAdapter {
             outputStream.writeObject(map);
             outputStream.reset();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Could not send map");
         }
     }
 
@@ -165,13 +158,7 @@ public class CatanPlayer extends ApplicationAdapter {
         stage.dispose();
     }
 
-    public String getVillagePath() {
-        return villagePath;
-    }
-
-    public String getRoadPath() {
-        return roadPath;
-    }
+    //**********SETTERS**********//
     public synchronized void setMap(Map map) {
         this.map = map;
     }
@@ -187,6 +174,9 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;
     }
+
+
+    //**********GETTERS**********//
     public synchronized boolean getIsTurn() {
         return isTurn;
     }
@@ -196,8 +186,13 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized int getId() {
         return id;
     }
-
     public synchronized Deck getDeck() {
         return deck;
+    }
+    public String getVillagePath() {
+        return villagePath;
+    }
+    public String getRoadPath() {
+        return roadPath;
     }
 }

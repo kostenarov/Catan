@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import com.game.catan.Functionality.Deck;
-import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Map;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,6 +20,7 @@ public class CatanServer {
     private Map map;
     private final Functionality functionality = new Functionality();
     private HashMap<String, Deck> playerResources;
+    private boolean isWorking = true;
 
     public CatanServer(Map map) {
         clients = new ArrayList<>();
@@ -31,7 +31,7 @@ public class CatanServer {
             serverSocket = new ServerSocket(12345);
             System.out.println("Server started. Waiting for clients...");
 
-            while (true) {
+            while (isWorking) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
                 playerResources.put(String.valueOf(clients.size()), new Deck());
@@ -42,7 +42,8 @@ public class CatanServer {
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            isWorking = false;
+            System.out.println("Server stopped");
         }
     }
 
@@ -88,50 +89,14 @@ public class CatanServer {
                 outputStream.writeObject(clients.size());
                 outputStream.reset();
             } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void sendTurnNotification(int currentPlayerIndex) {
-            try {
-                if(currentPlayerIndex == clients.indexOf(this)) {
-                    outputStream.writeObject(100);
-                    outputStream.reset();
-                }
-                else {
-                    outputStream.writeObject(200);
-                    outputStream.reset();
-                }
-                outputStream.reset();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void sendDiceThrow(int diceThrow) {
-            try {
-                outputStream.writeObject(diceThrow);
-                outputStream.reset();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void sendDeck() {
-            try {
-                Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
-                System.out.println(tempDeck);
-                outputStream.writeObject(tempDeck);
-                outputStream.reset();
-            } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Could not create client handler");
             }
         }
 
         @Override
         public void run() {
             try {
-                while (true) {
+                while (isWorking) {
                     Object input = inputStream.readObject();
                     System.out.println("Received from client: " + input);
                     if(input instanceof String) {
@@ -159,7 +124,43 @@ public class CatanServer {
                 outputStream.writeObject(map);
                 outputStream.reset();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Could not send map");
+            }
+        }
+
+        public void sendTurnNotification(int currentPlayerIndex) {
+            try {
+                if(currentPlayerIndex == clients.indexOf(this)) {
+                    outputStream.writeObject(100);
+                    outputStream.reset();
+                }
+                else {
+                    outputStream.writeObject(200);
+                    outputStream.reset();
+                }
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send turn notification");
+            }
+        }
+
+        public void sendDiceThrow(int diceThrow) {
+            try {
+                outputStream.writeObject(diceThrow);
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send dice throw");
+            }
+        }
+
+        public void sendDeck() {
+            try {
+                Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
+                System.out.println(tempDeck);
+                outputStream.writeObject(tempDeck);
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send deck");
             }
         }
     }

@@ -3,11 +3,11 @@ package com.game.catan.player;
 import com.game.catan.Functionality.Deck;
 import com.game.catan.Map.Map;
 import java.io.ObjectInputStream;
-import java.util.HashMap;
 
 public class UpdateListenerThread extends Thread{
     private CatanPlayer player;
     private ObjectInputStream in;
+    private boolean isWorking = true;
 
     public UpdateListenerThread(CatanPlayer player, ObjectInputStream in) {
         this.player = player;
@@ -16,7 +16,7 @@ public class UpdateListenerThread extends Thread{
 
     @Override
     public void run() {
-        while(true) {
+        while(isWorking) {
             try {
                 Object input = in.readObject();
                 System.out.println(input);
@@ -44,7 +44,12 @@ public class UpdateListenerThread extends Thread{
                     player.setDeck((Deck) input);
                 }
             } catch (Exception e) {
+                System.out.println("Could not read input");
             }
         }
+    }
+
+    public void stopThread() {
+        isWorking = false;
     }
 }
