@@ -5,8 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-import com.game.catan.player.CatanPlayer;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -114,10 +112,10 @@ public class ResourceCell extends Cell{
         });
     }
 
-    public int getNumberOfPlayerVillages(CatanPlayer player) {
+    public int getNumberOfPlayerVillages(int playerId) {
         int numberOfPlayerVillages = 0;
         for(VillageCell villageCell : getVillages()) {
-            if(villageCell.getOwner() == player) {
+            if(villageCell.getOwner().getId() == playerId) {
                 numberOfPlayerVillages++;
             }
         }

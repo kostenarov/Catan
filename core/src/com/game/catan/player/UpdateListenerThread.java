@@ -21,7 +21,7 @@ public class UpdateListenerThread extends Thread{
                 Object input = in.readObject();
                 System.out.println(input);
                 if (input instanceof Integer) {
-                    if((int) input < 20) {
+                    if((int) input < 13) {
                         player.setDiceThrow((Integer) input);
                     }
                     else if((int) input == 100) {

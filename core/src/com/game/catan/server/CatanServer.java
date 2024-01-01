@@ -69,9 +69,9 @@ public class CatanServer {
         }
     }
 
-    private void broadcastDeck() {
+    private void broadcastDeck(int diceThrow) {
         for (ClientHandler client : clients) {
-            client.sendDeck();
+            client.sendDeck(diceThrow);
         }
     }
 
@@ -110,7 +110,7 @@ public class CatanServer {
                             int diceThrow = functionality.diceThrow();
                             System.out.println(diceThrow);
                             broadcastDiceThrow(diceThrow);
-                            broadcastDeck();
+                            broadcastDeck(diceThrow);
                         }
                     }
                 }
@@ -119,6 +119,7 @@ public class CatanServer {
                 System.out.println("Client disconnected: " + socket);
             }
         }
+
 
         public void sendMap(Map map) {
             try {
@@ -154,10 +155,12 @@ public class CatanServer {
             }
         }
 
-        public void sendDeck() {
+        public void sendDeck(int diceThrow) {
             try {
                 Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
                 System.out.println(clients.indexOf(this));
+                Deck acquiredResources = functionality.getResources(diceThrow, map, tempDeck.getResources(), clients.indexOf(this));
+                tempDeck.addDeck(acquiredResources);
                 System.out.println(tempDeck.getResources());
                 outputStream.writeObject(tempDeck.getResources());
                 outputStream.reset();

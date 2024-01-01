@@ -40,5 +40,9 @@ public class Deck {
         this.resources = resources;
     }
 
-
+    public void addDeck(Deck deck) {
+        for (ResourceType resource : deck.getResources().keySet()) {
+            resources.put(resource, resources.get(resource) + deck.getResources().get(resource));
+        }
+    }
 }
