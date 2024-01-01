@@ -35,4 +35,10 @@ public class Deck {
     public void addResources(ResourceType resource, int amount) {
         resources.put(resource, resources.get(resource) + amount);
     }
+
+    public void setDeck(HashMap<ResourceType, Integer> resources) {
+        this.resources = resources;
+    }
+
+
 }

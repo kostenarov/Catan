@@ -9,7 +9,7 @@ import java.util.List;
 
 public abstract class Cell implements Serializable {
     private static int idCounter = 0;
-    private final int id = idCounter++;
+    protected final int id = idCounter++;
     private final Point cellCords;
     private final List<Cell> neighbours = new ArrayList<>();
     protected String texturePath;

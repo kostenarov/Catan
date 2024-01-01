@@ -1,8 +1,8 @@
 package com.game.catan.player;
 
-import com.game.catan.Functionality.Deck;
 import com.game.catan.Map.Map;
 import java.io.ObjectInputStream;
+import java.util.HashMap;
 
 public class UpdateListenerThread extends Thread{
     private CatanPlayer player;
@@ -39,9 +39,10 @@ public class UpdateListenerThread extends Thread{
                     System.out.println("Map received");
                     player.setMap((Map) input);
                 }
-                else if(input instanceof Deck) {
+                else if(input instanceof HashMap) {
                     System.out.println("Deck received");
-                    player.setDeck((Deck) input);
+
+                    player.setDeck((HashMap<?, ?>) input);
                 }
             } catch (Exception e) {
                 System.out.println("Could not read input");

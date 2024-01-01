@@ -19,6 +19,7 @@ import java.net.Socket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 public class CatanPlayer extends ApplicationAdapter {
     private int id;
@@ -168,8 +169,9 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized void setDiceThrow(int diceThrow) {
         this.diceThrow = diceThrow;
     }
-    public synchronized void setDeck(Deck deck) {
-        this.deck = deck;
+    public synchronized void setDeck(HashMap<?, ?> deck) {
+        this.deck = new Deck();
+        this.deck.setDeck((HashMap<ResourceType, Integer>) deck);
     }
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;

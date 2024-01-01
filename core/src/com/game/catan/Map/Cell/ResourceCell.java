@@ -105,7 +105,7 @@ public class ResourceCell extends Cell{
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("Button clicked");
                 try {
-                    outputStream.writeObject("Clicked");
+                    outputStream.writeObject("Clicked button:" + id);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

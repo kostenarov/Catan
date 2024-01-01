@@ -157,8 +157,9 @@ public class CatanServer {
         public void sendDeck() {
             try {
                 Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
-                System.out.println(tempDeck);
-                outputStream.writeObject(tempDeck);
+                System.out.println(clients.indexOf(this));
+                System.out.println(tempDeck.getResources());
+                outputStream.writeObject(tempDeck.getResources());
                 outputStream.reset();
             } catch (IOException e) {
                 System.out.println("Could not send deck");
