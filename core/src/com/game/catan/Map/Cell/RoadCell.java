@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.player.CatanPlayer;
 
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class RoadCell extends Cell {
@@ -40,13 +41,10 @@ public class RoadCell extends Cell {
     }
 
     @Override
-    public void buttonFunc(Stage stage){}
+    public void buttonFunc(Stage stage, ObjectOutputStream outputStream, CatanPlayer player){}
 
     public boolean isBuilt() {
-        if(owner == null) {
-            return false;
-        }
-        return true;
+        return owner != null;
     }
 
     public void setOwner(CatanPlayer owner) {

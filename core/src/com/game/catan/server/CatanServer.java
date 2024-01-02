@@ -1,50 +1,77 @@
 package com.game.catan.server;
 
-import com.game.catan.Functionality.Functionality;
-import com.game.catan.Map.Map;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
+import java.util.HashMap;
+import java.util.List;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.net.ServerSocket;
+
+import com.game.catan.Functionality.Deck;
+import com.game.catan.Map.Map;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import com.game.catan.Functionality.Functionality;
 
 public class CatanServer {
     private ServerSocket serverSocket;
     private final List<ClientHandler> clients;
     private int currentPlayerIndex;
-    private final Map map;
+    private Map map;
     private final Functionality functionality = new Functionality();
+    private HashMap<String, Deck> playerResources;
+    private boolean isWorking = true;
 
     public CatanServer(Map map) {
         clients = new ArrayList<>();
         this.map = map;
+        playerResources = new HashMap<>();
 
         try {
             serverSocket = new ServerSocket(12345);
             System.out.println("Server started. Waiting for clients...");
 
-            while (true) {
+            while (isWorking) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket);
+                System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
+                playerResources.put(String.valueOf(clients.size()), new Deck());
 
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clients.add(clientHandler);
 
-                clientHandler.sendMap(map);
-
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            isWorking = false;
+            System.out.println("Server stopped");
         }
+    }
+
+    public void setMap(Map map) {
+        this.map = map;
     }
 
     private void broadcastTurnNotification() {
         for (ClientHandler client : clients) {
             client.sendTurnNotification(currentPlayerIndex);
+        }
+    }
+
+    private void broadcastMap() {
+        for (ClientHandler client : clients) {
+            client.sendMap(map);
+        }
+    }
+
+    private void broadcastDiceThrow(int diceThrow) {
+        for (ClientHandler client : clients) {
+            client.sendDiceThrow(diceThrow);
+        }
+    }
+
+    private void broadcastDeck(int diceThrow) {
+        for (ClientHandler client : clients) {
+            client.sendDeck(diceThrow);
         }
     }
 
@@ -55,44 +82,40 @@ public class CatanServer {
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
-
             try {
                 outputStream = new ObjectOutputStream(socket.getOutputStream());
                 inputStream = new ObjectInputStream(socket.getInputStream());
-                System.out.println(map.getCenterCell());
-                outputStream.writeObject(map);
+                sendMap(map);
+                outputStream.writeObject(clients.size());
+                outputStream.reset();
             } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void sendTurnNotification(int currentPlayerIndex) {
-            try {
-                outputStream.writeObject(currentPlayerIndex);
-                outputStream.reset(); // Ensure the object is resent
-            } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Could not create client handler");
             }
         }
 
         @Override
         public void run() {
             try {
-                while (true) {
+                while (isWorking) {
                     Object input = inputStream.readObject();
                     System.out.println("Received from client: " + input);
                     if(input instanceof String) {
                         if(input.equals("End Turn")) {
                             currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                            System.out.println("Current player index: " + currentPlayerIndex);
+                            broadcastTurnNotification();
+                            broadcastMap();
                         }
                         else if(input.equals("Dice Throw")) {
                             int diceThrow = functionality.diceThrow();
                             System.out.println(diceThrow);
-                            outputStream.writeObject(diceThrow);
-                            outputStream.reset();
+                            broadcastDiceThrow(diceThrow);
+                            broadcastDeck(diceThrow);
+                        }
+                        else if(((String) input).contains("Resource")) {
+                            System.out.println((String) input + " by user " + currentPlayerIndex);
                         }
                     }
-                    //broadcastTurnNotification();
                 }
             } catch (IOException | ClassNotFoundException e) {
                 clients.remove(this);
@@ -100,13 +123,53 @@ public class CatanServer {
             }
         }
 
+
         public void sendMap(Map map) {
-        	try {
-        		outputStream.writeObject(map);
-        		outputStream.reset();
-        	} catch (IOException e) {
-        		e.printStackTrace();
-        	}
+            try {
+                outputStream.writeObject(map);
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send map");
+            }
+        }
+
+        public void sendTurnNotification(int currentPlayerIndex) {
+            try {
+                if(currentPlayerIndex == clients.indexOf(this)) {
+                    outputStream.writeObject(100);
+                    outputStream.reset();
+                }
+                else {
+                    outputStream.writeObject(200);
+                    outputStream.reset();
+                }
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send turn notification");
+            }
+        }
+
+        public void sendDiceThrow(int diceThrow) {
+            try {
+                outputStream.writeObject(diceThrow);
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send dice throw");
+            }
+        }
+
+        public void sendDeck(int diceThrow) {
+            try {
+                Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
+                System.out.println(clients.indexOf(this));
+                Deck acquiredResources = functionality.getResources(diceThrow, map, tempDeck.getResources(), clients.indexOf(this));
+                tempDeck.addDeck(acquiredResources);
+                System.out.println(tempDeck.getResources());
+                outputStream.writeObject(tempDeck.getResources());
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send deck");
+            }
         }
     }
 }

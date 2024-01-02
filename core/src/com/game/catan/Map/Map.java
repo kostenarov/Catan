@@ -3,6 +3,7 @@ package com.game.catan.Map;
 import com.game.catan.Map.Cell.*;
 import com.game.catan.player.CatanPlayer;
 
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,7 +17,8 @@ public class Map implements Serializable {
         ResourceCell tempCell = new ResourceCell(760, 540, ResourceType.WHEAT);
         tempCell.setRobber(true);
         centerCell.addNeighbour(tempCell);
-        VillageCell tempVillage = new VillageCell(760, 840);
+        VillageCell tempVillage = new VillageCell(200, 840);
+        tempVillage.setVillagePath("redVillage.png");
         tempVillage.addNeighbour(centerCell);
         tempVillage.addNeighbour(tempCell);
         tempCell.addNeighbour(tempVillage);
@@ -70,7 +72,7 @@ public class Map implements Serializable {
 
     private void findRobber() {
         for(ResourceCell resourceCell : getResourceCells(centerCell)) {
-            if(resourceCell.HasRobber()) {
+            if(resourceCell.hasRobber()) {
                 robberCell = resourceCell;
                 break;
             }
