@@ -9,11 +9,11 @@ public class Deck {
 
     public Deck() {
         resources = new HashMap<>();
-        resources.put(ResourceType.WOOD, 0);
-        resources.put(ResourceType.BRICK, 0);
-        resources.put(ResourceType.STONE, 0);
-        resources.put(ResourceType.SHEEP, 0);
-        resources.put(ResourceType.WHEAT, 0);
+        resources.put(ResourceType.WOOD, 4);
+        resources.put(ResourceType.BRICK, 2);
+        resources.put(ResourceType.STONE, 2);
+        resources.put(ResourceType.SHEEP, 2);
+        resources.put(ResourceType.WHEAT, 2);
     }
 
     public void addResource(ResourceType resource) {

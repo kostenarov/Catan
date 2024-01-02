@@ -41,13 +41,10 @@ public class RoadCell extends Cell {
     }
 
     @Override
-    public void buttonFunc(Stage stage, ObjectOutputStream outputStram){}
+    public void buttonFunc(Stage stage, ObjectOutputStream outputStream, CatanPlayer player){}
 
     public boolean isBuilt() {
-        if(owner == null) {
-            return false;
-        }
-        return true;
+        return owner != null;
     }
 
     public void setOwner(CatanPlayer owner) {

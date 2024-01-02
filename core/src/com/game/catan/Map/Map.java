@@ -17,7 +17,8 @@ public class Map implements Serializable {
         ResourceCell tempCell = new ResourceCell(760, 540, ResourceType.WHEAT);
         tempCell.setRobber(true);
         centerCell.addNeighbour(tempCell);
-        VillageCell tempVillage = new VillageCell(760, 840);
+        VillageCell tempVillage = new VillageCell(200, 840);
+        tempVillage.setVillagePath("redVillage.png");
         tempVillage.addNeighbour(centerCell);
         tempVillage.addNeighbour(tempCell);
         tempCell.addNeighbour(tempVillage);

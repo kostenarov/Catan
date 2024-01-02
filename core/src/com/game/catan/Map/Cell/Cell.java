@@ -1,6 +1,7 @@
 package com.game.catan.Map.Cell;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.game.catan.player.CatanPlayer;
 
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -33,7 +34,7 @@ public abstract class Cell implements Serializable {
     public String getTexturePath() {
         return texturePath;
     }
-    public abstract void buttonFunc(Stage stage, ObjectOutputStream outputStream);
+    public abstract void buttonFunc(Stage stage, ObjectOutputStream outputStream, CatanPlayer player);
     public int getId() {
         return id;
     }

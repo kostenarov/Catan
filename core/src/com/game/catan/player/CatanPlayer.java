@@ -149,7 +149,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void renderMap() {
         for(Cell cell : map.getMap()) {
-            cell.buttonFunc(stage, outputStream);
+            cell.buttonFunc(stage, outputStream, this);
         }
     }
 
@@ -169,9 +169,9 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized void setDiceThrow(int diceThrow) {
         this.diceThrow = diceThrow;
     }
-    public synchronized void setDeck(HashMap<?, ?> deck) {
+    public synchronized void setDeck(HashMap<ResourceType, Integer> deck) {
         this.deck = new Deck();
-        this.deck.setDeck((HashMap<ResourceType, Integer>) deck);
+        this.deck.setDeck(deck);
     }
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;

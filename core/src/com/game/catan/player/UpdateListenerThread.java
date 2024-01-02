@@ -1,5 +1,6 @@
 package com.game.catan.player;
 
+import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Map;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
@@ -41,8 +42,7 @@ public class UpdateListenerThread extends Thread{
                 }
                 else if(input instanceof HashMap) {
                     System.out.println("Deck received");
-
-                    player.setDeck((HashMap<?, ?>) input);
+                    player.setDeck((HashMap<ResourceType, Integer>) input);
                 }
             } catch (Exception e) {
                 System.out.println("Could not read input");

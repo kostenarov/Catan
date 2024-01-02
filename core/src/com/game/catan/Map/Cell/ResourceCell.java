@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.game.catan.player.CatanPlayer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -93,7 +94,7 @@ public class ResourceCell extends Cell{
     }
 
     @Override
-    public void buttonFunc(Stage stage, final ObjectOutputStream outputStream) {
+    public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
         ImageButton button = new ImageButton(style);
@@ -102,23 +103,15 @@ public class ResourceCell extends Cell{
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("Button clicked");
-                try {
-                    outputStream.writeObject("Clicked button:" + id);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                if(player.getIsTurn()) {
+                    try {
+                        outputStream.writeObject("Clicked Resource button:" + id);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 return true;
             }
         });
-    }
-
-    public int getNumberOfPlayerVillages(int playerId) {
-        int numberOfPlayerVillages = 0;
-        for(VillageCell villageCell : getVillages()) {
-            if(villageCell.getOwner().getId() == playerId) {
-                numberOfPlayerVillages++;
-            }
-        }
-        return numberOfPlayerVillages;
     }
 }

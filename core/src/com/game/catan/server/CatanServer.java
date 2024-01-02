@@ -112,6 +112,9 @@ public class CatanServer {
                             broadcastDiceThrow(diceThrow);
                             broadcastDeck(diceThrow);
                         }
+                        else if(((String) input).contains("Resource")) {
+                            System.out.println((String) input + " by user " + currentPlayerIndex);
+                        }
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
