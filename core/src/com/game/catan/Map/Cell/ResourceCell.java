@@ -33,22 +33,22 @@ public class ResourceCell extends Cell{
     public void setTexturePath(ResourceType type){
         switch (type) {
             case WOOD:
-                this.texturePath = "wood.png";
+                this.texturePath = "Resources/wood.png";
                 break;
             case BRICK:
-                this.texturePath = "brick.png";
+                this.texturePath = "Resources/brick.png";
                 break;
             case SHEEP:
-                this.texturePath = "sheep.png";
+                this.texturePath = "Resources/sheep.png";
                 break;
             case WHEAT:
-                this.texturePath = "wheat.png";
+                this.texturePath = "Resources/wheat.png";
                 break;
             case STONE:
-                this.texturePath = "stone.png";
+                this.texturePath = "Resources/stone.png";
                 break;
             case EMPTY:
-                this.texturePath = "empty.png";
+                this.texturePath = "Resources/empty.png";
                 break;
         }
     }

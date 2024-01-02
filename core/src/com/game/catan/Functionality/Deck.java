@@ -45,4 +45,8 @@ public class Deck {
             resources.put(resource, resources.get(resource) + deck.getResources().get(resource));
         }
     }
+
+    public int getResourceAmount(ResourceType resource) {
+        return resources.get(resource);
+    }
 }

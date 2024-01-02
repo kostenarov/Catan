@@ -28,7 +28,7 @@ public class Functionality {
             if (cell.getDiceThrow() == diceThrow) {
                 //if (cell.getNumberOfPlayerVillages(playerId) > 0) {
                     deck.addResource(ResourceType.valueOf(cell.getResource()));
-                    resources.put(ResourceType.valueOf(cell.getResource()), resources.get(ResourceType.valueOf(cell.getResource())) + 1);
+                    resources.put(ResourceType.valueOf(cell.getResource()), resources.get(ResourceType.valueOf(cell.getResource())));
                 //}
             }
         }
