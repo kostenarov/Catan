@@ -18,10 +18,11 @@ import com.game.catan.Map.Cell.*;
 import com.game.catan.Functionality.Functionality;
 
 import java.net.Socket;
+import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import jdk.internal.net.http.common.Pair;
 
 public class CatanPlayer extends ApplicationAdapter {
     private int id;
@@ -37,7 +38,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private SpriteBatch batch;
     private Deck deck = new Deck();
     private Map map;
-    private VillageCell startVillage;
+    private Pair<VillageCell, VillageCell> startVillages;
     private UpdateListenerThread updateThread;
     private final Functionality functionality = new Functionality();
 
@@ -49,6 +50,12 @@ public class CatanPlayer extends ApplicationAdapter {
     public void create() {
         batch = new SpriteBatch();
         stage = new Stage(new ScreenViewport());
+        connectToServer();
+        updateThread = new UpdateListenerThread(this, inputStream);
+        updateThread.start();
+    }
+
+    private void connectToServer() {
         try {
             socket = new Socket("localhost", 12345);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -64,37 +71,39 @@ public class CatanPlayer extends ApplicationAdapter {
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        updateThread = new UpdateListenerThread(this, inputStream);
-        updateThread.start();
     }
 
     @Override
     public void render() {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        drawBackground();
-        drawResourceBackground();
+        drawBackgrounds();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
         renderMap();
-        this.diceThrow = diceThrowButton(stage);
-        displayResources(stage);
-        try {
-            endTurnButton();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        drawButtons();
         Gdx.input.setInputProcessor(stage);
     }
 
-    public void drawBackground() {
+    private void drawBackgrounds() {
+        drawBackground();
+        drawResourceBackground();
+        displayResources(stage);
+    }
+
+    private void drawButtons() {
+        this.diceThrow = diceThrowButton(stage);
+        endTurnButton();
+    }
+
+    private void drawBackground() {
         Texture background = new Texture("Backgrounds/background.png");
         batch.begin();
         batch.draw(background, 0, 0);
         batch.end();
     }
 
-    public void drawResourceBackground() {
+    private void drawResourceBackground() {
         Texture background = new Texture("Backgrounds/resourceBackground.png");
         batch.begin();
         batch.draw(background, 0, -100);
@@ -116,7 +125,7 @@ public class CatanPlayer extends ApplicationAdapter {
         return button;
     }
 
-    private void endTurnButton() throws IOException, ClassNotFoundException {
+    private void endTurnButton() {
         TextButton button = setUpTextButton("End Turn", 1720, 0);
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
@@ -135,7 +144,7 @@ public class CatanPlayer extends ApplicationAdapter {
             });
     }
 
-    public int diceThrowButton(Stage stage) {
+    private int diceThrowButton(Stage stage) {
         final int[] diceThrow = new int[1];
         TextButton button = setUpTextButton("Throw Dice", 1720, 100);
         stage.addActor(button);
@@ -157,10 +166,19 @@ public class CatanPlayer extends ApplicationAdapter {
         return diceThrow[0];
     }
 
-    private ImageButton setUpImageButton(String path, int x, int y, int amount) {
+    private ImageButton setUpImageButton(final String path, int x, int y, int amount) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(path));
         ImageButton button = new ImageButton(style);
+        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                if(isTurn) {
+                    System.out.println("Button clicked" + path);
+                }
+                return true;
+            }
+        });
+
         button.setPosition(x, y);
         button.setSize(60, 100);
         Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -173,7 +191,7 @@ public class CatanPlayer extends ApplicationAdapter {
         return button;
     }
 
-    public void displayResources(Stage stage) {
+    private void displayResources(Stage stage) {
         ImageButton brickButton = setUpImageButton("Cards/brickCard.png", 500, 100, deck.getResourceAmount(ResourceType.BRICK));
         stage.addActor(brickButton);
         ImageButton wheatButton = setUpImageButton("Cards/wheatCard.png", 600, 100, deck.getResourceAmount(ResourceType.WHEAT));
@@ -184,7 +202,6 @@ public class CatanPlayer extends ApplicationAdapter {
         stage.addActor(sheepButton);
         ImageButton stoneButton = setUpImageButton("Cards/stoneCard.png", 900, 100, deck.getResourceAmount(ResourceType.STONE));
         stage.addActor(stoneButton);
-
     }
 
     public void sendMap() {
@@ -206,6 +223,12 @@ public class CatanPlayer extends ApplicationAdapter {
     public void dispose() {
         batch.dispose();
         stage.dispose();
+        updateThread.interrupt();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //**********SETTERS**********//

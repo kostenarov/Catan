@@ -98,6 +98,7 @@ public class ResourceCell extends Cell{
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
         ImageButton button = new ImageButton(style);
+        button.setSize(100, 100);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
