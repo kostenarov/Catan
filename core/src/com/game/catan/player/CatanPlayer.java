@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import jdk.internal.net.http.common.Pair;
+import jdk.javadoc.internal.doclets.formats.html.markup.Head;
 
 public class CatanPlayer extends ApplicationAdapter {
     private int id;
@@ -41,6 +42,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private Pair<VillageCell, VillageCell> startVillages;
     private UpdateListenerThread updateThread;
     private final Functionality functionality = new Functionality();
+    private Variables variables;
 
     public CatanPlayer(Map map) {
         this.map = map;
@@ -82,6 +84,7 @@ public class CatanPlayer extends ApplicationAdapter {
         stage.draw();
         renderMap();
         drawButtons();
+        drawHex();
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -142,6 +145,11 @@ public class CatanPlayer extends ApplicationAdapter {
                     return true;
                 }
             });
+    }
+
+    private void drawHex() {
+        HexagonButton hexagonButton = new HexagonButton(100, 100, 100, "Textures/brick.png");
+        hexagonButton.draw(stage);
     }
 
     private int diceThrowButton(Stage stage) {
