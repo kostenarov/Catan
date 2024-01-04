@@ -116,7 +116,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void drawButtons() {
-        this.diceThrow = diceThrowButton(stage);
+        diceThrowButton(stage);
         endTurnButton();
     }
 
@@ -159,8 +159,7 @@ public class CatanPlayer extends ApplicationAdapter {
         hexagonButton.draw(stage);
     }
 
-    private int diceThrowButton(Stage stage) {
-        final int[] diceThrow = new int[1];
+    private void diceThrowButton(Stage stage) {
         TextButton button = setUpTextButton("Throw Dice", 1720, 100);
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
@@ -178,7 +177,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 return true;
             }
         });
-        return diceThrow[0];
     }
 
     private ImageButton setUpImageButton(final String path, int x, int y, int amount, ResourceType type) {
@@ -263,7 +261,6 @@ public class CatanPlayer extends ApplicationAdapter {
         this.diceThrow = diceThrow;
     }
     public synchronized void setDeck(HashMap<ResourceType, Integer> deck) {
-        this.deck = new Deck();
         this.deck.setDeck(deck);
     }
     public synchronized void setDiceThrown(boolean isDiceThrown) {

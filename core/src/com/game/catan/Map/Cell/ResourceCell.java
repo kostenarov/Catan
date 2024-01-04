@@ -53,8 +53,8 @@ public class ResourceCell extends Cell{
         }
     }
 
-    public String getResource() {
-        return this.type.toString();
+    public ResourceType getResource() {
+        return this.type;
     }
 
     public int getDiceThrow() {

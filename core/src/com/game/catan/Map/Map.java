@@ -28,16 +28,6 @@ public class Map implements Serializable {
         findRobber();
     }
 
-    public VillageCell getSpecificVillage(int x, int y) {
-        centerCell.getVillages().get(0);
-        for(VillageCell villageCell : getVillageNeighbours(centerCell.getVillages().get(0))) {
-            if(villageCell.getCellCords().getX() == x && villageCell.getCellCords().getY() == y) {
-                return villageCell;
-            }
-        }
-        return null;
-    }
-
     private HashSet<VillageCell> getVillageNeighbours(VillageCell villageCell) {
         HashSet<VillageCell> neighbours = new HashSet<>();
         for(Cell cell : villageCell.getNeighbours()) {

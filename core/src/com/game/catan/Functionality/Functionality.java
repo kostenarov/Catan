@@ -29,10 +29,10 @@ public class Functionality {
     public static Deck getResources(int diceThrow, Map map, HashMap<ResourceType, Integer> resources, int playerId) {
         Deck deck = new Deck();
         for (ResourceCell cell : map.getResourceCells(map.getCenterCell())) {
-            if (cell.getDiceThrow() == diceThrow) {
+            if (cell.getDiceThrow() == diceThrow && !cell.hasRobber() && cell.getResource() != ResourceType.EMPTY) {
                 //if (cell.getNumberOfPlayerVillages(playerId) > 0) {
-                    deck.addResource(ResourceType.valueOf(cell.getResource()));
-                    resources.put(ResourceType.valueOf(cell.getResource()), resources.get(ResourceType.valueOf(cell.getResource())));
+                    deck.addResource(cell.getResource());
+                    resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);
                 //}
             }
         }

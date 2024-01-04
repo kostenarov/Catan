@@ -54,8 +54,7 @@ public class Variables {
         Functionality.setUpButtonFunc(stage, endTurnButton, isTurn, outputStream);
     }
 
-    public int diceThrowButton(Stage stage, final CatanPlayer player) {
-        final int[] diceThrow = new int[1];
+    public void diceThrowButton(Stage stage, final CatanPlayer player) {
         diceThrowButton = setUpTextButton("Throw Dice", 1720, 100);
         stage.addActor(diceThrowButton);
         diceThrowButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
@@ -73,7 +72,6 @@ public class Variables {
                 return true;
             }
         });
-        return diceThrow[0];
     }
 
     private ImageButton setUpImageButton(final String path, int x, int y, int amount, Stage stage) {

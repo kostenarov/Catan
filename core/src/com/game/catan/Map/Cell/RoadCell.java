@@ -16,18 +16,7 @@ public class RoadCell extends Cell {
     private ImageButton.ImageButtonStyle roadStyle;
     public RoadCell(int x, int y) {
         super(x, y);
-    }
-
-    public void setRoad(String path) {
-        if(owner == null) {
-            roadTexture = new Texture(path);
-            roadStyle.imageUp = new TextureRegionDrawable(roadTexture);
-        }
-        else {
-            roadTexture = null;
-            roadStyle = new ImageButton.ImageButtonStyle();
-            roadStyle.imageUp = new TextureRegionDrawable(roadTexture);
-        }
+        roadTexture = new Texture("Textures/road.png");
     }
 
     public ArrayList<VillageCell> getVillages() {
