@@ -46,7 +46,7 @@ public class Deck {
         }
     }
 
-    public int getResourceAmount(ResourceType resource) {
+    public Integer getResourceAmount(ResourceType resource) {
         return resources.get(resource);
     }
 }

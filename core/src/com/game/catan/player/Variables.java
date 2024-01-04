@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.Functionality.Deck;
+import com.game.catan.Functionality.Functionality;
 import com.game.catan.Map.Cell.ResourceType;
 
 import java.io.IOException;
@@ -50,21 +51,7 @@ public class Variables {
 
     public void endTurnButton(Stage stage) {
         endTurnButton = setUpTextButton("End Turn", 1720, 0);
-        stage.addActor(endTurnButton);
-        endTurnButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                try {
-                    if(isTurn) {
-                        System.out.println("End turn");
-                        outputStream.writeObject("End Turn");
-                        outputStream.reset();
-                    }
-                } catch (IOException e) {
-                    System.out.println("Could not send end turn");
-                }
-                return true;
-            }
-        });
+        Functionality.setUpButtonFunc(stage, endTurnButton, isTurn, outputStream);
     }
 
     public int diceThrowButton(Stage stage, final CatanPlayer player) {

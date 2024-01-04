@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class HexagonButton extends Actor {
-    private Polygon hexagon;
+    private final Polygon hexagon;
     private String texturePath;
 
     public HexagonButton(float x, float y, float size, String texturePath) {

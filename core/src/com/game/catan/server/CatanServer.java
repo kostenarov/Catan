@@ -18,7 +18,6 @@ public class CatanServer {
     private final List<ClientHandler> clients;
     private int currentPlayerIndex;
     private Map map;
-    private final Functionality functionality = new Functionality();
     private HashMap<String, Deck> playerResources;
     private boolean isWorking = true;
 
@@ -32,19 +31,23 @@ public class CatanServer {
             System.out.println("Server started. Waiting for clients...");
 
             while (isWorking) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
-                playerResources.put(String.valueOf(clients.size()), new Deck());
-
-                ClientHandler clientHandler = new ClientHandler(clientSocket);
-                clients.add(clientHandler);
-
-                new Thread(clientHandler).start();
+                setUpConnection();
             }
         } catch (IOException e) {
             isWorking = false;
             System.out.println("Server stopped");
         }
+    }
+
+    private void setUpConnection() throws IOException {
+        Socket clientSocket = serverSocket.accept();
+        System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
+        playerResources.put(String.valueOf(clients.size()), new Deck());
+
+        ClientHandler clientHandler = new ClientHandler(clientSocket);
+        clients.add(clientHandler);
+
+        new Thread(clientHandler).start();
     }
 
     public void setMap(Map map) {
@@ -99,23 +102,7 @@ public class CatanServer {
                 while (isWorking) {
                     Object input = inputStream.readObject();
                     System.out.println("Received from client: " + input);
-                    if(input instanceof String) {
-                        if(input.equals("End Turn")) {
-                            currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
-                            System.out.println("Current player index: " + currentPlayerIndex);
-                            broadcastTurnNotification();
-                            broadcastMap();
-                        }
-                        else if(input.equals("Dice Throw")) {
-                            int diceThrow = functionality.diceThrow();
-                            System.out.println(diceThrow);
-                            broadcastDiceThrow(diceThrow);
-                            broadcastDeck(diceThrow);
-                        }
-                        else if(((String) input).contains("Resource")) {
-                            System.out.println((String) input + " by user " + currentPlayerIndex);
-                        }
-                    }
+                    endTurnAndDiceThrowChecker(input);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 clients.remove(this);
@@ -123,8 +110,39 @@ public class CatanServer {
             }
         }
 
+        private void endTurnAndDiceThrowChecker(Object input) {
+            if(input instanceof String) {
+                endTurnFunc((String) input);
+                diceThrowFunc((String) input);
+                resourcePressFunc((String) input);
+            }
+        }
 
-        public void sendMap(Map map) {
+        private void endTurnFunc(String input) {
+            if(input.equals("End Turn")) {
+                currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                System.out.println("Current player index: " + currentPlayerIndex);
+                broadcastTurnNotification();
+                broadcastMap();
+            }
+        }
+
+        private void diceThrowFunc(String input) {
+            if(input.equals("Dice Throw")) {
+                int diceThrow = Functionality.diceThrow();
+                System.out.println(diceThrow);
+                broadcastDiceThrow(diceThrow);
+                broadcastDeck(diceThrow);
+            }
+        }
+
+        private void resourcePressFunc(String input) {
+            if(input.contains("Resource")) {
+                System.out.println(input + " by user " + currentPlayerIndex);
+            }
+        }
+
+        private void sendMap(Map map) {
             try {
                 outputStream.writeObject(map);
                 outputStream.reset();
@@ -133,7 +151,7 @@ public class CatanServer {
             }
         }
 
-        public void sendTurnNotification(int currentPlayerIndex) {
+        private void sendTurnNotification(int currentPlayerIndex) {
             try {
                 if(currentPlayerIndex == clients.indexOf(this)) {
                     outputStream.writeObject(100);
@@ -149,7 +167,7 @@ public class CatanServer {
             }
         }
 
-        public void sendDiceThrow(int diceThrow) {
+        private void sendDiceThrow(int diceThrow) {
             try {
                 outputStream.writeObject(diceThrow);
                 outputStream.reset();
@@ -158,11 +176,11 @@ public class CatanServer {
             }
         }
 
-        public void sendDeck(int diceThrow) {
+        private void sendDeck(int diceThrow) {
             try {
                 Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
                 System.out.println(clients.indexOf(this));
-                Deck acquiredResources = functionality.getResources(diceThrow, map, tempDeck.getResources(), clients.indexOf(this));
+                Deck acquiredResources = Functionality.getResources(diceThrow, map, tempDeck.getResources(), clients.indexOf(this));
                 tempDeck.addDeck(acquiredResources);
                 System.out.println(tempDeck.getResources());
                 outputStream.writeObject(tempDeck.getResources());

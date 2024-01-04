@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import jdk.internal.net.http.common.Pair;
-import jdk.javadoc.internal.doclets.formats.html.markup.Head;
 
 public class CatanPlayer extends ApplicationAdapter {
     private int id;
@@ -37,24 +37,29 @@ public class CatanPlayer extends ApplicationAdapter {
     private ObjectOutputStream outputStream;
     private Stage stage;
     private SpriteBatch batch;
-    private Deck deck = new Deck();
+    private Deck deck;
     private Map map;
     private Pair<VillageCell, VillageCell> startVillages;
     private UpdateListenerThread updateThread;
-    private final Functionality functionality = new Functionality();
     private Variables variables;
+    private HashMap<ResourceType, Label> cardsAmount;
 
     public CatanPlayer(Map map) {
         this.map = map;
+        this.deck = new Deck();
+        this.cardsAmount = new HashMap<>();
     }
 
     @Override
     public void create() {
+        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch = new SpriteBatch();
         stage = new Stage(new ScreenViewport());
         connectToServer();
         updateThread = new UpdateListenerThread(this, inputStream);
         updateThread.start();
+        setUpInitialLabels();
     }
 
     private void connectToServer() {
@@ -77,8 +82,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        //setUpInitialLabels();
         drawBackgrounds();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
@@ -86,6 +90,23 @@ public class CatanPlayer extends ApplicationAdapter {
         drawButtons();
         drawHex();
         Gdx.input.setInputProcessor(stage);
+    }
+
+    private void setUpInitialLabels() {
+        int x = 525;
+        for(ResourceType type : ResourceType.values()) {
+            if (type != ResourceType.EMPTY) {
+                Label.LabelStyle labelStyle = new Label.LabelStyle();
+                labelStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
+                labelStyle.font.getData().setScale(2f);
+                labelStyle.fontColor = Color.SALMON;
+                Label resourceLabel = new Label(deck.getResourceAmount(type).toString(), labelStyle);
+                resourceLabel.setPosition(x, 50);
+                x += 100;
+                cardsAmount.put(type, resourceLabel);
+                stage.addActor(resourceLabel);
+            }
+        }
     }
 
     private void drawBackgrounds() {
@@ -130,21 +151,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void endTurnButton() {
         TextButton button = setUpTextButton("End Turn", 1720, 0);
-        stage.addActor(button);
-        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-                public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                    try {
-                        if(isTurn) {
-                            System.out.println("End turn");
-                            outputStream.writeObject("End Turn");
-                            outputStream.reset();
-                        }
-                    } catch (IOException e) {
-                        System.out.println("Could not send end turn");
-                    }
-                    return true;
-                }
-            });
+        Functionality.setUpButtonFunc(stage, button, isTurn, outputStream);
     }
 
     private void drawHex() {
@@ -174,7 +181,7 @@ public class CatanPlayer extends ApplicationAdapter {
         return diceThrow[0];
     }
 
-    private ImageButton setUpImageButton(final String path, int x, int y, int amount) {
+    private ImageButton setUpImageButton(final String path, int x, int y, int amount, ResourceType type) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(path));
         ImageButton button = new ImageButton(style);
@@ -189,26 +196,27 @@ public class CatanPlayer extends ApplicationAdapter {
 
         button.setPosition(x, y);
         button.setSize(60, 100);
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
-        labelStyle.font.getData().setScale(2f);
-        labelStyle.fontColor = Color.SALMON;
-        Label resourceLabel = new Label(Integer.toString(amount), labelStyle);
-        resourceLabel.setPosition(x + 25, y - 50);
-        stage.addActor(resourceLabel);
+        changeLabelAmount(type, amount, x, y - 50);
         return button;
+    }
+    private void changeLabelAmount(ResourceType type, int amount, int x, int y) {
+        for(ResourceType resourceType : ResourceType.values()) {
+            if(resourceType == type) {
+                cardsAmount.get(resourceType).setText(Integer.toString(amount));
+            }
+        }
     }
 
     private void displayResources(Stage stage) {
-        ImageButton brickButton = setUpImageButton("Cards/brickCard.png", 500, 100, deck.getResourceAmount(ResourceType.BRICK));
+        ImageButton brickButton = setUpImageButton("Cards/brickCard.png", 500, 100, deck.getResourceAmount(ResourceType.BRICK), ResourceType.BRICK);
         stage.addActor(brickButton);
-        ImageButton wheatButton = setUpImageButton("Cards/wheatCard.png", 600, 100, deck.getResourceAmount(ResourceType.WHEAT));
+        ImageButton wheatButton = setUpImageButton("Cards/wheatCard.png", 600, 100, deck.getResourceAmount(ResourceType.WHEAT), ResourceType.WHEAT);
         stage.addActor(wheatButton);
-        ImageButton woodButton = setUpImageButton("Cards/woodCard.png", 700, 100, deck.getResourceAmount(ResourceType.WOOD));
+        ImageButton woodButton = setUpImageButton("Cards/woodCard.png", 700, 100, deck.getResourceAmount(ResourceType.WOOD), ResourceType.WOOD);
         stage.addActor(woodButton);
-        ImageButton sheepButton = setUpImageButton("Cards/sheepCard.png", 800, 100, deck.getResourceAmount(ResourceType.SHEEP));
+        ImageButton sheepButton = setUpImageButton("Cards/sheepCard.png", 800, 100, deck.getResourceAmount(ResourceType.SHEEP), ResourceType.SHEEP);
         stage.addActor(sheepButton);
-        ImageButton stoneButton = setUpImageButton("Cards/stoneCard.png", 900, 100, deck.getResourceAmount(ResourceType.STONE));
+        ImageButton stoneButton = setUpImageButton("Cards/stoneCard.png", 900, 100, deck.getResourceAmount(ResourceType.STONE), ResourceType.STONE);
         stage.addActor(stoneButton);
     }
 
@@ -226,6 +234,11 @@ public class CatanPlayer extends ApplicationAdapter {
             cell.buttonFunc(stage, outputStream, this);
         }
     }
+
+    /*private void renderMapWithStream() {
+        Stream<Cell> stream = map.getMap().stream();
+        stream.forEach(cell -> cell.buttonFunc(stage, outputStream, this));
+    }*/
 
     @Override
     public void dispose() {

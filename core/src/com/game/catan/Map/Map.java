@@ -3,10 +3,10 @@ package com.game.catan.Map;
 import com.game.catan.Map.Cell.*;
 import com.game.catan.player.CatanPlayer;
 
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class Map implements Serializable {
     private ResourceCell robberCell;
@@ -15,10 +15,11 @@ public class Map implements Serializable {
         centerCell = new ResourceCell(960, 540, ResourceType.BRICK);
         centerCell.addNeighbour(new ResourceCell(960, 200, ResourceType.WOOD));
         ResourceCell tempCell = new ResourceCell(760, 540, ResourceType.WHEAT);
-        tempCell.setRobber(true);
+        ResourceCell emptyCell = new ResourceCell(760, 840, ResourceType.EMPTY);
         centerCell.addNeighbour(tempCell);
+        emptyCell.setRobber(true);
+        centerCell.addNeighbour(emptyCell);
         VillageCell tempVillage = new VillageCell(200, 840);
-        tempVillage.setVillagePath("redVillage.png");
         tempVillage.addNeighbour(centerCell);
         tempVillage.addNeighbour(tempCell);
         tempCell.addNeighbour(tempVillage);
@@ -105,9 +106,14 @@ public class Map implements Serializable {
         HashSet<RoadCell> roadCells = new HashSet<>();
         for(Cell cell : roadCell.getNeighbours()) {
             if(cell instanceof VillageCell) {
-                if(((RoadCell) cell).getOwner() == roadCell.getOwner()) {
-                    roadCells.add((RoadCell) cell);
-                    roadCells.addAll(connectRoads((RoadCell) cell));
+                List<Cell> tempNeighbours = cell.getNeighbours();
+                for(Cell tempCell : tempNeighbours) {
+                    if(tempCell instanceof RoadCell) {
+                        if(((RoadCell) tempCell).isBuilt() && ((RoadCell) tempCell).getOwner() == roadCell.getOwner()) {
+                            roadCells.add((RoadCell) tempCell);
+                            roadCells.addAll(connectRoads((RoadCell) tempCell));
+                        }
+                    }
                 }
             }
         }
