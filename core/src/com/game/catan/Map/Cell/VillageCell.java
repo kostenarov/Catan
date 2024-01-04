@@ -2,7 +2,6 @@ package com.game.catan.Map.Cell;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
@@ -27,31 +26,35 @@ public class VillageCell extends Cell {
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        style = new ImageButton.ImageButtonStyle();
-        if(owner != null) {
-            villageTexture = new Texture(owner.getVillagePath());
+        if(style == null) {
+            style = new ImageButton.ImageButtonStyle();
+            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
         }
         else {
-            villageTexture = new Texture(texturePath);
+            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
         }
-        style.imageUp = new TextureRegionDrawable(villageTexture);
-        button = new ImageButton(style);
-        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
-        button.setSize(100, 100);
-        stage.addActor(button);
-        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                if(player.getIsTurn()) {
+        if(button == null) {
+            button = new ImageButton(style);
+            button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+                public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                     System.out.println("Button clicked");
-                    try {
-                        outputStream.writeObject("Village button clicked" + id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    if (player.getIsTurn()) {
+                        try {
+                            outputStream.writeObject("Clicked Village button:" + id);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        }
+        else {
+            button.setStyle(style);
+        }
+        button.setSize(100, 100);
+        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
+        stage.addActor(button);
     }
 
 

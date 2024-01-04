@@ -14,6 +14,8 @@ public class ResourceCell extends Cell{
     private final ResourceType type;
     private final int diceThrow;
     private boolean hasRobber = false;
+    ImageButton.ImageButtonStyle style;
+    ImageButton button;
 
 
     public ResourceCell(int x, int y, ResourceType type) {
@@ -78,9 +80,13 @@ public class ResourceCell extends Cell{
     }
 
     public void addNeighbour(Cell cell) {
-        if (cell instanceof ResourceCell) {
+        if (cell instanceof ResourceCell)
             super.addNeighbour(cell);
-        }
+    }
+
+    public void addVillageNeighbour(Cell cell) {
+        if(cell instanceof VillageCell)
+            super.addNeighbour(cell);
     }
 
     public ArrayList<VillageCell> getVillages() {
@@ -95,24 +101,34 @@ public class ResourceCell extends Cell{
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        ImageButton button = new ImageButton(style);
+        if(style == null) {
+            style = new ImageButton.ImageButtonStyle();
+            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        }
+        else {
+            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        }
+        if(button == null) {
+            button = new ImageButton(style);
+            button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+                public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                    System.out.println("Button clicked");
+                    if (player.getIsTurn()) {
+                        try {
+                            outputStream.writeObject("Clicked Resource button:" + id);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
+        else {
+            button.setStyle(style);
+        }
         button.setSize(100, 100);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
-        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Button clicked");
-                if(player.getIsTurn()) {
-                    try {
-                        outputStream.writeObject("Clicked Resource button:" + id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                return true;
-            }
-        });
     }
 }

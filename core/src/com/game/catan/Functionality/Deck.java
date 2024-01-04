@@ -49,4 +49,11 @@ public class Deck {
     public Integer getResourceAmount(ResourceType resource) {
         return resources.get(resource);
     }
+
+    public void removeVillageResources() {
+        removeResources(ResourceType.WOOD, 1);
+        removeResources(ResourceType.BRICK, 1);
+        removeResources(ResourceType.SHEEP, 1);
+        removeResources(ResourceType.WHEAT, 1);
+    }
 }

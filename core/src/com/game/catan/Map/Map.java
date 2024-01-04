@@ -22,9 +22,10 @@ public class Map implements Serializable {
         VillageCell tempVillage = new VillageCell(200, 840);
         tempVillage.addNeighbour(centerCell);
         tempVillage.addNeighbour(tempCell);
-        tempCell.addNeighbour(tempVillage);
-        centerCell.addNeighbour(tempVillage);
+        tempCell.addVillageNeighbour(tempVillage);
+        centerCell.addVillageNeighbour(tempVillage);
         System.out.println(centerCell.getDiceThrow());
+        HashSet<Cell> map = getMap();
         findRobber();
     }
 
@@ -45,20 +46,15 @@ public class Map implements Serializable {
     public HashSet<Cell> getMap() {
         HashSet<Cell> map = new HashSet<>();
         map.add(centerCell);
-        for(Cell cell : centerCell.getNeighbours()) {
-            map.add(cell);
-            map.addAll(getMapNeighbours(cell));
+        for (Cell cell : map) {
+            map.addAll(getCellNeighbours(cell));
         }
         return map;
+
     }
 
-    private HashSet<Cell> getMapNeighbours(Cell cell) {
-        HashSet<Cell> neighbours = new HashSet<>();
-        for(Cell neighbour : cell.getNeighbours()) {
-            neighbours.add(neighbour);
-            neighbours.addAll(getMapNeighbours(neighbour));
-        }
-        return neighbours;
+    private HashSet<Cell> getCellNeighbours(Cell cell) {
+        return new HashSet<>(cell.getNeighbours());
     }
 
     private void findRobber() {
@@ -121,10 +117,21 @@ public class Map implements Serializable {
         return resourceCells;
     }
 
-    private Cell getCellById(int id) {
+    public Cell getCellById(int id) {
         for(Cell cell : getMap()) {
             if(cell.getId() == id) {
                 return cell;
+            }
+        }
+        return null;
+    }
+
+    public VillageCell getVillageCellById(int id) {
+        for(Cell cell : getMap()) {
+            if(cell instanceof VillageCell) {
+                if(cell.getId() == id) {
+                    return (VillageCell) cell;
+                }
             }
         }
         return null;

@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import com.game.catan.Functionality.Deck;
+import com.game.catan.Functionality.VillagePair;
 import com.game.catan.Map.Cell.Cell;
 import com.game.catan.Map.Map;
 import com.game.catan.Map.Cell.*;
@@ -22,8 +23,8 @@ import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 
-import jdk.internal.net.http.common.Pair;
 
 public class CatanPlayer extends ApplicationAdapter {
     private int id;
@@ -39,9 +40,9 @@ public class CatanPlayer extends ApplicationAdapter {
     private SpriteBatch batch;
     private Deck deck;
     private Map map;
-    private Pair<VillageCell, VillageCell> startVillages;
     private UpdateListenerThread updateThread;
     private Variables variables;
+    private VillagePair<VillageCell, VillageCell> villagePair;
     private HashMap<ResourceType, Label> cardsAmount;
 
     public CatanPlayer(Map map) {
@@ -75,6 +76,20 @@ public class CatanPlayer extends ApplicationAdapter {
             if(id != 0) {
                 isTurn = false;
             }
+            switch (id) {
+                case 0:
+                    villagePath = "Villages/yellowVillage.png";
+                    break;
+                case 1:
+                    villagePath = "Villages/redVillage.png";
+                    break;
+                case 2:
+                    villagePath = "Villages/blueVillage.png";
+                    break;
+                case 3:
+                    villagePath = "Villages/greenVillage.png";
+                    break;
+            }
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -89,6 +104,14 @@ public class CatanPlayer extends ApplicationAdapter {
         renderMap();
         drawButtons();
         drawHex();
+        batch.begin();
+        if(isTurn) {
+            batch.draw(new Texture("Villages/defaultVillage.png"), 0, 0);
+        }
+        else {
+            batch.draw(new Texture("Villages/redVillage.png"), 0, 0);
+        }
+        batch.end();
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -228,6 +251,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void renderMap() {
+        HashSet<Cell> cells = new HashSet<>(map.getMap());
         for(Cell cell : map.getMap()) {
             cell.buttonFunc(stage, outputStream, this);
         }
