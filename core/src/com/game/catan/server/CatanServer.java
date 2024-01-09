@@ -3,6 +3,7 @@ package com.game.catan.server;
 import java.util.HashMap;
 import java.util.List;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,6 +13,8 @@ import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Map;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import com.game.catan.Functionality.Deck;
 import com.game.catan.Functionality.Functionality;
 
 public class CatanServer {
@@ -22,6 +25,7 @@ public class CatanServer {
     private HashMap<String, Deck> playerResources;
     private ArrayList<String> paths;
     private boolean isWorking = true;
+    private int diceThrow;
 
     public CatanServer(Map map) {
         clients = new ArrayList<>();
@@ -73,13 +77,13 @@ public class CatanServer {
         }
     }
 
-    private void broadcastDiceThrow(int diceThrow) {
+    private void broadcastDiceThrow() {
         for (ClientHandler client : clients) {
             client.sendDiceThrow(diceThrow);
         }
     }
 
-    private void broadcastDeck(int diceThrow) {
+    private void broadcastDeck() {
         for (ClientHandler client : clients) {
             client.sendDeck(diceThrow);
         }
@@ -137,15 +141,15 @@ public class CatanServer {
 
         private void diceThrowFunc(String input) {
             if(input.equals("Dice Throw")) {
-                int diceThrow = Functionality.diceThrow();
+                diceThrow = Functionality.diceThrow();
                 System.out.println(diceThrow);
-                broadcastDiceThrow(diceThrow);
-                broadcastDeck(diceThrow);
+                broadcastDiceThrow();
+                broadcastDeck();
             }
         }
 
         private void resourcePressFunc(String input) {
-            if(input.contains("Resource")) {
+            if(input.contains("Resource") && diceThrow == 7) {
                 System.out.println(input + " by user " + currentPlayerIndex);
             }
         }
@@ -159,15 +163,28 @@ public class CatanServer {
                     playerResources.put(String.valueOf(currentPlayerIndex), currentDeck);
                     String villageId = input.split(":")[1];
                     map.getVillageCellById(Integer.parseInt(villageId)).setVillagePath(paths.get(currentPlayerIndex));
+                    map.getVillageCellById(Integer.parseInt(villageId)).setOwner(currentPlayerIndex);
                     broadcastMap();
+                    sendPlayerDeck();
                 }
+            }
+        }
+
+        private void sendPlayerDeck() {
+            try {
+                Deck deckToSend = playerResources.get(String.valueOf(currentPlayerIndex));
+                System.out.println(deckToSend.getResources());
+                outputStream.writeObject(deckToSend.getResources());
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send player deck");
             }
         }
 
         private boolean isVillageBuildable() {
             Deck currentDeck = playerResources.get(String.valueOf(currentPlayerIndex));
             return currentDeck.getResourceAmount(ResourceType.WOOD) >= 1 &&
-                    currentDeck.getResourceAmount(ResourceType.BRICK) >= 1 &&
+                    currentDeck.getResourceAmount(ResourceType.STONE) >= 1 &&
                     currentDeck.getResourceAmount(ResourceType.SHEEP) >= 1 &&
                     currentDeck.getResourceAmount(ResourceType.WHEAT) >= 1;
         }
@@ -211,7 +228,9 @@ public class CatanServer {
                 Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
                 Deck acquiredResources = Functionality.getResources(diceThrow, map, tempDeck.getResources(), clients.indexOf(this));
                 System.out.println(acquiredResources.getResources());
+                playerResources.put(String.valueOf(clients.indexOf(this)), acquiredResources);
                 outputStream.writeObject(acquiredResources.getResources());
+                //System.out.println(playerResources.get(String.valueOf(clients.indexOf(this))).getResources());
                 outputStream.reset();
             } catch (IOException e) {
                 System.out.println("Could not send deck");

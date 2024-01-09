@@ -16,6 +16,15 @@ public class Deck {
         resources.put(ResourceType.WHEAT, 2);
     }
 
+    public Deck(boolean helper) {
+        resources = new HashMap<>();
+        resources.put(ResourceType.WOOD, 0);
+        resources.put(ResourceType.BRICK, 0);
+        resources.put(ResourceType.STONE, 0);
+        resources.put(ResourceType.SHEEP, 0);
+        resources.put(ResourceType.WHEAT, 0);
+    }
+
     public void addResource(ResourceType resource) {
         resources.put(resource, resources.get(resource) + 1);
     }
@@ -52,7 +61,7 @@ public class Deck {
 
     public void removeVillageResources() {
         removeResources(ResourceType.WOOD, 1);
-        removeResources(ResourceType.BRICK, 1);
+        removeResources(ResourceType.STONE, 1);
         removeResources(ResourceType.SHEEP, 1);
         removeResources(ResourceType.WHEAT, 1);
     }

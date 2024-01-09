@@ -19,7 +19,7 @@ public class Functionality {
     public int getNumberOfPlayerVillages(ResourceCell cell, int playerId) {
         int numberOfPlayerVillages = 0;
         for(VillageCell villageCell : cell.getVillages()) {
-            if(villageCell.getOwner().getId() == playerId) {
+            if(villageCell.getOwner() == playerId) {
                 numberOfPlayerVillages++;
             }
         }
@@ -27,15 +27,15 @@ public class Functionality {
     }
 
     public static Deck getResources(int diceThrow, Map map, HashMap<ResourceType, Integer> resources, int playerId) {
-        Deck deck = new Deck();
         for (ResourceCell cell : map.getResourceCells(map.getCenterCell())) {
             if (cell.getDiceThrow() == diceThrow && !cell.hasRobber() && cell.getResource() != ResourceType.EMPTY) {
                 //if (cell.getNumberOfPlayerVillages(playerId) > 0) {
-                    deck.addResource(cell.getResource());
                     resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);
                 //}
             }
         }
+        Deck deck = new Deck();
+        deck.setDeck(resources);
         return deck;
     }
 

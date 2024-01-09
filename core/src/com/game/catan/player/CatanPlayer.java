@@ -253,7 +253,15 @@ public class CatanPlayer extends ApplicationAdapter {
     private void renderMap() {
         HashSet<Cell> cells = new HashSet<>(map.getMap());
         for(Cell cell : map.getMap()) {
-            cell.buttonFunc(stage, outputStream, this);
+            if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
+                cell.buttonFunc(stage, outputStream, this);
+                batch.begin();
+                batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
+                batch.end();
+            }
+            else {
+                cell.buttonFunc(stage, outputStream, this);
+            }
         }
     }
 

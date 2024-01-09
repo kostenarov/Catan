@@ -11,34 +11,30 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 public class VillageCell extends Cell {
-    public CatanPlayer owner = null;
+    private int owner = 5;
     private Texture villageTexture;
     private ImageButton.ImageButtonStyle style;
     private ImageButton button;
     public VillageCell(int x, int y) {
         super(x, y);
-        texturePath = "Villages/defaultVillage.png";
+        this.texturePath = "Villages/defaultVillage.png";
     }
 
-    public CatanPlayer getOwner() {
+    public int getOwner() {
         return owner;
     }
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        if(style == null) {
-            style = new ImageButton.ImageButtonStyle();
-            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        }
-        else {
-            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        }
+        this.villageTexture = new Texture(texturePath);
+        this.style = new ImageButton.ImageButtonStyle();
+        this.style.imageUp = new TextureRegionDrawable(villageTexture);
         if(button == null) {
             button = new ImageButton(style);
             button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
                 public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                     System.out.println("Button clicked");
-                    if (player.getIsTurn()) {
+                    if (player.getIsTurn() && owner == 5) {
                         try {
                             outputStream.writeObject("Clicked Village button:" + id);
                         } catch (IOException e) {
@@ -52,7 +48,7 @@ public class VillageCell extends Cell {
         else {
             button.setStyle(style);
         }
-        button.setSize(100, 100);
+        button.setSize(50, 50);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
     }
@@ -62,12 +58,9 @@ public class VillageCell extends Cell {
         this.texturePath = path;
     }
 
-    public void setOwner(CatanPlayer owner) {
-        if(this.owner == null) {
+    public void setOwner(int owner) {
+        if(this.owner == 5) {
             this.owner = owner;
-            villageTexture = new Texture(owner.getVillagePath());
-            style.imageUp = new TextureRegionDrawable(villageTexture);
-            button.setStyle(style);
         }
         else {
             throw new RuntimeException("Village already has an owner");

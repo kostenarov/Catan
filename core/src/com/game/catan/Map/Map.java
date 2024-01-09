@@ -13,19 +13,18 @@ public class Map implements Serializable {
     private final ResourceCell centerCell;
     public Map() {
         centerCell = new ResourceCell(960, 540, ResourceType.BRICK);
-        centerCell.addNeighbour(new ResourceCell(960, 200, ResourceType.WOOD));
-        ResourceCell tempCell = new ResourceCell(760, 540, ResourceType.WHEAT);
+        centerCell.addNeighbour(new ResourceCell(960, 480, ResourceType.WOOD));
+        ResourceCell tempCell = new ResourceCell(870, 540, ResourceType.WHEAT);
         ResourceCell emptyCell = new ResourceCell(760, 840, ResourceType.EMPTY);
         centerCell.addNeighbour(tempCell);
         emptyCell.setRobber(true);
         centerCell.addNeighbour(emptyCell);
-        VillageCell tempVillage = new VillageCell(200, 840);
+        VillageCell tempVillage = new VillageCell(960, 440);
         tempVillage.addNeighbour(centerCell);
         tempVillage.addNeighbour(tempCell);
         tempCell.addVillageNeighbour(tempVillage);
         centerCell.addVillageNeighbour(tempVillage);
         System.out.println(centerCell.getDiceThrow());
-        HashSet<Cell> map = getMap();
         findRobber();
     }
 
