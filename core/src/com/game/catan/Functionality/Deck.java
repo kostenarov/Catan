@@ -65,4 +65,9 @@ public class Deck {
         removeResources(ResourceType.SHEEP, 1);
         removeResources(ResourceType.WHEAT, 1);
     }
+
+    public void removeRoadResources() {
+        removeResources(ResourceType.WOOD, 1);
+        removeResources(ResourceType.BRICK, 1);
+    }
 }

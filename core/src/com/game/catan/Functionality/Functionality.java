@@ -27,7 +27,7 @@ public class Functionality {
     }
 
     public static Deck getResources(int diceThrow, Map map, HashMap<ResourceType, Integer> resources, int playerId) {
-        for (ResourceCell cell : map.getResourceCells(map.getCenterCell())) {
+        for (ResourceCell cell : map.getResourceNeighbours(map.getCenterCell())) {
             if (cell.getDiceThrow() == diceThrow && !cell.hasRobber() && cell.getResource() != ResourceType.EMPTY) {
                 //if (cell.getNumberOfPlayerVillages(playerId) > 0) {
                     resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);

@@ -1,7 +1,6 @@
 package com.game.catan.Map;
 
 import com.game.catan.Map.Cell.*;
-import com.game.catan.player.CatanPlayer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,19 +12,23 @@ public class Map implements Serializable {
     private final ResourceCell centerCell;
     public Map() {
         centerCell = new ResourceCell(960, 540, ResourceType.BRICK);
-        centerCell.addNeighbour(new ResourceCell(890, 435, ResourceType.WOOD));
-        ResourceCell tempCell = new ResourceCell(820, 540, ResourceType.WHEAT);
-        ResourceCell emptyCell = new ResourceCell(760, 840, ResourceType.EMPTY);
-        centerCell.addNeighbour(tempCell);
+        ResourceCell woodCell = new ResourceCell(890, 435, ResourceType.WOOD);
+        ResourceCell wheatCell = new ResourceCell(820, 540, ResourceType.WHEAT);
+        ResourceCell emptyCell = new ResourceCell(890, 645, ResourceType.EMPTY);
+        VillageCell tempVillage = new VillageCell(921, 538);
+        RoadCell roadCell = new RoadCell(915, 570);
+        roadCell.addNeighbour(centerCell);
+        roadCell.addNeighbour(wheatCell);
+        roadCell.addNeighbour(tempVillage);
         emptyCell.setRobber(true);
+        wheatCell.addNeighbour(tempVillage);
+        woodCell.addNeighbour(tempVillage);
+        centerCell.addNeighbour(tempVillage);
+        centerCell.addNeighbour(wheatCell);
+        centerCell.addNeighbour(woodCell);
         centerCell.addNeighbour(emptyCell);
-        VillageCell tempVillage = new VillageCell(915, 530);
-        tempVillage.addNeighbour(centerCell);
-        tempVillage.addNeighbour(tempCell);
-        tempCell.addVillageNeighbour(tempVillage);
-        centerCell.addVillageNeighbour(tempVillage);
         System.out.println(centerCell.getDiceThrow());
-        findRobber();
+        robberCell = findRobber();
     }
 
     private HashSet<VillageCell> getVillageNeighbours(VillageCell villageCell) {
@@ -49,23 +52,23 @@ public class Map implements Serializable {
             map.addAll(getCellNeighbours(cell));
         }
         return map;
-
     }
 
     private HashSet<Cell> getCellNeighbours(Cell cell) {
         return new HashSet<>(cell.getNeighbours());
     }
 
-    private void findRobber() {
-        for(ResourceCell resourceCell : getResourceCells(centerCell)) {
+    private ResourceCell findRobber() {
+        for(ResourceCell resourceCell : getResourceNeighbours(centerCell)) {
             if(resourceCell.hasRobber()) {
                 robberCell = resourceCell;
                 break;
             }
         }
+        return robberCell;
     }
 
-    private CatanPlayer findLongestRoad() {
+    private int findLongestRoad() {
         HashSet<RoadCell> takenRoads = new HashSet<>();
         for(Cell cell : getMap()) {
             if(cell instanceof RoadCell) {
@@ -75,7 +78,7 @@ public class Map implements Serializable {
             }
         }
         if(takenRoads.size() < 5) {
-            return null;
+            return 5;
         }
         HashSet<RoadCell> longestRoad = new HashSet<>();
         for(RoadCell roadCell : takenRoads) {
@@ -116,6 +119,26 @@ public class Map implements Serializable {
         return resourceCells;
     }
 
+    public HashSet<Cell> getResources() {
+        HashSet<Cell> map = new HashSet<>();
+        map.add(centerCell);
+        for (Cell cell : map) {
+            if(cell instanceof ResourceCell)
+                map.addAll(getResourceNeighbours((ResourceCell) cell));
+        }
+        return map;
+    }
+
+    public HashSet<ResourceCell> getResourceNeighbours(ResourceCell resourceCell) {
+        HashSet<ResourceCell> resourceCells = new HashSet<>();
+        for(Cell cell : resourceCell.getNeighbours()) {
+            if(cell instanceof ResourceCell) {
+                resourceCells.add((ResourceCell) cell);
+            }
+        }
+        return resourceCells;
+    }
+
     public Cell getCellById(int id) {
         for(Cell cell : getMap()) {
             if(cell.getId() == id) {
@@ -130,6 +153,17 @@ public class Map implements Serializable {
             if(cell instanceof VillageCell) {
                 if(cell.getId() == id) {
                     return (VillageCell) cell;
+                }
+            }
+        }
+        return null;
+    }
+
+    public RoadCell getRoadCellById(int id) {
+        for(Cell cell : getMap()) {
+            if(cell instanceof RoadCell) {
+                if(cell.getId() == id) {
+                    return (RoadCell) cell;
                 }
             }
         }

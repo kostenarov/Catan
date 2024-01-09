@@ -82,16 +82,6 @@ public class ResourceCell extends Cell{
         return this.hasRobber;
     }
 
-    public void addNeighbour(Cell cell) {
-        if (cell instanceof ResourceCell)
-            super.addNeighbour(cell);
-    }
-
-    public void addVillageNeighbour(Cell cell) {
-        if(cell instanceof VillageCell)
-            super.addNeighbour(cell);
-    }
-
     public ArrayList<VillageCell> getVillages() {
         ArrayList<VillageCell> neighbours = new ArrayList<>();
         for(Cell neighbour : getNeighbours()) {

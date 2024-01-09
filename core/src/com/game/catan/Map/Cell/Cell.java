@@ -25,6 +25,8 @@ public abstract class Cell implements Serializable {
 
     public void addNeighbour(Cell neighbour) {
         neighbours.add(neighbour);
+        if(!neighbour.getNeighbours().contains(this))
+            neighbour.addNeighbour(this);
     }
 
     public List<Cell> getNeighbours() {

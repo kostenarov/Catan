@@ -48,7 +48,7 @@ public class VillageCell extends Cell {
         else {
             button.setStyle(style);
         }
-        button.setSize(50, 50);
+        button.setSize(35, 35);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
     }
