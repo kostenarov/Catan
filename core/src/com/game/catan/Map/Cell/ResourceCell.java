@@ -1,8 +1,10 @@
 package com.game.catan.Map.Cell;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.player.CatanPlayer;
 
@@ -14,8 +16,9 @@ public class ResourceCell extends Cell{
     private final ResourceType type;
     private final int diceThrow;
     private boolean hasRobber = false;
-    ImageButton.ImageButtonStyle style;
-    ImageButton button;
+    private ImageButton.ImageButtonStyle style;
+    private Label resourceDice;
+    private ImageButton button;
 
 
     public ResourceCell(int x, int y, ResourceType type) {
@@ -101,12 +104,12 @@ public class ResourceCell extends Cell{
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        if(style == null) {
-            style = new ImageButton.ImageButtonStyle();
-            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        }
-        else {
-            style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        if(type != ResourceType.EMPTY) {
+            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
+            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
+            stage.addActor(resourceDice);
         }
         if(button == null) {
             button = new ImageButton(style);
@@ -124,8 +127,22 @@ public class ResourceCell extends Cell{
                 }
             });
         }
-        else {
-            button.setStyle(style);
+        button.setSize(100, 100);
+        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
+        stage.addActor(button);
+    }
+
+    @Override
+    public void drawWithoutFunc(Stage stage) {
+        style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        if(type != ResourceType.EMPTY) {
+            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
+            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
+            stage.addActor(resourceDice);
+        }
+        if(button == null) {
+            button = new ImageButton(style);
         }
         button.setSize(100, 100);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());

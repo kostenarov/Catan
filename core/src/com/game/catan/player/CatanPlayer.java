@@ -13,17 +13,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import com.game.catan.Functionality.Deck;
 import com.game.catan.Functionality.VillagePair;
-import com.game.catan.Map.Cell.Cell;
+import com.game.catan.Functionality.Functionality;
 import com.game.catan.Map.Map;
 import com.game.catan.Map.Cell.*;
-import com.game.catan.Functionality.Functionality;
+import com.game.catan.Map.Cell.Cell;
 
 import java.net.Socket;
 import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashSet;
 
 
 public class CatanPlayer extends ApplicationAdapter {
@@ -101,18 +100,32 @@ public class CatanPlayer extends ApplicationAdapter {
         drawBackgrounds();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-        renderMap();
+        drawSpecificRound();
         drawButtons();
-        drawHex();
         batch.begin();
+        drawIsYourTurnLight();
+        batch.end();
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    private void drawIsYourTurnLight() {
         if(isTurn) {
             batch.draw(new Texture("Villages/defaultVillage.png"), 0, 0);
         }
         else {
             batch.draw(new Texture("Villages/redVillage.png"), 0, 0);
         }
-        batch.end();
-        Gdx.input.setInputProcessor(stage);
+    }
+
+    private void drawSpecificRound() {
+        if(diceThrow == 7) {
+            renderThiefRound();
+            renderMap();
+        }
+        else {
+            renderNormalRound();
+            renderMap();
+        }
     }
 
     private void setUpInitialLabels() {
@@ -177,11 +190,6 @@ public class CatanPlayer extends ApplicationAdapter {
         Functionality.setUpButtonFunc(stage, button, isTurn, outputStream);
     }
 
-    private void drawHex() {
-        HexagonButton hexagonButton = new HexagonButton(100, 100, 100, "Textures/brick.png");
-        hexagonButton.draw(stage);
-    }
-
     private void diceThrowButton(Stage stage) {
         TextButton button = setUpTextButton("Throw Dice", 1720, 100);
         stage.addActor(button);
@@ -217,10 +225,10 @@ public class CatanPlayer extends ApplicationAdapter {
 
         button.setPosition(x, y);
         button.setSize(60, 100);
-        changeLabelAmount(type, amount, x, y - 50);
+        changeLabelAmount(type, amount);
         return button;
     }
-    private void changeLabelAmount(ResourceType type, int amount, int x, int y) {
+    private void changeLabelAmount(ResourceType type, int amount) {
         for(ResourceType resourceType : ResourceType.values()) {
             if(resourceType == type) {
                 cardsAmount.get(resourceType).setText(Integer.toString(amount));
@@ -251,7 +259,14 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void renderMap() {
-        HashSet<Cell> cells = new HashSet<>(map.getMap());
+        for(Cell cell : map.getMap()) {
+            if(cell instanceof RoadCell || cell instanceof VillageCell) {
+                cell.buttonFunc(stage, outputStream, this);
+            }
+        }
+    }
+
+    private void renderThiefRound() {
         for(Cell cell : map.getMap()) {
             if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
                 cell.buttonFunc(stage, outputStream, this);
@@ -261,14 +276,21 @@ public class CatanPlayer extends ApplicationAdapter {
             }
             else {
                 cell.buttonFunc(stage, outputStream, this);
+                Hexagon hexagon = new Hexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50, 70);
+                hexagon.draw(stage);
             }
         }
     }
 
-    /*private void renderMapWithStream() {
-        Stream<Cell> stream = map.getMap().stream();
-        stream.forEach(cell -> cell.buttonFunc(stage, outputStream, this));
-    }*/
+    private void renderNormalRound() {
+        for(Cell cell : map.getMap()) {
+            if(cell instanceof ResourceCell) {
+                cell.buttonFunc(stage, outputStream, this);
+                Hexagon hexagon = new Hexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50, 70);
+                hexagon.draw(stage);
+            }
+        }
+    }
 
     @Override
     public void dispose() {

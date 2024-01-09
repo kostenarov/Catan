@@ -13,13 +13,13 @@ public class Map implements Serializable {
     private final ResourceCell centerCell;
     public Map() {
         centerCell = new ResourceCell(960, 540, ResourceType.BRICK);
-        centerCell.addNeighbour(new ResourceCell(960, 480, ResourceType.WOOD));
-        ResourceCell tempCell = new ResourceCell(870, 540, ResourceType.WHEAT);
+        centerCell.addNeighbour(new ResourceCell(890, 435, ResourceType.WOOD));
+        ResourceCell tempCell = new ResourceCell(820, 540, ResourceType.WHEAT);
         ResourceCell emptyCell = new ResourceCell(760, 840, ResourceType.EMPTY);
         centerCell.addNeighbour(tempCell);
         emptyCell.setRobber(true);
         centerCell.addNeighbour(emptyCell);
-        VillageCell tempVillage = new VillageCell(960, 440);
+        VillageCell tempVillage = new VillageCell(915, 530);
         tempVillage.addNeighbour(centerCell);
         tempVillage.addNeighbour(tempCell);
         tempCell.addVillageNeighbour(tempVillage);

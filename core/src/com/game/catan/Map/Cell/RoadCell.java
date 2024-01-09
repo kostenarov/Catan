@@ -3,7 +3,6 @@ package com.game.catan.Map.Cell;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.player.CatanPlayer;
 
 import java.io.ObjectOutputStream;
@@ -31,6 +30,11 @@ public class RoadCell extends Cell {
 
     @Override
     public void buttonFunc(Stage stage, ObjectOutputStream outputStream, CatanPlayer player){}
+
+    @Override
+    public void drawWithoutFunc(Stage stage) {
+
+    }
 
     public boolean isBuilt() {
         return owner != null;

@@ -2,17 +2,12 @@ package com.game.catan.Map.Cell;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-public class HexagonButton extends Actor {
+public class Hexagon {
     private final Polygon hexagon;
-    private String texturePath;
 
-    public HexagonButton(float x, float y, float size, String texturePath) {
-        this.texturePath = texturePath;
+    public Hexagon(float x, float y, float size) {
         float[] vertices = new float[12];
         vertices[0] = x;
         vertices[1] = y + size;
@@ -27,13 +22,6 @@ public class HexagonButton extends Actor {
         vertices[10] = x - size;
         vertices[11] = y + size / 2;
         hexagon = new Polygon(vertices);
-        addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                onClick();
-                return true;
-            }
-        });
     }
 
 
@@ -44,13 +32,6 @@ public class HexagonButton extends Actor {
         shapeRenderer.polygon(hexagon.getTransformedVertices());
         shapeRenderer.setColor(0, 0, 0, 1);
         shapeRenderer.end();
-        this.addListener(new InputListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                onClick();
-                return true;
-            }
-        });
-        stage.addActor(this);
     }
 
     public void onClick() {

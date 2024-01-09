@@ -53,6 +53,22 @@ public class VillageCell extends Cell {
         stage.addActor(button);
     }
 
+    @Override
+    public void drawWithoutFunc(Stage stage) {
+        this.villageTexture = new Texture(texturePath);
+        this.style = new ImageButton.ImageButtonStyle();
+        this.style.imageUp = new TextureRegionDrawable(villageTexture);
+        if(button == null) {
+            button = new ImageButton(style);
+        }
+        else {
+            button.setStyle(style);
+        }
+        button.setSize(50, 50);
+        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
+        stage.addActor(button);
+    }
+
 
     public void setVillagePath(String path) {
         this.texturePath = path;
