@@ -3,38 +3,29 @@ package com.game.catan.Map;
 import com.game.catan.Map.Cell.*;
 import com.game.catan.player.CatanPlayer;
 
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class Map implements Serializable {
     private ResourceCell robberCell;
     private final ResourceCell centerCell;
     public Map() {
         centerCell = new ResourceCell(960, 540, ResourceType.BRICK);
-        centerCell.addNeighbour(new ResourceCell(960, 200, ResourceType.WOOD));
-        ResourceCell tempCell = new ResourceCell(760, 540, ResourceType.WHEAT);
-        tempCell.setRobber(true);
+        centerCell.addNeighbour(new ResourceCell(890, 435, ResourceType.WOOD));
+        ResourceCell tempCell = new ResourceCell(820, 540, ResourceType.WHEAT);
+        ResourceCell emptyCell = new ResourceCell(760, 840, ResourceType.EMPTY);
         centerCell.addNeighbour(tempCell);
-        VillageCell tempVillage = new VillageCell(200, 840);
-        tempVillage.setVillagePath("redVillage.png");
+        emptyCell.setRobber(true);
+        centerCell.addNeighbour(emptyCell);
+        VillageCell tempVillage = new VillageCell(915, 530);
         tempVillage.addNeighbour(centerCell);
         tempVillage.addNeighbour(tempCell);
-        tempCell.addNeighbour(tempVillage);
-        centerCell.addNeighbour(tempVillage);
+        tempCell.addVillageNeighbour(tempVillage);
+        centerCell.addVillageNeighbour(tempVillage);
         System.out.println(centerCell.getDiceThrow());
         findRobber();
-    }
-
-    public VillageCell getSpecificVillage(int x, int y) {
-        centerCell.getVillages().get(0);
-        for(VillageCell villageCell : getVillageNeighbours(centerCell.getVillages().get(0))) {
-            if(villageCell.getCellCords().getX() == x && villageCell.getCellCords().getY() == y) {
-                return villageCell;
-            }
-        }
-        return null;
     }
 
     private HashSet<VillageCell> getVillageNeighbours(VillageCell villageCell) {
@@ -54,20 +45,15 @@ public class Map implements Serializable {
     public HashSet<Cell> getMap() {
         HashSet<Cell> map = new HashSet<>();
         map.add(centerCell);
-        for(Cell cell : centerCell.getNeighbours()) {
-            map.add(cell);
-            map.addAll(getMapNeighbours(cell));
+        for (Cell cell : map) {
+            map.addAll(getCellNeighbours(cell));
         }
         return map;
+
     }
 
-    private HashSet<Cell> getMapNeighbours(Cell cell) {
-        HashSet<Cell> neighbours = new HashSet<>();
-        for(Cell neighbour : cell.getNeighbours()) {
-            neighbours.add(neighbour);
-            neighbours.addAll(getMapNeighbours(neighbour));
-        }
-        return neighbours;
+    private HashSet<Cell> getCellNeighbours(Cell cell) {
+        return new HashSet<>(cell.getNeighbours());
     }
 
     private void findRobber() {
@@ -105,9 +91,14 @@ public class Map implements Serializable {
         HashSet<RoadCell> roadCells = new HashSet<>();
         for(Cell cell : roadCell.getNeighbours()) {
             if(cell instanceof VillageCell) {
-                if(((RoadCell) cell).getOwner() == roadCell.getOwner()) {
-                    roadCells.add((RoadCell) cell);
-                    roadCells.addAll(connectRoads((RoadCell) cell));
+                List<Cell> tempNeighbours = cell.getNeighbours();
+                for(Cell tempCell : tempNeighbours) {
+                    if(tempCell instanceof RoadCell) {
+                        if(((RoadCell) tempCell).isBuilt() && ((RoadCell) tempCell).getOwner() == roadCell.getOwner()) {
+                            roadCells.add((RoadCell) tempCell);
+                            roadCells.addAll(connectRoads((RoadCell) tempCell));
+                        }
+                    }
                 }
             }
         }
@@ -125,10 +116,21 @@ public class Map implements Serializable {
         return resourceCells;
     }
 
-    private Cell getCellById(int id) {
+    public Cell getCellById(int id) {
         for(Cell cell : getMap()) {
             if(cell.getId() == id) {
                 return cell;
+            }
+        }
+        return null;
+    }
+
+    public VillageCell getVillageCellById(int id) {
+        for(Cell cell : getMap()) {
+            if(cell instanceof VillageCell) {
+                if(cell.getId() == id) {
+                    return (VillageCell) cell;
+                }
             }
         }
         return null;

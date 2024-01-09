@@ -1,8 +1,10 @@
 package com.game.catan.Map.Cell;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.player.CatanPlayer;
 
@@ -14,6 +16,9 @@ public class ResourceCell extends Cell{
     private final ResourceType type;
     private final int diceThrow;
     private boolean hasRobber = false;
+    private ImageButton.ImageButtonStyle style;
+    private Label resourceDice;
+    private ImageButton button;
 
 
     public ResourceCell(int x, int y, ResourceType type) {
@@ -33,28 +38,28 @@ public class ResourceCell extends Cell{
     public void setTexturePath(ResourceType type){
         switch (type) {
             case WOOD:
-                this.texturePath = "wood.png";
+                this.texturePath = "Resources/wood.png";
                 break;
             case BRICK:
-                this.texturePath = "brick.png";
+                this.texturePath = "Resources/brick.png";
                 break;
             case SHEEP:
-                this.texturePath = "sheep.png";
+                this.texturePath = "Resources/sheep.png";
                 break;
             case WHEAT:
-                this.texturePath = "wheat.png";
+                this.texturePath = "Resources/wheat.png";
                 break;
             case STONE:
-                this.texturePath = "stone.png";
+                this.texturePath = "Resources/stone.png";
                 break;
             case EMPTY:
-                this.texturePath = "empty.png";
+                this.texturePath = "Resources/empty.png";
                 break;
         }
     }
 
-    public String getResource() {
-        return this.type.toString();
+    public ResourceType getResource() {
+        return this.type;
     }
 
     public int getDiceThrow() {
@@ -78,9 +83,13 @@ public class ResourceCell extends Cell{
     }
 
     public void addNeighbour(Cell cell) {
-        if (cell instanceof ResourceCell) {
+        if (cell instanceof ResourceCell)
             super.addNeighbour(cell);
-        }
+    }
+
+    public void addVillageNeighbour(Cell cell) {
+        if(cell instanceof VillageCell)
+            super.addNeighbour(cell);
     }
 
     public ArrayList<VillageCell> getVillages() {
@@ -95,23 +104,48 @@ public class ResourceCell extends Cell{
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+        style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        ImageButton button = new ImageButton(style);
+        if(type != ResourceType.EMPTY) {
+            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
+            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
+            stage.addActor(resourceDice);
+        }
+        if(button == null) {
+            button = new ImageButton(style);
+            button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+                public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                    System.out.println("Button clicked");
+                    if (player.getIsTurn()) {
+                        try {
+                            outputStream.writeObject("Clicked Resource button:" + id);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
+        button.setSize(100, 100);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
-        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Button clicked");
-                if(player.getIsTurn()) {
-                    try {
-                        outputStream.writeObject("Clicked Resource button:" + id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                return true;
-            }
-        });
+    }
+
+    @Override
+    public void drawWithoutFunc(Stage stage) {
+        style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        if(type != ResourceType.EMPTY) {
+            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
+            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
+            stage.addActor(resourceDice);
+        }
+        if(button == null) {
+            button = new ImageButton(style);
+        }
+        button.setSize(100, 100);
+        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
+        stage.addActor(button);
     }
 }
