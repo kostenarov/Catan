@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import com.game.catan.Functionality.Checkers;
 import com.game.catan.Map.Map;
 import com.game.catan.Map.Cell.Cell;
 import com.game.catan.Map.Cell.RoadCell;
@@ -177,17 +178,6 @@ public class CatanServer {
                 }
             }
         }
-        
-        private boolean checkRoadRequirements(RoadCell cell) {
-            for(Cell iteratorCell : cell.getNeighbours()) {
-                if(iteratorCell instanceof VillageCell) {
-                    if(((VillageCell) iteratorCell).getOwner() == currentPlayerIndex) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
 
         private boolean checkVillageRequirements(VillageCell cell) {
             for(Cell iteratorCell : cell.getNeighbours()) {
@@ -204,8 +194,8 @@ public class CatanServer {
             if(input.contains("Road")) {
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int roadId = Integer.parseInt(input.split(":")[1]);
-                if(areRoadRequirementsMet(map.getRoadCellById(roadId))) {
-                    Deck currentDeck = playerResources.get(String.valueOf(currentPlayerIndex));
+                Deck currentDeck = playerResources.get(String.valueOf(currentPlayerIndex));
+                if(Checkers.areRoadRequirementsMet(map.getRoadCellById(roadId), currentDeck, currentPlayerIndex)) {
                     currentDeck.removeRoadResources();
                     playerResources.put(String.valueOf(currentPlayerIndex), currentDeck);
                     map.getRoadCellById(roadId).setRoadTexture(roadPaths.get(currentPlayerIndex));
@@ -238,16 +228,6 @@ public class CatanServer {
         private boolean areVillageRequirementsMet(VillageCell cell) {
             //return isVillageBuildable() && cell.getOwner() == 5 && checkVillageRequirements(cell);
             return isVillageBuildable() && cell.getOwner() == 5;
-        }
-
-        private boolean areRoadRequirementsMet(RoadCell cell) {
-            return isRoadBuildable() && cell.getOwner() == 5 && checkRoadRequirements(cell);
-        }
-        
-        private boolean isRoadBuildable() {
-            Deck currentDeck = playerResources.get(String.valueOf(currentPlayerIndex));
-            return currentDeck.getResourceAmount(ResourceType.WOOD) >= 1 &&
-                    currentDeck.getResourceAmount(ResourceType.BRICK) >= 1;
         }
 
         private void sendMap(Map map) {
