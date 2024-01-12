@@ -74,7 +74,7 @@ public class Variables {
         });
     }
 
-    private ImageButton setUpImageButton(final String path, int x, int y, int amount, Stage stage) {
+    static ImageButton setUpImageButton(final String path, int x, int y, int amount, ResourceType type, Stage stage, final boolean isTurn) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(path));
         ImageButton button = new ImageButton(style);
@@ -113,12 +113,12 @@ public class Variables {
         }
     }
 
-    public void displayResources(Stage stage, Deck deck) {
-        cards.add(setUpImageButton("Cards/brickCard.png", 500, 100, deck.getResourceAmount(ResourceType.BRICK), stage));
-        cards.add(setUpImageButton("Cards/wheatCard.png", 600, 100, deck.getResourceAmount(ResourceType.WHEAT), stage));
-        cards.add(setUpImageButton("Cards/woodCard.png", 700, 100, deck.getResourceAmount(ResourceType.WOOD), stage));
-        cards.add(setUpImageButton("Cards/sheepCard.png", 800, 100, deck.getResourceAmount(ResourceType.SHEEP), stage));
-        cards.add(setUpImageButton("Cards/stoneCard.png", 900, 100, deck.getResourceAmount(ResourceType.STONE), stage));
+    public void displayResources(Stage stage, Deck deck, boolean isTurn) {
+        cards.add(setUpImageButton("Cards/brickCard.png", 500, 100, deck.getResourceAmount(ResourceType.BRICK), ResourceType.BRICK, stage, isTurn));
+        cards.add(setUpImageButton("Cards/wheatCard.png", 600, 100, deck.getResourceAmount(ResourceType.WHEAT), ResourceType.BRICK, stage, isTurn));
+        cards.add(setUpImageButton("Cards/woodCard.png", 700, 100, deck.getResourceAmount(ResourceType.WOOD), ResourceType.BRICK, stage, isTurn));
+        cards.add(setUpImageButton("Cards/sheepCard.png", 800, 100, deck.getResourceAmount(ResourceType.SHEEP), ResourceType.BRICK, stage, isTurn));
+        cards.add(setUpImageButton("Cards/stoneCard.png", 900, 100, deck.getResourceAmount(ResourceType.STONE), ResourceType.BRICK, stage, isTurn));
         for (ImageButton card : cards) {
             stage.addActor(card);
         }

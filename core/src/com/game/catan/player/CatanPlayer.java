@@ -37,12 +37,14 @@ public class CatanPlayer extends ApplicationAdapter {
     private ObjectOutputStream outputStream;
     private Stage stage;
     private SpriteBatch batch;
-    private Deck deck;
+    private final Deck deck;
     private Map map;
     private UpdateListenerThread updateThread;
     private Variables variables;
     private VillagePair<VillageCell, VillageCell> villagePair;
-    private HashMap<ResourceType, Label> cardsAmount;
+    private final HashMap<ResourceType, Label> cardsAmount;
+    private int points = 0;
+    private Label pointsLabel;
 
     public CatanPlayer(Map map) {
         this.map = map;
@@ -143,6 +145,13 @@ public class CatanPlayer extends ApplicationAdapter {
                 stage.addActor(resourceLabel);
             }
         }
+        Label.LabelStyle pointsLabelStyle = new Label.LabelStyle();
+        pointsLabelStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
+        pointsLabelStyle.font.getData().setScale(2f);
+        pointsLabelStyle.fontColor = Color.SALMON;
+        pointsLabel = new Label("Points: " + points, pointsLabelStyle);
+        pointsLabel.setPosition(1000, 50);
+        stage.addActor(pointsLabel);
     }
 
     private void drawBackgrounds() {
@@ -170,7 +179,7 @@ public class CatanPlayer extends ApplicationAdapter {
         batch.end();
     }
 
-    private TextButton setUpTextButton(String text, int x, int y) {
+    private TextButton setUpTextButton(String text, int y) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
         textButtonStyle.font.getData().setScale(2f);
@@ -180,18 +189,18 @@ public class CatanPlayer extends ApplicationAdapter {
         textButtonStyle.down = new TextureRegionDrawable(buttonTexture);
 
         TextButton button = new TextButton(text, textButtonStyle);
-        button.setPosition(x, y);
+        button.setPosition(1720, y);
         button.setSize(200, 100);
         return button;
     }
 
     private void endTurnButton() {
-        TextButton button = setUpTextButton("End Turn", 1720, 0);
+        TextButton button = setUpTextButton("End Turn", 0);
         Functionality.setUpButtonFunc(stage, button, isTurn, outputStream);
     }
 
     private void diceThrowButton(Stage stage) {
-        TextButton button = setUpTextButton("Throw Dice", 1720, 100);
+        TextButton button = setUpTextButton("Throw Dice", 100);
         stage.addActor(button);
         button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
@@ -210,7 +219,7 @@ public class CatanPlayer extends ApplicationAdapter {
         });
     }
 
-    private ImageButton setUpImageButton(final String path, int x, int y, int amount, ResourceType type) {
+    private ImageButton setUpImageButton(final String path, int x, ResourceType type) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(path));
         ImageButton button = new ImageButton(style);
@@ -223,9 +232,9 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         });
 
-        button.setPosition(x, y);
+        button.setPosition(x, 100);
         button.setSize(60, 100);
-        changeLabelAmount(type, amount);
+        changeLabelAmount(type, deck.getResourceAmount(type));
         return button;
     }
     private void changeLabelAmount(ResourceType type, int amount) {
@@ -236,26 +245,25 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
-    private void displayResources(Stage stage) {
-        ImageButton brickButton = setUpImageButton("Cards/brickCard.png", 500, 100, deck.getResourceAmount(ResourceType.BRICK), ResourceType.BRICK);
-        stage.addActor(brickButton);
-        ImageButton wheatButton = setUpImageButton("Cards/wheatCard.png", 600, 100, deck.getResourceAmount(ResourceType.WHEAT), ResourceType.WHEAT);
-        stage.addActor(wheatButton);
-        ImageButton woodButton = setUpImageButton("Cards/woodCard.png", 700, 100, deck.getResourceAmount(ResourceType.WOOD), ResourceType.WOOD);
-        stage.addActor(woodButton);
-        ImageButton sheepButton = setUpImageButton("Cards/sheepCard.png", 800, 100, deck.getResourceAmount(ResourceType.SHEEP), ResourceType.SHEEP);
-        stage.addActor(sheepButton);
-        ImageButton stoneButton = setUpImageButton("Cards/stoneCard.png", 900, 100, deck.getResourceAmount(ResourceType.STONE), ResourceType.STONE);
-        stage.addActor(stoneButton);
+    public void setPoints(int points) {
+        this.points = points;
     }
 
-    public void sendMap() {
-        try {
-            outputStream.writeObject(map);
-            outputStream.reset();
-        } catch (IOException e) {
-            System.out.println("Could not send map");
-        }
+    public void displayPoints() {
+        pointsLabel.setText("Points: " + points);
+    }
+
+    private void displayResources(Stage stage) {
+        ImageButton brickButton = setUpImageButton("Cards/brickCard.png", 500, ResourceType.BRICK);
+        stage.addActor(brickButton);
+        ImageButton wheatButton = setUpImageButton("Cards/wheatCard.png", 600, ResourceType.WHEAT);
+        stage.addActor(wheatButton);
+        ImageButton woodButton = setUpImageButton("Cards/woodCard.png", 700, ResourceType.WOOD);
+        stage.addActor(woodButton);
+        ImageButton sheepButton = setUpImageButton("Cards/sheepCard.png", 800, ResourceType.SHEEP);
+        stage.addActor(sheepButton);
+        ImageButton stoneButton = setUpImageButton("Cards/stoneCard.png", 900, ResourceType.STONE);
+        stage.addActor(stoneButton);
     }
 
     private void renderMap() {
@@ -276,8 +284,7 @@ public class CatanPlayer extends ApplicationAdapter {
             }
             else {
                 cell.buttonFunc(stage, outputStream, this);
-                Hexagon hexagon = new Hexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50, 70);
-                hexagon.draw(stage);
+                drawHexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50);
             }
         }
     }
@@ -286,16 +293,27 @@ public class CatanPlayer extends ApplicationAdapter {
         for(Cell cell : map.getMap()) {
             if(cell instanceof ResourceCell) {
                 cell.buttonFunc(stage, outputStream, this);
-                Hexagon hexagon = new Hexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50, 70);
-                hexagon.draw(stage);
+                drawHexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50);
+            }
+            if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
+                cell.buttonFunc(stage, outputStream, this);
+                batch.begin();
+                batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
+                batch.end();
             }
         }
+    }
+
+    private void drawHexagon(int x, int y) {
+        Hexagon hexagon = new Hexagon(x, y, 70);
+        hexagon.draw(stage);
     }
 
     @Override
     public void dispose() {
         batch.dispose();
         stage.dispose();
+        updateThread.stopThread();
         updateThread.interrupt();
         try {
             socket.close();
@@ -325,20 +343,5 @@ public class CatanPlayer extends ApplicationAdapter {
     //**********GETTERS**********//
     public synchronized boolean getIsTurn() {
         return isTurn;
-    }
-    public synchronized int getDiceThrow() {
-        return diceThrow;
-    }
-    public synchronized int getId() {
-        return id;
-    }
-    public synchronized Deck getDeck() {
-        return deck;
-    }
-    public String getVillagePath() {
-        return villagePath;
-    }
-    public String getRoadPath() {
-        return roadPath;
     }
 }

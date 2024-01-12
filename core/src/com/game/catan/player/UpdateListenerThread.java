@@ -6,8 +6,8 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 
 public class UpdateListenerThread extends Thread{
-    private CatanPlayer player;
-    private ObjectInputStream in;
+    private final CatanPlayer player;
+    private final ObjectInputStream in;
     private boolean isWorking = true;
 
     public UpdateListenerThread(CatanPlayer player, ObjectInputStream in) {
@@ -33,7 +33,13 @@ public class UpdateListenerThread extends Thread{
                     else if((int) input == 200) {
                         System.out.println("Not your turn");
                         player.setIsTurn(false);
-                        player.sendMap();
+                    }
+                }
+                else if(input instanceof String) {
+                    if(((String) input).contains("Points")) {
+                        System.out.println("Points received");
+                        player.setPoints(Integer.parseInt(((String) input).split(":")[1]));
+                        player.displayPoints();
                     }
                 }
                 else if(input instanceof Map) {

@@ -7,11 +7,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import com.game.catan.Functionality.Checkers;
+import com.game.catan.Functionality.PointCounter;
 import com.game.catan.Map.Map;
-import com.game.catan.Map.Cell.Cell;
-import com.game.catan.Map.Cell.RoadCell;
-import com.game.catan.Map.Cell.VillageCell;
-import com.game.catan.Map.Cell.ResourceType;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -24,22 +21,25 @@ public class CatanServer {
     private final List<ClientHandler> clients;
     private int currentPlayerIndex;
     private Map map;
-    private HashMap<String, Deck> playerResources;
+    private final HashMap<Integer, Deck> playerResources;
     private final ArrayList<String> villagePaths;
     private final ArrayList<String> roadPaths;
     private boolean isWorking = true;
     private int diceThrow;
+    private final int initialSequenceCounter = 0;
+    private final PointCounter pointCounter;
 
     public CatanServer(Map map) {
         clients = new ArrayList<>();
         this.map = map;
         playerResources = new HashMap<>();
         villagePaths = new ArrayList<>();
+        roadPaths = new ArrayList<>();
+        pointCounter = new PointCounter();
         villagePaths.add("Villages/yellowVillage.png");
         villagePaths.add("Villages/blueVillage.png");
         villagePaths.add("Villages/greenVillage.png");
         villagePaths.add("Villages/redVillage.png");
-        roadPaths = new ArrayList<>();
         roadPaths.add("Roads/yellowNormalRoad.png");
         roadPaths.add("Roads/blueNormalRoad.png");
         roadPaths.add("Roads/greenNormalRoad.png");
@@ -61,7 +61,8 @@ public class CatanServer {
     private void setUpConnection() throws IOException {
         Socket clientSocket = serverSocket.accept();
         System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
-        playerResources.put(String.valueOf(clients.size()), new Deck());
+        playerResources.put(clients.size(), new Deck());
+        pointCounter.addPlayer(clients.size());
 
         ClientHandler clientHandler = new ClientHandler(clientSocket);
         clients.add(clientHandler);
@@ -157,6 +158,15 @@ public class CatanServer {
             }
         }
 
+        private void sendPoints() {
+            try {
+                outputStream.writeObject("Points:" + pointCounter.getPoints(currentPlayerIndex));
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send points");
+            }
+        }
+
         private void resourcePressFunc(String input) {
             if(input.contains("Resource") && diceThrow == 7) {
                 System.out.println(input + " by user " + currentPlayerIndex);
@@ -167,37 +177,30 @@ public class CatanServer {
             if(input.contains("Village")) {
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int villageId = Integer.parseInt(input.split(":")[1]);
-                if(areVillageRequirementsMet(map.getVillageCellById(villageId))) {
-                    Deck currentDeck = playerResources.get(String.valueOf(currentPlayerIndex));
+                Deck currentDeck = playerResources.get(currentPlayerIndex);
+                if(Checkers.areVillageRequirementsMet(map.getVillageCellById(villageId), currentDeck)) {
                     currentDeck.removeVillageResources();
-                    playerResources.put(String.valueOf(currentPlayerIndex), currentDeck);
+                    playerResources.put(currentPlayerIndex, currentDeck);
                     map.getVillageCellById(villageId).setVillagePath(villagePaths.get(currentPlayerIndex));
                     map.getVillageCellById(villageId).setOwner(currentPlayerIndex);
                     broadcastMap();
+                    pointCounter.addPoint(currentPlayerIndex);
+                    sendPoints();
                     sendPlayerDeck();
                 }
             }
         }
 
-        private boolean checkVillageRequirements(VillageCell cell) {
-            for(Cell iteratorCell : cell.getNeighbours()) {
-                if(iteratorCell instanceof RoadCell) {
-                    if(((RoadCell) iteratorCell).getOwner() == currentPlayerIndex && ((RoadCell) iteratorCell).getOtherVillage(cell).getOwner() == currentPlayerIndex) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+
         
         private void RoadPressFunc(String input) {
             if(input.contains("Road")) {
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int roadId = Integer.parseInt(input.split(":")[1]);
-                Deck currentDeck = playerResources.get(String.valueOf(currentPlayerIndex));
+                Deck currentDeck = playerResources.get(currentPlayerIndex);
                 if(Checkers.areRoadRequirementsMet(map.getRoadCellById(roadId), currentDeck, currentPlayerIndex)) {
                     currentDeck.removeRoadResources();
-                    playerResources.put(String.valueOf(currentPlayerIndex), currentDeck);
+                    playerResources.put(currentPlayerIndex, currentDeck);
                     map.getRoadCellById(roadId).setRoadTexture(roadPaths.get(currentPlayerIndex));
                     map.getRoadCellById(roadId).setOwner(currentPlayerIndex);
                     broadcastMap();
@@ -208,7 +211,7 @@ public class CatanServer {
 
         private void sendPlayerDeck() {
             try {
-                Deck deckToSend = playerResources.get(String.valueOf(currentPlayerIndex));
+                Deck deckToSend = playerResources.get(currentPlayerIndex);
                 System.out.println(deckToSend.getResources());
                 outputStream.writeObject(deckToSend.getResources());
                 outputStream.reset();
@@ -217,18 +220,7 @@ public class CatanServer {
             }
         }
 
-        private boolean isVillageBuildable() {
-            Deck currentDeck = playerResources.get(String.valueOf(currentPlayerIndex));
-            return currentDeck.getResourceAmount(ResourceType.WOOD) >= 1 &&
-                    currentDeck.getResourceAmount(ResourceType.STONE) >= 1 &&
-                    currentDeck.getResourceAmount(ResourceType.SHEEP) >= 1 &&
-                    currentDeck.getResourceAmount(ResourceType.WHEAT) >= 1;
-        }
 
-        private boolean areVillageRequirementsMet(VillageCell cell) {
-            //return isVillageBuildable() && cell.getOwner() == 5 && checkVillageRequirements(cell);
-            return isVillageBuildable() && cell.getOwner() == 5;
-        }
 
         private void sendMap(Map map) {
             try {
@@ -266,10 +258,10 @@ public class CatanServer {
 
         private void sendDeck(int diceThrow) {
             try {
-                Deck tempDeck = playerResources.get(String.valueOf(clients.indexOf(this)));
+                Deck tempDeck = playerResources.get(clients.indexOf(this));
                 Deck acquiredResources = Functionality.getResources(diceThrow, map, tempDeck.getResources(), clients.indexOf(this));
                 System.out.println(acquiredResources.getResources());
-                playerResources.put(String.valueOf(clients.indexOf(this)), acquiredResources);
+                playerResources.put(clients.indexOf(this), acquiredResources);
                 outputStream.writeObject(acquiredResources.getResources());
                 //System.out.println(playerResources.get(String.valueOf(clients.indexOf(this))).getResources());
                 outputStream.reset();

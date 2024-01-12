@@ -5,8 +5,6 @@ import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Cell.RoadCell;
 import com.game.catan.Map.Cell.VillageCell;
 
-import java.util.HashSet;
-
 public class Checkers {
 
     private boolean isRoadBuildable(Deck deck) {
@@ -28,5 +26,28 @@ public class Checkers {
             }
         }
         return false;
+    }
+
+    private static boolean checkVillageRequirements(VillageCell cell, int currentPlayerIndex) {
+        for(Cell iteratorCell : cell.getNeighbours()) {
+            if(iteratorCell instanceof RoadCell) {
+                if(((RoadCell) iteratorCell).getOwner() == currentPlayerIndex && ((RoadCell) iteratorCell).getOtherVillage(cell).getOwner() == currentPlayerIndex) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck) {
+        //return isVillageBuildable() && cell.getOwner() == 5 && checkVillageRequirements(cell);
+        return isVillageBuildable(deck) && cell.getOwner() == 5;
+    }
+
+    private static boolean isVillageBuildable(Deck deck) {
+        return deck.getResourceAmount(ResourceType.WOOD) >= 1 &&
+                deck.getResourceAmount(ResourceType.STONE) >= 1 &&
+                deck.getResourceAmount(ResourceType.SHEEP) >= 1 &&
+                deck.getResourceAmount(ResourceType.WHEAT) >= 1;
     }
 }
