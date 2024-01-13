@@ -1,14 +1,10 @@
 package com.game.catan.Functionality;
 
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.game.catan.Map.Cell.ResourceCell;
 import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Cell.VillageCell;
 import com.game.catan.Map.Map;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 public class Functionality {
@@ -39,21 +35,5 @@ public class Functionality {
         return deck;
     }
 
-    public static void setUpButtonFunc(Stage stage, TextButton endTurnButton, final boolean isTurn, final ObjectOutputStream outputStream) {
-        stage.addActor(endTurnButton);
-        endTurnButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                try {
-                    if(isTurn) {
-                        System.out.println("End turn");
-                        outputStream.writeObject("End Turn");
-                        outputStream.reset();
-                    }
-                } catch (IOException e) {
-                    System.out.println("Could not send end turn");
-                }
-                return true;
-            }
-        });
-    }
+
 }

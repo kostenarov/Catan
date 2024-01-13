@@ -14,7 +14,7 @@ public class Checkers {
 
     public static boolean areRoadRequirementsMet(RoadCell cell, Deck deck, int currentPlayerIndex) {
         Checkers checkers = new Checkers();
-        return checkers.isRoadBuildable(deck) && cell.getOwner() == 5 && checkRoadRequirements(cell, currentPlayerIndex);
+        return checkers.isRoadBuildable(deck) && !cell.isBuilt() && checkRoadRequirements(cell, currentPlayerIndex);
     }
 
     private static boolean checkRoadRequirements(RoadCell cell, int currentPlayerIndex) {

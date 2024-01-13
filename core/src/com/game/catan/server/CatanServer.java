@@ -49,7 +49,9 @@ public class CatanServer {
             System.out.println("Server started. Waiting for clients...");
 
             while (isWorking) {
-                setUpConnection();
+                if(clients.size() < 4) {
+                    setUpConnection();
+                }
             }
         } catch (IOException e) {
             isWorking = false;
@@ -66,7 +68,7 @@ public class CatanServer {
 
         ClientHandler clientHandler = new ClientHandler(clientSocket);
         clients.add(clientHandler);
-
+        broadcastPlayersAmount();
         new Thread(clientHandler).start();
     }
 
@@ -95,6 +97,12 @@ public class CatanServer {
     private void broadcastDeck() {
         for (ClientHandler client : clients) {
             client.sendDeck(diceThrow);
+        }
+    }
+
+    private void broadcastPlayersAmount() {
+        for (ClientHandler client : clients) {
+            client.sendPlayerAmount();
         }
     }
 
@@ -158,6 +166,15 @@ public class CatanServer {
             }
         }
 
+        private void sendPlayerAmount() {
+            try {
+                outputStream.writeObject("Players:" + clients.size());
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send player amount");
+            }
+        }
+
         private void sendPoints() {
             try {
                 outputStream.writeObject("Points:" + pointCounter.getPoints(currentPlayerIndex));
@@ -191,8 +208,6 @@ public class CatanServer {
             }
         }
 
-
-        
         private void RoadPressFunc(String input) {
             if(input.contains("Road")) {
                 System.out.println(input + " by user " + currentPlayerIndex);

@@ -36,7 +36,7 @@ public class RoadCell extends Cell {
         this.roadStyle.imageUp = new com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable(roadTexture);
         button = new ImageButton(roadStyle);
 
-        if(owner == 5) {
+        if(!isBuilt) {
             button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
                 public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                     System.out.println("Button clicked");
@@ -64,11 +64,12 @@ public class RoadCell extends Cell {
     }
 
     public boolean isBuilt() {
-        return owner != 5;
+        return isBuilt;
     }
 
     public void setOwner(int owner) {
         this.owner = owner;
+        isBuilt = true;
     }
 
     public int getOwner() {

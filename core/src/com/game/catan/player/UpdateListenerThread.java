@@ -24,6 +24,7 @@ public class UpdateListenerThread extends Thread{
                 if (input instanceof Integer) {
                     if((int) input < 13) {
                         player.setDiceThrow((Integer) input);
+                        player.setDiceThrown(true);
                     }
                     else if((int) input == 100) {
                         System.out.println("Your turn");
@@ -40,6 +41,10 @@ public class UpdateListenerThread extends Thread{
                         System.out.println("Points received");
                         player.setPoints(Integer.parseInt(((String) input).split(":")[1]));
                         player.displayPoints();
+                    }
+                    else if(((String) input).contains("Players")) {
+                        System.out.println("Players received");
+                        player.setPlayersAmount(Integer.parseInt(((String) input).split(":")[1]));
                     }
                 }
                 else if(input instanceof Map) {
