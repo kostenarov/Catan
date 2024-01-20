@@ -94,13 +94,7 @@ public class ResourceCell extends Cell{
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        if(type != ResourceType.EMPTY) {
-            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
-            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
-            stage.addActor(resourceDice);
-        }
+        setUpResourceButtonStyleAndLabel(stage);
         if(button == null) {
             button = new ImageButton(style);
             button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
@@ -124,18 +118,23 @@ public class ResourceCell extends Cell{
 
     @Override
     public void drawWithoutFunc(Stage stage) {
-        style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        if(type != ResourceType.EMPTY) {
-            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
-            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
-            stage.addActor(resourceDice);
-        }
+        setUpResourceButtonStyleAndLabel(stage);
         if(button == null) {
             button = new ImageButton(style);
         }
         button.setSize(100, 100);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
+    }
+
+    private void setUpResourceButtonStyleAndLabel(Stage stage) {
+        style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        if(type != ResourceType.EMPTY) {
+            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
+            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
+            resourceDice.setFontScale(2);
+            stage.addActor(resourceDice);
+        }
     }
 }

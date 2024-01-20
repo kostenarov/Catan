@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.game.catan.Map.Cell.ResourceType;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -28,7 +27,7 @@ public class ButtonSetUps {
         return button;
     }
 
-    public static ImageButton setUpImageButton(final String path, int x, ResourceType type, final boolean isTurn, Deck deck) {
+    public static ImageButton setUpImageButton(final String path, int x, final boolean isTurn) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
         style.imageUp = new TextureRegionDrawable(new Texture(path));
         ImageButton button = new ImageButton(style);
@@ -46,7 +45,8 @@ public class ButtonSetUps {
         return button;
     }
 
-    public static void setUpEndTurnButtonFunc(Stage stage, TextButton endTurnButton, final boolean isTurn, final boolean isDiceThrown, final ObjectOutputStream outputStream) {
+    public static void setUpEndTurnButtonFunc(Stage stage, TextButton endTurnButton, final boolean isTurn,
+                                              final boolean isDiceThrown, final ObjectOutputStream outputStream) {
         stage.addActor(endTurnButton);
         endTurnButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
@@ -64,12 +64,13 @@ public class ButtonSetUps {
         });
     }
 
-    public static void setUpDiceThrowButtonFunc(Stage stage, TextButton diceThrowButton, final boolean isTurn, final ObjectOutputStream outputStream) {
+    public static void setUpDiceThrowButtonFunc(Stage stage, TextButton diceThrowButton, final boolean isTurn,
+                                                final boolean isDiceThrown, final ObjectOutputStream outputStream) {
         stage.addActor(diceThrowButton);
         diceThrowButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 try {
-                    if(isTurn) {
+                    if(isTurn && !isDiceThrown) {
                         System.out.println("Dice throw");
                         outputStream.writeObject("Dice Throw");
                         outputStream.reset();

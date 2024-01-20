@@ -26,8 +26,8 @@ public class PointCounter {
     }
 
     public int getWinner() {
-        int max = 0;
-        int winner = 0;
+        int max = 5;
+        int winner = 5;
         for (int playerIndex : points.keySet()) {
             if (points.get(playerIndex) > max) {
                 max = points.get(playerIndex);
