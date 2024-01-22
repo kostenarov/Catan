@@ -14,9 +14,22 @@ public class RoadCell extends Cell {
     private Texture roadTexture;
     private ImageButton.ImageButtonStyle roadStyle;
     private ImageButton button;
-    public RoadCell(int x, int y) {
+    private final int rotation;
+    public RoadCell(int x, int y, int rotation) {
         super(x, y);
         this.texturePath = "Roads/defaultNormalRoad.png";
+        this.rotation = rotation;
+    }
+
+    @Override
+    public void addNeighbour(Cell neighbour) {
+        neighbours.add(neighbour);
+        if(!neighbour.getNeighbours().contains(this))
+            neighbour.addNeighbour(this);
+        if(neighbour instanceof ResourceCell && getVillages().size() == 2) {
+            neighbour.addNeighbour(getVillages().get(0));
+            neighbour.addNeighbour(getOtherVillage(getVillages().get(0)));
+        }
     }
 
     public ArrayList<VillageCell> getVillages() {
@@ -51,6 +64,8 @@ public class RoadCell extends Cell {
         }
         button.setSize(50, 50);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
+        button.setTransform(true);
+        button.setRotation(rotation);
         stage.addActor(button);
     }
 

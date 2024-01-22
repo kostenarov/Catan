@@ -25,6 +25,13 @@ public class VillageCell extends Cell {
     }
 
     @Override
+    public void addNeighbour(Cell neighbour) {
+        neighbours.add(neighbour);
+        if(!neighbour.getNeighbours().contains(this))
+            neighbour.addNeighbour(this);
+    }
+
+    @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
         this.villageTexture = new Texture(texturePath);
         this.style = new ImageButton.ImageButtonStyle();
@@ -52,7 +59,6 @@ public class VillageCell extends Cell {
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
     }
-
     @Override
     public void drawWithoutFunc(Stage stage) {
         this.villageTexture = new Texture(texturePath);
@@ -68,7 +74,6 @@ public class VillageCell extends Cell {
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
     }
-
 
     public void setVillagePath(String path) {
         this.texturePath = path;

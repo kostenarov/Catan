@@ -35,6 +35,13 @@ public class ResourceCell extends Cell{
         this.diceThrow = diceThrow;
     }
 
+    @Override
+    public void addNeighbour(Cell neighbour) {
+        neighbours.add(neighbour);
+        if(!neighbour.getNeighbours().contains(this))
+            neighbour.addNeighbour(this);
+    }
+
     public void setTexturePath(ResourceType type){
         switch (type) {
             case WOOD:

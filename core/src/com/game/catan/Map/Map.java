@@ -21,30 +21,43 @@ public class Map implements Serializable {
         VillageCell tempVillage = new VillageCell(871, 568);
         VillageCell tempVillage2 = new VillageCell(871, 640);
         VillageCell tempVillage3 = new VillageCell(1013, 568);
-        RoadCell roadCell = new RoadCell(865, 600);
-        roadCell.addNeighbour(centerCell);
-        roadCell.addNeighbour(wheatCell);
+        VillageCell tempVillage4 = new VillageCell(1013, 640);
+        RoadCell roadCell = new RoadCell(865, 600, 0);
+        RoadCell roadCell2 = new RoadCell(1007, 600, 0);
+        RoadCell roadCell3 = new RoadCell(1073, 535, 60);
+
         roadCell.addNeighbour(tempVillage);
         roadCell.addNeighbour(tempVillage2);
+
+        roadCell2.addNeighbour(tempVillage3);
+        roadCell2.addNeighbour(tempVillage4);
+
+        roadCell3.addNeighbour(tempVillage3);
+
+        stoneCell.addNeighbour(roadCell2);
         stoneCell.addNeighbour(sheepCell);
-        stoneCell.addNeighbour(tempVillage3);
-        centerCell.addNeighbour(brickCell);
-        centerCell.addNeighbour(tempVillage3);
-        emptyCell.addNeighbour(brickCell);
         stoneCell.addNeighbour(brickCell);
-        centerCell.addNeighbour(stoneCell);
-        sheepCell.addNeighbour(centerCell);
-        emptyCell.setRobber(true);
-        wheatCell.addNeighbour(tempVillage);
-        wheatCell.addNeighbour(tempVillage2);
-        woodCell.addNeighbour(tempVillage);
-        woodCell.addNeighbour(sheepCell);
+
+        wheatCell.addNeighbour(roadCell);
+
         emptyCell.addNeighbour(tempVillage2);
-        centerCell.addNeighbour(tempVillage);
-        centerCell.addNeighbour(tempVillage2);
+        emptyCell.addNeighbour(brickCell);
+        emptyCell.setRobber(true);
+
+        centerCell.addNeighbour(roadCell);
+        centerCell.addNeighbour(roadCell2);
+        centerCell.addNeighbour(roadCell3);
+        centerCell.addNeighbour(brickCell);
+        centerCell.addNeighbour(stoneCell);
         centerCell.addNeighbour(wheatCell);
         centerCell.addNeighbour(woodCell);
         centerCell.addNeighbour(emptyCell);
+
+        sheepCell.addNeighbour(centerCell);
+
+        woodCell.addNeighbour(tempVillage);
+        woodCell.addNeighbour(sheepCell);
+
         System.out.println(centerCell.getDiceThrow());
         robberCell = findRobber();
     }

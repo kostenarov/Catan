@@ -234,19 +234,19 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void displayResources() {
-        ImageButton brickButton = ButtonSetUps.setUpImageButton("Cards/brickCard.png", 500, isTurn);
+        ImageButton brickButton = ButtonSetUps.setUpImageButton("Cards/brickCard.png", 300, isTurn);
         changeLabelAmount(ResourceType.BRICK, deck.getResourceAmount(ResourceType.BRICK));
         resourceStage.addActor(brickButton);
-        ImageButton wheatButton = ButtonSetUps.setUpImageButton("Cards/wheatCard.png", 600, isTurn);
+        ImageButton wheatButton = ButtonSetUps.setUpImageButton("Cards/wheatCard.png", 400, isTurn);
         changeLabelAmount(ResourceType.WHEAT, deck.getResourceAmount(ResourceType.WHEAT));
         resourceStage.addActor(wheatButton);
-        ImageButton woodButton = ButtonSetUps.setUpImageButton("Cards/woodCard.png", 700, isTurn);
+        ImageButton woodButton = ButtonSetUps.setUpImageButton("Cards/woodCard.png", 500, isTurn);
         changeLabelAmount(ResourceType.WOOD, deck.getResourceAmount(ResourceType.WOOD));
         resourceStage.addActor(woodButton);
-        ImageButton sheepButton = ButtonSetUps.setUpImageButton("Cards/sheepCard.png", 800, isTurn);
+        ImageButton sheepButton = ButtonSetUps.setUpImageButton("Cards/sheepCard.png", 600, isTurn);
         changeLabelAmount(ResourceType.SHEEP, deck.getResourceAmount(ResourceType.SHEEP));
         resourceStage.addActor(sheepButton);
-        ImageButton stoneButton = ButtonSetUps.setUpImageButton("Cards/stoneCard.png", 900, isTurn);
+        ImageButton stoneButton = ButtonSetUps.setUpImageButton("Cards/stoneCard.png", 700, isTurn);
         changeLabelAmount(ResourceType.STONE, deck.getResourceAmount(ResourceType.STONE));
         resourceStage.addActor(stoneButton);
     }
