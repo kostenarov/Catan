@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 
 
 public class CatanPlayer extends ApplicationAdapter {
@@ -252,7 +253,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void renderMap() {
-        for(Cell cell : map.getMap()) {
+        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
             if(cell instanceof RoadCell || cell instanceof VillageCell) {
                 cell.buttonFunc(stage, outputStream, this);
             }
@@ -260,7 +261,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void renderThiefRound() {
-        for(Cell cell : map.getMap()) {
+        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
             if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
                 cell.buttonFunc(stage, outputStream, this);
                 batch.begin();
@@ -275,7 +276,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void renderNormalRound() {
-        for(Cell cell : map.getMap()) {
+        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
             if(cell instanceof ResourceCell) {
                 cell.buttonFunc(stage, outputStream, this);
                 drawHexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50);

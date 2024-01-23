@@ -12,7 +12,7 @@ public class Functionality {
         return (int) (Math.random() * 10 + 2);
     }
 
-    public int getNumberOfPlayerVillages(ResourceCell cell, int playerId) {
+    public static int getNumberOfPlayerVillages(ResourceCell cell, int playerId) {
         int numberOfPlayerVillages = 0;
         for(VillageCell villageCell : cell.getVillages()) {
             if(villageCell.getOwner() == playerId) {
@@ -25,9 +25,9 @@ public class Functionality {
     public static Deck getResources(int diceThrow, Map map, HashMap<ResourceType, Integer> resources, int playerId) {
         for (ResourceCell cell : map.getResourceNeighbours(map.getCenterCell())) {
             if (cell.getDiceThrow() == diceThrow && !cell.hasRobber() && cell.getResource() != ResourceType.EMPTY) {
-                //if (cell.getNumberOfPlayerVillages(playerId) > 0) {
+                if (getNumberOfPlayerVillages(cell, playerId) > 0) {
                     resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);
-                //}
+                }
             }
         }
         Deck deck = new Deck();

@@ -28,10 +28,6 @@ public abstract class Cell implements Serializable {
     public List<Cell> getNeighbours() {
         return neighbours;
     }
-
-    public String getTexturePath() {
-        return texturePath;
-    }
     public abstract void buttonFunc(Stage stage, ObjectOutputStream outputStream, CatanPlayer player);
     public abstract void drawWithoutFunc(Stage stage);
     public int getId() {

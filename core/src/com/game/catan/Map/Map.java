@@ -18,6 +18,7 @@ public class Map implements Serializable {
         ResourceCell sheepCell = new ResourceCell(980, 465, ResourceType.SHEEP);
         ResourceCell stoneCell = new ResourceCell(1050, 570, ResourceType.STONE);
         ResourceCell brickCell = new ResourceCell(980, 675, ResourceType.BRICK);
+        ResourceCell woodCell2 = new ResourceCell(700, 465, ResourceType.WOOD);
         VillageCell tempVillage = new VillageCell(871, 568);
         VillageCell tempVillage2 = new VillageCell(871, 640);
         VillageCell tempVillage3 = new VillageCell(1013, 568);
@@ -35,28 +36,30 @@ public class Map implements Serializable {
         roadCell3.addNeighbour(tempVillage3);
 
         stoneCell.addNeighbour(roadCell2);
+        stoneCell.addNeighbour(roadCell3);
         stoneCell.addNeighbour(sheepCell);
         stoneCell.addNeighbour(brickCell);
 
+        wheatCell.addNeighbour(woodCell2);
         wheatCell.addNeighbour(roadCell);
 
         emptyCell.addNeighbour(tempVillage2);
         emptyCell.addNeighbour(brickCell);
+        emptyCell.addNeighbour(wheatCell);
         emptyCell.setRobber(true);
 
         centerCell.addNeighbour(roadCell);
         centerCell.addNeighbour(roadCell2);
-        centerCell.addNeighbour(roadCell3);
         centerCell.addNeighbour(brickCell);
-        centerCell.addNeighbour(stoneCell);
-        centerCell.addNeighbour(wheatCell);
         centerCell.addNeighbour(woodCell);
         centerCell.addNeighbour(emptyCell);
 
-        sheepCell.addNeighbour(centerCell);
+        sheepCell.addNeighbour(roadCell3);
 
         woodCell.addNeighbour(tempVillage);
         woodCell.addNeighbour(sheepCell);
+        woodCell.addNeighbour(wheatCell);
+        woodCell.addNeighbour(woodCell2);
 
         System.out.println(centerCell.getDiceThrow());
         robberCell = findRobber();
@@ -76,13 +79,16 @@ public class Map implements Serializable {
         return neighbours;
     }
 
-    public HashSet<Cell> getMap() {
-        HashSet<Cell> map = new HashSet<>();
-        map.add(centerCell);
-        for (Cell cell : map) {
-            map.addAll(getCellNeighbours(cell));
+    public HashSet<Cell> getMap(Cell start, HashSet<Cell> visited) {
+
+        visited.add(start);
+        for (Cell cell : start.getNeighbours()) {
+            if(!visited.contains(cell)) {
+                visited.add(cell);
+                getMap(cell, visited);
+            }
         }
-        return map;
+        return visited;
     }
 
     private HashSet<Cell> getCellNeighbours(Cell cell) {
@@ -101,7 +107,7 @@ public class Map implements Serializable {
 
     private int findLongestRoad() {
         HashSet<RoadCell> takenRoads = new HashSet<>();
-        for(Cell cell : getMap()) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell instanceof RoadCell) {
                 if(((RoadCell) cell).isBuilt()) {
                     takenRoads.add((RoadCell) cell);
@@ -171,7 +177,7 @@ public class Map implements Serializable {
     }
 
     public Cell getCellById(int id) {
-        for(Cell cell : getMap()) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell.getId() == id) {
                 return cell;
             }
@@ -180,7 +186,7 @@ public class Map implements Serializable {
     }
 
     public VillageCell getVillageCellById(int id) {
-        for(Cell cell : getMap()) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell instanceof VillageCell) {
                 if(cell.getId() == id) {
                     return (VillageCell) cell;
@@ -191,7 +197,7 @@ public class Map implements Serializable {
     }
 
     public RoadCell getRoadCellById(int id) {
-        for(Cell cell : getMap()) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell instanceof RoadCell) {
                 if(cell.getId() == id) {
                     return (RoadCell) cell;

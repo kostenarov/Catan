@@ -26,6 +26,7 @@ public class CatanServer {
     private final ArrayList<String> roadPaths;
     private boolean isWorking = true;
     private int diceThrow;
+    private boolean isDiceThrown = false;
     private final int initialSequenceCounter = 0;
     private final PointCounter pointCounter;
 
@@ -149,20 +150,22 @@ public class CatanServer {
         }
 
         private void endTurnFunc(String input) {
-            if(input.equals("End Turn")) {
+            if(input.equals("End Turn") && isDiceThrown) {
                 currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
                 System.out.println("Current player index: " + currentPlayerIndex);
                 broadcastTurnNotification();
                 broadcastMap();
+                isDiceThrown = false;
             }
         }
 
         private void diceThrowFunc(String input) {
-            if(input.equals("Dice Throw")) {
+            if(input.equals("Dice Throw") && !isDiceThrown) {
                 diceThrow = Functionality.diceThrow();
                 System.out.println(diceThrow);
                 broadcastDiceThrow();
                 broadcastDeck();
+                isDiceThrown = true;
             }
         }
 
@@ -185,13 +188,13 @@ public class CatanServer {
         }
 
         private void resourcePressFunc(String input) {
-            if(input.contains("Resource") && diceThrow == 7) {
+            if(input.contains("Resource") && diceThrow == 7 && isDiceThrown) {
                 System.out.println(input + " by user " + currentPlayerIndex);
             }
         }
 
         private void villagePressFunc(String input) {
-            if(input.contains("Village")) {
+            if(input.contains("Village") && isDiceThrown) {
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
@@ -209,7 +212,7 @@ public class CatanServer {
         }
 
         private void RoadPressFunc(String input) {
-            if(input.contains("Road")) {
+            if(input.contains("Road") && isDiceThrown) {
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int roadId = Integer.parseInt(input.split(":")[1]);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
