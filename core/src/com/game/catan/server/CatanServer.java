@@ -27,6 +27,7 @@ public class CatanServer {
     private boolean isWorking = true;
     private int diceThrow;
     private boolean isDiceThrown = false;
+    private boolean isRobberMoved = false;
     private final int initialSequenceCounter = 0;
     private final PointCounter pointCounter;
 
@@ -156,6 +157,7 @@ public class CatanServer {
                 broadcastTurnNotification();
                 broadcastMap();
                 isDiceThrown = false;
+                isRobberMoved = false;
             }
         }
 
@@ -189,7 +191,10 @@ public class CatanServer {
 
         private void resourcePressFunc(String input) {
             if(input.contains("Resource") && diceThrow == 7 && isDiceThrown) {
+                isRobberMoved = true;
                 System.out.println(input + " by user " + currentPlayerIndex);
+                int resourceId = Integer.parseInt(input.split(":")[1]);
+                map.moveRobber(resourceId);
             }
         }
 
@@ -281,7 +286,6 @@ public class CatanServer {
                 System.out.println(acquiredResources.getResources());
                 playerResources.put(clients.indexOf(this), acquiredResources);
                 outputStream.writeObject(acquiredResources.getResources());
-                //System.out.println(playerResources.get(String.valueOf(clients.indexOf(this))).getResources());
                 outputStream.reset();
             } catch (IOException e) {
                 System.out.println("Could not send deck");

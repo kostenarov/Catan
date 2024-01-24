@@ -23,6 +23,7 @@ public class Map implements Serializable {
         VillageCell tempVillage2 = new VillageCell(871, 640);
         VillageCell tempVillage3 = new VillageCell(1013, 568);
         VillageCell tempVillage4 = new VillageCell(1013, 640);
+        VillageCell tempVillage5 = new VillageCell(945, 525);
         RoadCell roadCell = new RoadCell(865, 600, 0);
         RoadCell roadCell2 = new RoadCell(1007, 600, 0);
         RoadCell roadCell3 = new RoadCell(1073, 535, 60);
@@ -34,6 +35,7 @@ public class Map implements Serializable {
         roadCell2.addNeighbour(tempVillage4);
 
         roadCell3.addNeighbour(tempVillage3);
+        roadCell3.addNeighbour(tempVillage5);
 
         stoneCell.addNeighbour(roadCell2);
         stoneCell.addNeighbour(roadCell3);
@@ -156,6 +158,11 @@ public class Map implements Serializable {
         return resourceCells;
     }
 
+    public void moveRobber(int resourceCellId) {
+        robberCell.setRobber(false);
+        getResourceCellById(resourceCellId).setRobber(true);
+    }
+
     public HashSet<Cell> getResources() {
         HashSet<Cell> map = new HashSet<>();
         map.add(centerCell);
@@ -174,6 +181,17 @@ public class Map implements Serializable {
             }
         }
         return resourceCells;
+    }
+
+    public ResourceCell getResourceCellById(int id) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+            if(cell instanceof ResourceCell) {
+                if(cell.getId() == id) {
+                    return (ResourceCell) cell;
+                }
+            }
+        }
+        return null;
     }
 
     public Cell getCellById(int id) {
