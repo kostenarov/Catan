@@ -203,7 +203,7 @@ public class CatanServer {
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
-                if(Checkers.areVillageRequirementsMet(map.getVillageCellById(villageId), currentDeck)) {
+                if(Checkers.areVillageRequirementsMet(map.getVillageCellById(villageId), currentDeck, currentPlayerIndex)) {
                     currentDeck.removeVillageResources();
                     playerResources.put(currentPlayerIndex, currentDeck);
                     map.getVillageCellById(villageId).setVillagePath(villagePaths.get(currentPlayerIndex));

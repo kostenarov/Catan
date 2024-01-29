@@ -134,14 +134,9 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void drawSpecificRound() {
-        if(diceThrow == 7) {
-            renderThiefRound();
-            renderMap();
-        }
-        else {
-            renderNormalRound();
-            renderMap();
-        }
+        renderNormalRound();
+        renderMap();
+
     }
 
     private void setUpInitialLabels() {

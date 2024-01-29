@@ -39,8 +39,8 @@ public class Checkers {
         return false;
     }
 
-    public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck) {
-        //return isVillageBuildable() && cell.getOwner() == 5 && checkVillageRequirements(cell);
+    public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck, int currentPlayerIndex) {
+        //return isVillageBuildable(deck) && cell.getOwner() == 5 && checkVillageRequirements(cell, currentPlayerIndex);
         return isVillageBuildable(deck) && cell.getOwner() == 5;
     }
 
