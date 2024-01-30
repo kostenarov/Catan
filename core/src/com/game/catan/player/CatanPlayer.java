@@ -42,10 +42,14 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private Stage stage;
     private Stage resourceStage;
+    private Stage backgroundStage;
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
     private Texture playerTexture;
+    private Image background;
+    private Image resourceBackground;
+
     private Label pointsLabel;
     private Label diceThrowLabel;
     private HashMap<ResourceType, ResourceDisplay> resourceLabels;
@@ -73,6 +77,9 @@ public class CatanPlayer extends ApplicationAdapter {
         playerIndicatorBatch = new SpriteBatch();
         stage = new Stage(new ScreenViewport());
         resourceStage = new Stage(new ScreenViewport());
+        backgroundStage = new Stage(new ScreenViewport());
+        background = new Image(new Texture("Backgrounds/background.png"));
+        resourceBackground = new Image(new Texture("Backgrounds/resourceBackground.png"));
         connectToServer();
         updateThread = new UpdateListenerThread(this, inputStream);
         updateThread.start();
@@ -80,18 +87,20 @@ public class CatanPlayer extends ApplicationAdapter {
         senderThread.start();
         setUpInitialLabels();
         setUpResourceLabels();
+        displayResources();
     }
 
     @Override
     public void render() {
+        backgroundStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        backgroundStage.draw();
         drawBackgrounds();
-        displayResources();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
         resourceStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         resourceStage.draw();
-        drawSpecificRound();
         drawButtons();
+        drawSpecificRound();
         drawPlayerIndicator();
         Gdx.input.setInputProcessor(stage);
     }
@@ -181,13 +190,11 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void drawBackground() {
-        Texture background = new Texture("Backgrounds/background.png");
-        backgroundBatch.draw(background, 0, 0);
+        backgroundStage.addActor(background);
     }
 
     private void drawResourceBackground() {
-        Texture background = new Texture("Backgrounds/resourceBackground.png");
-        backgroundBatch.draw(background, 0, -100);
+        backgroundStage.addActor(resourceBackground);
     }
 
     private void endTurnButton() {

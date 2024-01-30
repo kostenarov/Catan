@@ -36,9 +36,13 @@ public class Map implements Serializable {
         VillageCell tempVillage4 = new VillageCell(1013, 640);
         VillageCell tempVillage5 = new VillageCell(942, 532);
         RoadCell roadCell = new RoadCell(865, 600, 0);
-        RoadCell roadCell2 = new RoadCell(1007, 600, 0);
+        RoadCell roadCell2 = new RoadCell(1005, 600, 0);
         RoadCell roadCell3 = new RoadCell(1073, 535, 60);
         RoadCell roadCell4 = new RoadCell(932, 535, 60);
+        RoadCell roadCell5 = new RoadCell(725, 600, 0);
+        RoadCell roadCell6 = new RoadCell(585, 600, 0);
+        RoadCell roadCell7 = new RoadCell(1145, 600, 0);
+        RoadCell roadCell8 = new RoadCell(1285, 600, 0);
 
         roadCell.addNeighbour(tempVillage);
         roadCell.addNeighbour(tempVillage2);
@@ -66,6 +70,8 @@ public class Map implements Serializable {
         stoneCell.addNeighbour(wheatCell3);
         stoneCell.addNeighbour(brickCell2);
         stoneCell.addNeighbour(brickCell);
+        stoneCell.addNeighbour(roadCell7);
+        stoneCell.addNeighbour(stoneCell3);
 
         brickCell.addNeighbour(woodCell3);
         brickCell.addNeighbour(sheepCell3);
@@ -76,7 +82,10 @@ public class Map implements Serializable {
         wheatCell.addNeighbour(woodCell2);
         wheatCell.addNeighbour(wheatCell2);
         wheatCell.addNeighbour(roadCell);
-        wheatCell.addNeighbour(sheepCell2);
+        wheatCell.addNeighbour(roadCell5);
+
+        sheepCell2.addNeighbour(roadCell5);
+        sheepCell2.addNeighbour(roadCell6);
 
         emptyCell.addNeighbour(tempVillage2);
         emptyCell.addNeighbour(brickCell);
@@ -89,6 +98,8 @@ public class Map implements Serializable {
         wheatCell2.addNeighbour(sheepCell2);
         wheatCell2.addNeighbour(woodCell2);
         wheatCell2.addNeighbour(stoneCell2);
+        wheatCell2.addNeighbour(roadCell7);
+        wheatCell2.addNeighbour(roadCell8);
 
         wheatCell3.addNeighbour(woodCell3);
         wheatCell3.addNeighbour(brickCell2);
@@ -103,7 +114,6 @@ public class Map implements Serializable {
         sheepCell.addNeighbour(roadCell3);
         sheepCell.addNeighbour(brickCell2);
         sheepCell.addNeighbour(brickCell3);
-        stoneCell.addNeighbour(stoneCell3);
 
         woodCell.addNeighbour(sheepCell);
         woodCell.addNeighbour(wheatCell);
