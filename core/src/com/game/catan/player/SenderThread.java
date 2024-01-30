@@ -1,12 +1,14 @@
 package com.game.catan.player;
 
-public class SenderThread implements Runnable{
-    private final CatanPlayer player;
-    private final String message;
+import java.io.ObjectOutputStream;
 
-    public SenderThread(CatanPlayer player, String message) {
+public class SenderThread  extends Thread{
+    private final CatanPlayer player;
+    private final ObjectOutputStream outputStream;
+
+    public SenderThread(CatanPlayer player, ObjectOutputStream outputStream){
         this.player = player;
-        this.message = message;
+        this.outputStream = outputStream;
     }
 
     @Override

@@ -16,6 +16,10 @@ public class Deck {
         resources.put(ResourceType.WHEAT, 2);
     }
 
+    public Deck(HashMap<ResourceType, Integer> resources) {
+        this.resources = resources;
+    }
+
     public Deck(boolean helper) {
         resources = new HashMap<>();
         resources.put(ResourceType.WOOD, 0);

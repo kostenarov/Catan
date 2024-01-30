@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.player.CatanPlayer;
 
@@ -19,6 +20,7 @@ public class ResourceCell extends Cell{
     private ImageButton.ImageButtonStyle style;
     private Label resourceDice;
     private ImageButton button;
+    private Texture buttonTexture;
 
 
     public ResourceCell(int x, int y, ResourceType type) {
@@ -136,7 +138,8 @@ public class ResourceCell extends Cell{
 
     private void setUpResourceButtonStyleAndLabel(Stage stage) {
         style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
+        buttonTexture = new Texture(texturePath);
+        style.imageUp = new TextureRegionDrawable(buttonTexture);
         if(type != ResourceType.EMPTY) {
             resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
             resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);

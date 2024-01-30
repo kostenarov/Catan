@@ -34,6 +34,4 @@ public class Functionality {
         deck.setDeck(resources);
         return deck;
     }
-
-
 }

@@ -7,12 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.game.catan.player.CatanPlayer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 public class ButtonSetUps {
-    public static TextButton setUpTextButton(String text, int y) {
+    public static TextButton setUpTextButton(String text, int y, CatanPlayer player) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
         textButtonStyle.font.getData().setScale(2f);
