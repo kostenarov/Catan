@@ -101,9 +101,10 @@ public class CatanPlayer extends ApplicationAdapter {
         resourceStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         resourceStage.draw();
         renderNormalRound();
-
         drawButtons();
         drawPlayerIndicator();
+        Gdx.input.setInputProcessor(resourceStage);
+
         Gdx.input.setInputProcessor(stage);
     }
 

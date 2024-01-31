@@ -242,7 +242,8 @@ public class CatanServer {
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int resourceId = Integer.parseInt(input.split(":")[1]);
                 map.moveRobber(resourceId);
-                broadcastRobberMove();
+                //broadcastRobberMove();
+                broadcastMap();
             }
         }
 
@@ -258,7 +259,8 @@ public class CatanServer {
                         VillageCell villageCell = map.getVillageCellById(villageId);
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
-                        broadcastVillage(villageCell);
+                        //broadcastVillage(villageCell);
+                        broadcastMap();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -268,6 +270,7 @@ public class CatanServer {
                 }
             }
         }
+
         private void initialVillagePressFunc(String input) {
             if(input.contains("Village")) {
                 System.out.println(input + " by user " + currentPlayerIndex);
@@ -278,6 +281,7 @@ public class CatanServer {
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
                         broadcastVillage(villageCell);
+                        //broadcastMap();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -316,7 +320,8 @@ public class CatanServer {
                         RoadCell roadCell = map.getRoadCellById(roadId);
                         roadCell.setOwner(currentPlayerIndex);
                         roadCell.setRoadTexture(roadPaths.get(currentPlayerIndex));
-                        broadcastRoad(roadCell);
+                        //broadcastRoad(roadCell);
+                        broadcastMap();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -335,8 +340,6 @@ public class CatanServer {
                 System.out.println("Could not send player deck");
             }
         }
-
-
 
         private void sendMap(Map map) {
             try {
