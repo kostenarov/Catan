@@ -163,7 +163,7 @@ public class Map implements Serializable {
 
     private int findLongestRoad() {
         HashSet<RoadCell> takenRoads = new HashSet<>();
-        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<>())) {
             if(cell instanceof RoadCell) {
                 if(((RoadCell) cell).isBuilt()) {
                     takenRoads.add((RoadCell) cell);
@@ -238,7 +238,7 @@ public class Map implements Serializable {
     }
 
     public ResourceCell getResourceCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<>())) {
             if(cell instanceof ResourceCell) {
                 if(cell.getId() == id) {
                     return (ResourceCell) cell;
@@ -248,8 +248,14 @@ public class Map implements Serializable {
         return null;
     }
 
+    public void setRobberCell(ResourceCell newRobber) {
+        robberCell.setRobber(false);
+        robberCell = newRobber;
+        robberCell.setRobber(true);
+    }
+
     public Cell getCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<>())) {
             if(cell.getId() == id) {
                 return cell;
             }
@@ -257,8 +263,12 @@ public class Map implements Serializable {
         return null;
     }
 
+    public ResourceCell getRobberCell() {
+        return robberCell;
+    }
+
     public VillageCell getVillageCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<>())) {
             if(cell instanceof VillageCell) {
                 if(cell.getId() == id) {
                     return (VillageCell) cell;
@@ -267,9 +277,13 @@ public class Map implements Serializable {
         }
         return null;
     }
+    public void setVillageCell(VillageCell cell){
+        getVillageCellById(cell.getId()).setOwner(cell.getOwner());
+        getVillageCellById(cell.getId()).setVillagePath(cell.getVillagePath());
+    }
 
     public RoadCell getRoadCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<>())) {
             if(cell instanceof RoadCell) {
                 if(cell.getId() == id) {
                     return (RoadCell) cell;
@@ -277,6 +291,11 @@ public class Map implements Serializable {
             }
         }
         return null;
+    }
+
+    public void setRoadCell(RoadCell cell){
+        getRoadCellById(cell.getId()).setOwner(cell.getOwner());
+        getRoadCellById(cell.getId()).setRoadTexture(cell.getRoadTexture());
     }
 
     public ResourceCell getCenterCell() {

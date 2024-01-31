@@ -240,7 +240,6 @@ public class CatanPlayer extends ApplicationAdapter {
             }
             else {
                 cell.buttonFunc(stage, outputStream, this);
-                drawHexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50);
             }
         }
     }
@@ -249,7 +248,6 @@ public class CatanPlayer extends ApplicationAdapter {
         for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
             if(cell instanceof ResourceCell) {
                 cell.buttonFunc(stage, outputStream, this);
-                drawHexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50);
             }
             if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
                 cell.buttonFunc(stage, outputStream, this);
@@ -262,11 +260,6 @@ public class CatanPlayer extends ApplicationAdapter {
         int y = 700;
         playerTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         playerIndicatorBatch.draw(playerTexture, 1700, y+=100, 50, 50);
-    }
-
-    private void drawHexagon(int x, int y) {
-        Hexagon hexagon = new Hexagon(x, y, 70);
-        hexagon.draw(stage);
     }
 
     private void setUpResourceLabels() {
@@ -331,7 +324,15 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;
     }
-
+    public synchronized void setRobberCell(ResourceCell cell) {
+        map.setRobberCell(cell);
+    }
+    public synchronized void setVillageCell(VillageCell cell) {
+        map.setVillageCell(cell);
+    }
+    public synchronized void setRoadCell(RoadCell cell) {
+        map.setRoadCell(cell);
+    }
 
     //**********GETTERS**********//
     public synchronized boolean getIsTurn() {

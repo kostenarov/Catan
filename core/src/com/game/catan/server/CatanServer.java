@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 
 import com.game.catan.Functionality.Checkers;
 import com.game.catan.Functionality.PointCounter;
+import com.game.catan.Map.Cell.RoadCell;
+import com.game.catan.Map.Cell.VillageCell;
 import com.game.catan.Map.Map;
 
 import java.io.ObjectInputStream;
@@ -102,6 +104,24 @@ public class CatanServer {
         }
     }
 
+    private void broadcastRobberMove() {
+        for (ClientHandler client : clients) {
+            client.sendRobberMove();
+        }
+    }
+
+    private void broadcastVillage(VillageCell villageCell) {
+        for (ClientHandler client : clients) {
+            client.sendVillage(villageCell);
+        }
+    }
+
+    private void broadcastRoad(RoadCell roadCell) {
+        for (ClientHandler client : clients) {
+            client.sendRoad(roadCell);
+        }
+    }
+
     private void broadcastPlayersAmount() {
         for (ClientHandler client : clients) {
             client.sendPlayerAmount();
@@ -189,12 +209,40 @@ public class CatanServer {
             }
         }
 
+        private void sendRobberMove() {
+            try {
+                outputStream.writeObject(map.getRobberCell());
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send robber move");
+            }
+        }
+
+        private void sendVillage(VillageCell villageCell) {
+            try {
+                outputStream.writeObject(villageCell);
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send village");
+            }
+        }
+
+        private void sendRoad(RoadCell roadCell) {
+            try {
+                outputStream.writeObject(roadCell);
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send road");
+            }
+        }
+
         private void resourcePressFunc(String input) {
             if(input.contains("Resource") && diceThrow == 7 && isDiceThrown) {
                 isRobberMoved = true;
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int resourceId = Integer.parseInt(input.split(":")[1]);
                 map.moveRobber(resourceId);
+                broadcastRobberMove();
             }
         }
 
@@ -206,9 +254,14 @@ public class CatanServer {
                 if(Checkers.areVillageRequirementsMet(map.getVillageCellById(villageId), currentDeck, currentPlayerIndex)) {
                     currentDeck.removeVillageResources();
                     playerResources.put(currentPlayerIndex, currentDeck);
-                    map.getVillageCellById(villageId).setVillagePath(villagePaths.get(currentPlayerIndex));
-                    map.getVillageCellById(villageId).setOwner(currentPlayerIndex);
-                    broadcastMap();
+                    try {
+                        VillageCell villageCell = map.getVillageCellById(villageId);
+                        villageCell.setOwner(currentPlayerIndex);
+                        villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
+                        broadcastVillage(villageCell);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     pointCounter.addPoint(currentPlayerIndex);
                     sendPoints();
                     sendPlayerDeck();
@@ -224,9 +277,14 @@ public class CatanServer {
                 if(Checkers.areRoadRequirementsMet(map.getRoadCellById(roadId), currentDeck, currentPlayerIndex)) {
                     currentDeck.removeRoadResources();
                     playerResources.put(currentPlayerIndex, currentDeck);
-                    map.getRoadCellById(roadId).setRoadTexture(roadPaths.get(currentPlayerIndex));
-                    map.getRoadCellById(roadId).setOwner(currentPlayerIndex);
-                    broadcastMap();
+                    try {
+                        RoadCell roadCell = map.getRoadCellById(roadId);
+                        roadCell.setOwner(currentPlayerIndex);
+                        roadCell.setRoadTexture(roadPaths.get(currentPlayerIndex));
+                        broadcastRoad(roadCell);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     sendPlayerDeck();
                 }
             }

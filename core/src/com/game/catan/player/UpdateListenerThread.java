@@ -1,6 +1,9 @@
 package com.game.catan.player;
 
+import com.game.catan.Map.Cell.ResourceCell;
 import com.game.catan.Map.Cell.ResourceType;
+import com.game.catan.Map.Cell.RoadCell;
+import com.game.catan.Map.Cell.VillageCell;
 import com.game.catan.Map.Map;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
@@ -49,11 +52,23 @@ public class UpdateListenerThread extends Thread{
                 }
                 else if(input instanceof Map) {
                     System.out.println("Map received");
-                    player.setMap((Map) input);
+                    //player.setMap((Map) input);
                 }
                 else if(input instanceof HashMap) {
                     System.out.println("Deck received");
                     player.setDeck((HashMap<ResourceType, Integer>) input);
+                }
+                else if(input instanceof ResourceCell) {
+                    System.out.println("Resource cell received");
+                    player.setRobberCell((ResourceCell) input);
+                }
+                else if(input instanceof VillageCell) {
+                    System.out.println("Village cell received");
+                    player.setVillageCell((VillageCell) input);
+                }
+                else if(input instanceof RoadCell) {
+                    System.out.println("Road cell received");
+                    player.setRoadCell((RoadCell) input);
                 }
             } catch (Exception e) {
                 System.out.println("Could not read input");

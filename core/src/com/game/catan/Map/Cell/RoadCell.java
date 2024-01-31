@@ -44,29 +44,31 @@ public class RoadCell extends Cell {
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player){
-        this.roadTexture = new Texture(texturePath);
-        this.roadStyle = new ImageButton.ImageButtonStyle();
-        this.roadStyle.imageUp = new com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable(roadTexture);
-        button = new ImageButton(roadStyle);
+        if(button == null) {
+            this.roadTexture = new Texture(texturePath);
+            this.roadStyle = new ImageButton.ImageButtonStyle();
+            this.roadStyle.imageUp = new com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable(roadTexture);
+            button = new ImageButton(roadStyle);
 
-        if(!isBuilt) {
-            button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-                public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                    System.out.println("Button clicked");
-                    try {
-                        outputStream.writeObject("Clicked Road button:" + id);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+            if (!isBuilt) {
+                button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
+                    public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                        System.out.println("Button clicked");
+                        try {
+                            outputStream.writeObject("Clicked Road button:" + id);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        return true;
                     }
-                    return true;
-                }
-            });
+                });
+            }
+            button.setSize(50, 50);
+            button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
+            button.setTransform(true);
+            button.setRotation(rotation);
+            stage.addActor(button);
         }
-        button.setSize(50, 50);
-        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
-        button.setTransform(true);
-        button.setRotation(rotation);
-        stage.addActor(button);
     }
 
     @Override
@@ -98,5 +100,9 @@ public class RoadCell extends Cell {
             }
         }
         return null;
+    }
+
+    public String getRoadTexture() {
+        return texturePath;
     }
 }
