@@ -28,6 +28,11 @@ public class Checkers {
         return false;
     }
 
+
+    public static boolean areInitialRoadRequirementsMet(RoadCell cell, int currentPlayerIndex) {
+        return checkRoadRequirements(cell, currentPlayerIndex) && !cell.isBuilt();
+    }
+
     private static boolean checkVillageRequirements(VillageCell cell, int currentPlayerIndex) {
         for(Cell iteratorCell : cell.getNeighbours()) {
             if(iteratorCell instanceof RoadCell) {
@@ -39,9 +44,25 @@ public class Checkers {
         return false;
     }
 
+    private static boolean checkInitialVillageRequirements(VillageCell cell) {
+        if(cell.getOwner() != 5) return false;
+        for(Cell iteratorCell : cell.getNeighbours()) {
+            if(iteratorCell instanceof RoadCell) {
+                if(((RoadCell) iteratorCell).getOtherVillage(cell).getOwner() == 5) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck, int currentPlayerIndex) {
         //return isVillageBuildable(deck) && cell.getOwner() == 5 && checkVillageRequirements(cell, currentPlayerIndex);
         return isVillageBuildable(deck) && cell.getOwner() == 5;
+    }
+
+    public static boolean areInitialVillageRequirementsMet(VillageCell cell) {
+        return checkInitialVillageRequirements(cell);
     }
 
     private static boolean isVillageBuildable(Deck deck) {

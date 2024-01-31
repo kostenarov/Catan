@@ -52,7 +52,7 @@ public class UpdateListenerThread extends Thread{
                 }
                 else if(input instanceof Map) {
                     System.out.println("Map received");
-                    //player.setMap((Map) input);
+                    player.setMap((Map) input);
                 }
                 else if(input instanceof HashMap) {
                     System.out.println("Deck received");

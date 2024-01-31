@@ -268,6 +268,41 @@ public class CatanServer {
                 }
             }
         }
+        private void initialVillagePressFunc(String input) {
+            if(input.contains("Village")) {
+                System.out.println(input + " by user " + currentPlayerIndex);
+                int villageId = Integer.parseInt(input.split(":")[1]);
+                if(Checkers.areInitialVillageRequirementsMet(map.getVillageCellById(villageId))) {
+                    try {
+                        VillageCell villageCell = map.getVillageCellById(villageId);
+                        villageCell.setOwner(currentPlayerIndex);
+                        villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
+                        broadcastVillage(villageCell);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    pointCounter.addPoint(currentPlayerIndex);
+                    sendPoints();
+                }
+            }
+        }
+
+        private void initialRoadPressFunc(String input) {
+            if(input.contains("Road")) {
+                System.out.println(input + " by user " + currentPlayerIndex);
+                int roadId = Integer.parseInt(input.split(":")[1]);
+                if(Checkers.areInitialRoadRequirementsMet(map.getRoadCellById(roadId), currentPlayerIndex)) {
+                    try {
+                        RoadCell roadCell = map.getRoadCellById(roadId);
+                        roadCell.setOwner(currentPlayerIndex);
+                        roadCell.setRoadTexture(roadPaths.get(currentPlayerIndex));
+                        broadcastRoad(roadCell);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
 
         private void RoadPressFunc(String input) {
             if(input.contains("Road") && isDiceThrown) {

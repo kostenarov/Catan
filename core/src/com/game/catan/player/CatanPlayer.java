@@ -88,6 +88,7 @@ public class CatanPlayer extends ApplicationAdapter {
         setUpInitialLabels();
         setUpResourceLabels();
         displayResources();
+
     }
 
     @Override
@@ -99,8 +100,9 @@ public class CatanPlayer extends ApplicationAdapter {
         stage.draw();
         resourceStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         resourceStage.draw();
+        renderNormalRound();
+
         drawButtons();
-        drawSpecificRound();
         drawPlayerIndicator();
         Gdx.input.setInputProcessor(stage);
     }
@@ -144,13 +146,6 @@ public class CatanPlayer extends ApplicationAdapter {
         else {
             playerIndicatorBatch.draw(new Texture("Villages/redVillage.png"), 0, 0);
         }
-    }
-
-    private void drawSpecificRound() {
-        batch.begin();
-        renderNormalRound();
-        renderMap();
-        batch.end();
     }
 
     private void setUpInitialLabels() {
@@ -231,19 +226,13 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
-    private void renderMap() {
-        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
-            if(cell instanceof RoadCell || cell instanceof VillageCell) {
-                cell.buttonFunc(stage, outputStream, this);
-            }
-        }
-    }
-
     private void renderThiefRound() {
         for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
             if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
                 cell.buttonFunc(stage, outputStream, this);
+                batch.begin();
                 batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
+                batch.end();
             }
             else {
                 cell.buttonFunc(stage, outputStream, this);
@@ -253,13 +242,24 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void renderNormalRound() {
         for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
-            if(cell instanceof ResourceCell) {
-                cell.buttonFunc(stage, outputStream, this);
-            }
             if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
                 cell.buttonFunc(stage, outputStream, this);
+                batch.begin();
                 batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
+                batch.end();            }
+            else if(cell instanceof ResourceCell) {
+                cell.buttonFunc(stage, outputStream, this);
             }
+        }
+        renderMap();
+    }
+
+    private void renderMap() {
+        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
+            if(cell instanceof VillageCell || cell instanceof RoadCell) {
+                cell.buttonFunc(stage, outputStream, this);
+            }
+
         }
     }
 
