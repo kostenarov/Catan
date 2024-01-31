@@ -173,7 +173,7 @@ public class Map implements Serializable {
 
     private int findLongestRoad() {
         HashSet<RoadCell> takenRoads = new HashSet<>();
-        for(Cell cell : getMap(centerCell, new HashSet<>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell instanceof RoadCell) {
                 if(((RoadCell) cell).isBuilt()) {
                     takenRoads.add((RoadCell) cell);
@@ -248,7 +248,7 @@ public class Map implements Serializable {
     }
 
     public ResourceCell getResourceCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell instanceof ResourceCell) {
                 if(cell.getId() == id) {
                     return (ResourceCell) cell;
@@ -265,7 +265,7 @@ public class Map implements Serializable {
     }
 
     public Cell getCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell.getId() == id) {
                 return cell;
             }
@@ -278,7 +278,7 @@ public class Map implements Serializable {
     }
 
     public VillageCell getVillageCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell instanceof VillageCell) {
                 if(cell.getId() == id) {
                     return (VillageCell) cell;
@@ -293,7 +293,7 @@ public class Map implements Serializable {
     }
 
     public RoadCell getRoadCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<>())) {
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
             if(cell instanceof RoadCell) {
                 if(cell.getId() == id) {
                     return (RoadCell) cell;
