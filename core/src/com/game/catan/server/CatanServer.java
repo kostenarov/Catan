@@ -253,20 +253,20 @@ public class CatanServer {
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
                 if(Checkers.areVillageRequirementsMet(map.getVillageCellById(villageId), currentDeck, currentPlayerIndex)) {
-                    currentDeck.removeVillageResources();
-                    playerResources.put(currentPlayerIndex, currentDeck);
                     try {
                         VillageCell villageCell = map.getVillageCellById(villageId);
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
                         //broadcastVillage(villageCell);
                         broadcastMap();
+                        currentDeck.removeVillageResources();
+                        playerResources.put(currentPlayerIndex, currentDeck);
+                        pointCounter.addPoint(currentPlayerIndex);
+                        sendPoints();
+                        sendPlayerDeck();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                    pointCounter.addPoint(currentPlayerIndex);
-                    sendPoints();
-                    sendPlayerDeck();
                 }
             }
         }
@@ -287,6 +287,29 @@ public class CatanServer {
                     }
                     pointCounter.addPoint(currentPlayerIndex);
                     sendPoints();
+                }
+            }
+        }
+
+        private void secondInitialVillagePressFunc(String input) {
+            if(input.contains("Village")) {
+                System.out.println(input + " by user " + currentPlayerIndex);
+                int villageId = Integer.parseInt(input.split(":")[1]);
+                if(Checkers.areInitialVillageRequirementsMet(map.getVillageCellById(villageId))) {
+                    try {
+                        VillageCell villageCell = map.getVillageCellById(villageId);
+                        villageCell.setOwner(currentPlayerIndex);
+                        villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
+                        //broadcastVillage(villageCell);
+                        broadcastMap();
+                        playerResources.put(currentPlayerIndex, Functionality.getResourcesFromInitialVillages(villageCell, playerResources.get(currentPlayerIndex).getResources()));
+                        sendPlayerDeck();
+                        pointCounter.addPoint(currentPlayerIndex);
+                        sendPoints();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             }
         }
@@ -314,18 +337,18 @@ public class CatanServer {
                 int roadId = Integer.parseInt(input.split(":")[1]);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
                 if(Checkers.areRoadRequirementsMet(map.getRoadCellById(roadId), currentDeck, currentPlayerIndex)) {
-                    currentDeck.removeRoadResources();
-                    playerResources.put(currentPlayerIndex, currentDeck);
                     try {
                         RoadCell roadCell = map.getRoadCellById(roadId);
                         roadCell.setOwner(currentPlayerIndex);
                         roadCell.setRoadTexture(roadPaths.get(currentPlayerIndex));
                         //broadcastRoad(roadCell);
                         broadcastMap();
+                        currentDeck.removeRoadResources();
+                        playerResources.put(currentPlayerIndex, currentDeck);
+                        sendPlayerDeck();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                    sendPlayerDeck();
                 }
             }
         }

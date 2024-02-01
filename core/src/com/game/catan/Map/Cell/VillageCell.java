@@ -9,6 +9,7 @@ import com.game.catan.player.CatanPlayer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 
 public class VillageCell extends Cell {
     private int owner = 5;
@@ -88,6 +89,16 @@ public class VillageCell extends Cell {
 
     public boolean hasNeighbours() {
         return !getNeighbours().isEmpty();
+    }
+
+    public HashSet<ResourceCell> getResourceNeighbours() {
+        HashSet<ResourceCell> resourceCells = new HashSet<>();
+        for(Cell cell : getNeighbours()) {
+            if(cell instanceof ResourceCell) {
+                resourceCells.add((ResourceCell) cell);
+            }
+        }
+        return resourceCells;
     }
 
     public ImageButton getVillageButton() {
