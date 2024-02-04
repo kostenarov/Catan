@@ -59,15 +59,20 @@ public class Checkers {
     }
 
     private static boolean checkInitialVillageRequirements(VillageCell cell) {
-        if(cell.getOwner() != 5) return false;
+        if(cell.getOwner() != 5) {
+            System.out.println("Owner is not 5");
+            return false;
+        }
+        int counter = 0;
+        int roadHelper = 0;
         for(Cell iteratorCell : cell.getNeighbours()) {
             if(iteratorCell instanceof RoadCell) {
-                if(((RoadCell) iteratorCell).getOtherVillage(cell).getOwner() == 5) {
-                    return true;
-                }
+                roadHelper++;
+                if(((RoadCell) iteratorCell).getOtherVillage(cell).getOwner() == 5)
+                    counter++;
             }
         }
-        return false;
+        return counter == roadHelper;
     }
 
     public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck, int currentPlayerIndex) {

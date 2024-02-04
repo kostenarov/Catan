@@ -30,7 +30,6 @@ public class CatanPlayer extends ApplicationAdapter {
     private int playersAmount;
     private int diceThrow;
     private boolean isTurn = true;
-    private boolean update = false;
     private boolean isDiceThrown = false;
     private int points = 0;
 
@@ -59,7 +58,6 @@ public class CatanPlayer extends ApplicationAdapter {
     private UpdateListenerThread updateThread;
     private SenderThread senderThread;
     private VillagePair<VillageCell, VillageCell> villagePair;
-    private static final HashMap<ResourceType, Label> cardsAmount = new HashMap<>();
 
     public CatanPlayer(Map map) {
         this.map = map;
@@ -82,8 +80,6 @@ public class CatanPlayer extends ApplicationAdapter {
         connectToServer();
         updateThread = new UpdateListenerThread(this, inputStream);
         updateThread.start();
-        senderThread = new SenderThread(this, outputStream);
-        senderThread.start();
         setUpInitialLabels();
         setUpResourceLabels();
         displayResources();
@@ -327,8 +323,8 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         }
     }
-    public synchronized void setIsUpdate(boolean update) {
-        this.update = update;
+    public synchronized void setOffer(Offer offer) {
+        this.offer = offer;
     }
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;
@@ -347,7 +343,7 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized boolean getIsTurn() {
         return isTurn;
     }
-    public synchronized boolean getUpdate() {
-        return update;
+    public synchronized int getId() {
+        return id;
     }
 }

@@ -1,5 +1,6 @@
 package com.game.catan.player;
 
+import com.game.catan.Functionality.Offer;
 import com.game.catan.Map.Cell.ResourceCell;
 import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Cell.RoadCell;
@@ -70,6 +71,13 @@ public class UpdateListenerThread extends Thread{
                     System.out.println("Road cell received");
                     player.setRoadCell((RoadCell) input);
                 }
+                else if(input instanceof Offer) {
+                    System.out.println("Offer received");
+                    if(((Offer) input).getPlayerId() != player.getId()) {
+                        player.setOffer((Offer) input);
+                    }
+                }
+
             } catch (Exception e) {
                 System.out.println("Could not read input");
             }
