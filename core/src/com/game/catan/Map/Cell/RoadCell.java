@@ -63,7 +63,6 @@ public class RoadCell extends Cell {
                     }
                 });
             }
-            button.setSize(50, 50);
             button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
             button.setTransform(true);
             button.setRotation(rotation);

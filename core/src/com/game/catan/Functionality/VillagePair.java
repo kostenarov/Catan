@@ -9,6 +9,13 @@ public class VillagePair <K, U> {
         this.second = second;
     }
 
+    public VillagePair() {
+    }
+
+    public VillagePair(K first) {
+        this.first = first;
+    }
+
     public K getFirst() {
         return first;
     }
@@ -23,5 +30,29 @@ public class VillagePair <K, U> {
 
     public void setSecond(U second) {
         this.second = second;
+    }
+
+    public void addSecond(U second) {
+        this.second = second;
+    }
+
+    public boolean hasBoth() {
+        return hasFirst() && hasSecond();
+    }
+
+    public boolean hasFirst() {
+        return first != null;
+    }
+
+    public boolean hasSecond() {
+        return second != null;
+    }
+
+    public boolean hasOne() {
+        return !hasBoth() && !hasNone();
+    }
+
+    public boolean hasNone() {
+        return first == null && second == null;
     }
 }

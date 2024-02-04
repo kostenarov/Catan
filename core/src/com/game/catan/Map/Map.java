@@ -28,12 +28,12 @@ public class Map implements Serializable {
         ResourceCell thirdLevelWheatCell = new ResourceCell(770, 570, ResourceType.WHEAT);
         ResourceCell thirdLevelStoneCell = new ResourceCell(1050, 570, ResourceType.STONE);
         ResourceCell thirdLevelWheatCell2 = new ResourceCell(1190, 570, ResourceType.WHEAT);
-        RoadCell roadCell6 = new RoadCell(585, 600, 0);
-        RoadCell roadCell5 = new RoadCell(725, 600, 0);
-        RoadCell roadCell = new RoadCell(865, 600, 0);
-        RoadCell roadCell2 = new RoadCell(1005, 600, 0);
-        RoadCell roadCell7 = new RoadCell(1145, 600, 0);
-        RoadCell roadCell8 = new RoadCell(1285, 600, 0);
+        RoadCell roadCell6 = new RoadCell(600, 600, 0);
+        RoadCell roadCell5 = new RoadCell(740, 600, 0);
+        RoadCell roadCell = new RoadCell(880, 600, 0);
+        RoadCell roadCell2 = new RoadCell(1020, 600, 0);
+        RoadCell roadCell7 = new RoadCell(1160, 600, 0);
+        RoadCell roadCell8 = new RoadCell(1300, 600, 0);
 
 
         //------------Fourth row------------
@@ -47,15 +47,15 @@ public class Map implements Serializable {
         ResourceCell fifthLevelSheepCell = new ResourceCell(910, 780, ResourceType.SHEEP);
         ResourceCell fifthLevelWheatCell = new ResourceCell(1050, 780, ResourceType.WHEAT);
 
-        VillageCell tempVillage = new VillageCell(871, 568);
-        VillageCell tempVillage2 = new VillageCell(871, 640);
+        VillageCell tempVillage = new VillageCell(873, 568);
+        VillageCell tempVillage2 = new VillageCell(873, 650);
         VillageCell tempVillage3 = new VillageCell(1013, 568);
-        VillageCell tempVillage4 = new VillageCell(1013, 640);
-        VillageCell tempVillage5 = new VillageCell(942, 532);
+        VillageCell tempVillage4 = new VillageCell(1013, 650);
+        VillageCell tempVillage5 = new VillageCell(943, 532);
 
-        RoadCell roadCell3 = new RoadCell(1073, 535, 60);
-        RoadCell roadCell4 = new RoadCell(932, 535, 60);
-
+        RoadCell roadCell3 = new RoadCell(1080, 548, 63);
+        RoadCell roadCell4 = new RoadCell(940, 548, 63);
+        RoadCell roadCell9 = new RoadCell(970, 567, -60);
 
         roadCell.addNeighbour(tempVillage);
         roadCell.addNeighbour(tempVillage2);
@@ -68,12 +68,16 @@ public class Map implements Serializable {
         roadCell4.addNeighbour(tempVillage);
         roadCell4.addNeighbour(tempVillage5);
 
+        roadCell9.addNeighbour(tempVillage3);
+        roadCell9.addNeighbour(tempVillage5);
+
         firstLevelSheepCell.addNeighbour(firstLevelBrickCell);
         firstLevelBrickCell.addNeighbour(firstLevelStoneCell);
 
         secondLevelSheepCell.addNeighbour(roadCell3);
         secondLevelSheepCell.addNeighbour(secondLevelBrickCell);
         secondLevelSheepCell.addNeighbour(firstLevelBrickCell);
+        secondLevelSheepCell.addNeighbour(roadCell9);
         secondLevelWoodCell2.addNeighbour(secondLevelSheepCell);
         secondLevelWoodCell2.addNeighbour(thirdLevelWheatCell);
         secondLevelWoodCell2.addNeighbour(secondLevelWoodCell);
@@ -102,6 +106,7 @@ public class Map implements Serializable {
         centerCell.addNeighbour(emptyCell);
         centerCell.addNeighbour(roadCell);
         centerCell.addNeighbour(roadCell2);
+        centerCell.addNeighbour(roadCell9);
 
         fifthLevelStoneCell.addNeighbour(forthLevelWheatCell);
         fifthLevelStoneCell.addNeighbour(fifthLevelSheepCell);

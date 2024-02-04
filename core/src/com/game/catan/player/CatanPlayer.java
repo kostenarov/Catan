@@ -32,7 +32,6 @@ public class CatanPlayer extends ApplicationAdapter {
     private boolean isTurn = true;
     private boolean update = false;
     private boolean isDiceThrown = false;
-    private String villagePath;
     private int points = 0;
 
 
@@ -123,16 +122,16 @@ public class CatanPlayer extends ApplicationAdapter {
             }
             switch (id) {
                 case 0:
-                    playerTexture = new Texture("Villages/yellowVillage.png");
+                    playerTexture = new Texture("Indicators/yellowIndicator.png");
                     break;
                 case 1:
-                    playerTexture = new Texture("Villages/redVillage.png");
+                    playerTexture = new Texture("Indicators/blueIndicator.png");
                     break;
                 case 2:
-                    playerTexture = new Texture("Villages/blueVillage.png");
+                    playerTexture = new Texture("Indicators/redIndicator.png");
                     break;
                 case 3:
-                    playerTexture = new Texture("Villages/greenVillage.png");
+                    playerTexture = new Texture("Indicators/greenIndicator.png");
                     break;
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -142,10 +141,10 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void drawIsYourTurnLight() {
         if(isTurn) {
-            playerIndicatorBatch.draw(new Texture("Villages/defaultVillage.png"), 0, 0);
+            playerIndicatorBatch.draw(new Texture("Indicators/greenIndicator.png"), 0, 0, 50, 50);
         }
         else {
-            playerIndicatorBatch.draw(new Texture("Villages/redVillage.png"), 0, 0);
+            playerIndicatorBatch.draw(new Texture("Indicators/redIndicator.png"), 0, 0, 50, 50);
         }
     }
 
@@ -242,7 +241,9 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void renderNormalRound() {
-        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
+        HashSet<Cell> cells = new HashSet<>();
+        cells = map.getMap(map.getCenterCell(), cells);
+        for(Cell cell : cells) {
             if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
                 cell.buttonFunc(stage, outputStream, this);
                 batch.begin();

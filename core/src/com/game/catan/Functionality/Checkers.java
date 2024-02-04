@@ -23,6 +23,13 @@ public class Checkers {
                 if(((VillageCell) iteratorCell).getOwner() == currentPlayerIndex) {
                     return true;
                 }
+                for(Cell iteratorCell2 : iteratorCell.getNeighbours()) {
+                    if(iteratorCell2 instanceof RoadCell) {
+                        if(((RoadCell) iteratorCell2).getOwner() == currentPlayerIndex) {
+                            return true;
+                        }
+                    }
+                }
             }
         }
         return false;
@@ -34,14 +41,21 @@ public class Checkers {
     }
 
     private static boolean checkVillageRequirements(VillageCell cell, int currentPlayerIndex) {
+        int counter = 0;
+        int roadHelper = 0;
+        boolean ownerHelper = false;
         for(Cell iteratorCell : cell.getNeighbours()) {
             if(iteratorCell instanceof RoadCell) {
-                if(((RoadCell) iteratorCell).getOwner() == currentPlayerIndex && ((RoadCell) iteratorCell).getOtherVillage(cell).getOwner() == currentPlayerIndex) {
-                    return true;
+                roadHelper++;
+                if(((RoadCell) iteratorCell).getOtherVillage(cell).getOwner() == 5)
+                    counter++;
+                if(((RoadCell) iteratorCell).getOwner() == currentPlayerIndex) {
+                    ownerHelper = true;
                 }
             }
         }
-        return false;
+        System.out.println("Counter: " + counter + " RoadHelper: " + roadHelper + " OwnerHelper: " + ownerHelper);
+        return counter == roadHelper && ownerHelper;
     }
 
     private static boolean checkInitialVillageRequirements(VillageCell cell) {
@@ -57,8 +71,8 @@ public class Checkers {
     }
 
     public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck, int currentPlayerIndex) {
-        //return isVillageBuildable(deck) && cell.getOwner() == 5 && checkVillageRequirements(cell, currentPlayerIndex);
-        return isVillageBuildable(deck) && cell.getOwner() == 5;
+        return isVillageBuildable(deck) && cell.getOwner() == 5 && checkVillageRequirements(cell, currentPlayerIndex);
+        //return isVillageBuildable(deck) && cell.getOwner() == 5;
     }
 
     public static boolean areInitialVillageRequirementsMet(VillageCell cell) {
