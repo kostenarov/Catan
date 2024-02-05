@@ -26,12 +26,24 @@ public class Map implements Serializable {
         ResourceCell secondLevelWoodCell2 = new ResourceCell(840, 465, ResourceType.WOOD);
         ResourceCell secondLevelSheepCell = new ResourceCell(980, 465, ResourceType.SHEEP);
         ResourceCell secondLevelBrickCell = new ResourceCell(1120, 465, ResourceType.BRICK);
-        RoadCell roadCell11 = new RoadCell(950, 495, 0);
+        //Vertical roads
         RoadCell roadCell12 = new RoadCell(670, 495, 0);
         RoadCell roadCell13 = new RoadCell(810, 495, 0);
+        RoadCell roadCell11 = new RoadCell(950, 495, 0);
         RoadCell roadCell14 = new RoadCell(1090, 495, 0);
         RoadCell roadCell15 = new RoadCell(1230, 495, 0);
 
+        //---------Roads between second and third row
+        RoadCell roadCell30 = new RoadCell(660, 550, 63);
+        RoadCell roadCell32 = new RoadCell(690, 567, -60);
+        RoadCell roadCell10 = new RoadCell(800, 550, 63);
+        RoadCell roadCell31 = new RoadCell(830, 567, -60);
+        RoadCell roadCell4 = new RoadCell(940, 550, 63);
+        RoadCell roadCell9 = new RoadCell(970, 567, -60);
+        RoadCell roadCell3 = new RoadCell(1080, 550, 63);
+        RoadCell roadCell33 = new RoadCell(1110, 567, -60);
+        RoadCell roadCell29 = new RoadCell(1220, 550, 63);
+        RoadCell roadCell34 = new RoadCell(1250, 567, -60);
 
         //------------Third row------------
         ResourceCell thirdLevelSheepCell = new ResourceCell(630, 570, ResourceType.SHEEP);
@@ -78,10 +90,7 @@ public class Map implements Serializable {
         VillageCell tempVillage7 = new VillageCell(733, 568);
         VillageCell tempVillage8 = new VillageCell(943, 460);
 
-        RoadCell roadCell4 = new RoadCell(940, 548, 63);
-        RoadCell roadCell3 = new RoadCell(1080, 548, 63);
-        RoadCell roadCell10 = new RoadCell(800, 548, 63);
-        RoadCell roadCell9 = new RoadCell(970, 567, -60);
+
 
         roadCell.addNeighbour(tempVillage);
         roadCell.addNeighbour(tempVillage2);
@@ -105,27 +114,34 @@ public class Map implements Serializable {
         roadCell11.addNeighbour(tempVillage8);
         roadCell11.addNeighbour(tempVillage5);
 
+        roadCell32.addNeighbour(tempVillage7);
+
         firstLevelBrickCell.addNeighbour(roadCell16);
         firstLevelBrickCell.addNeighbour(roadCell17);
         firstLevelStoneCell.addNeighbour(roadCell17);
         firstLevelStoneCell.addNeighbour(roadCell18);
         firstLevelSheepCell.addNeighbour(roadCell18);
         firstLevelSheepCell.addNeighbour(roadCell19);
+
+
+        secondLevelWoodCell2.addNeighbour(roadCell4);
+        secondLevelWoodCell2.addNeighbour(roadCell11);
+        secondLevelWoodCell2.addNeighbour(roadCell13);
+        secondLevelWoodCell2.addNeighbour(roadCell31);
+        secondLevelSheepCell.addNeighbour(roadCell11);
         secondLevelSheepCell.addNeighbour(roadCell3);
         secondLevelSheepCell.addNeighbour(roadCell9);
-        secondLevelWoodCell2.addNeighbour(roadCell4);
-
-        secondLevelSheepCell.addNeighbour(roadCell11);
-        secondLevelWoodCell2.addNeighbour(roadCell11);
+        secondLevelSheepCell.addNeighbour(roadCell14);
         secondLevelWoodCell.addNeighbour(roadCell12);
         secondLevelWoodCell.addNeighbour(roadCell13);
-        secondLevelWoodCell2.addNeighbour(roadCell13);
+        secondLevelWoodCell.addNeighbour(roadCell32);
+        secondLevelWoodCell.addNeighbour(roadCell10);
         secondLevelBrickCell.addNeighbour(roadCell14);
-        secondLevelSheepCell.addNeighbour(roadCell14);
         secondLevelBrickCell.addNeighbour(roadCell15);
+        secondLevelBrickCell.addNeighbour(roadCell29);
+        secondLevelBrickCell.addNeighbour(roadCell33);
 
         secondLevelSheepCell.addNeighbour(firstLevelBrickCell);
-        secondLevelWoodCell2.addNeighbour(thirdLevelWheatCell);
         secondLevelWoodCell2.addNeighbour(firstLevelSheepCell);
         secondLevelWoodCell.addNeighbour(firstLevelSheepCell);
         secondLevelWoodCell.addNeighbour(firstLevelBrickCell);
@@ -137,25 +153,27 @@ public class Map implements Serializable {
         centerCell.addNeighbour(roadCell2);
         thirdLevelSheepCell.addNeighbour(roadCell6);
         thirdLevelSheepCell.addNeighbour(roadCell5);
+        thirdLevelSheepCell.addNeighbour(roadCell30);
+        thirdLevelSheepCell.addNeighbour(roadCell32);
         thirdLevelWheatCell.addNeighbour(roadCell5);
         thirdLevelWheatCell.addNeighbour(roadCell);
         thirdLevelWheatCell.addNeighbour(roadCell10);
+        thirdLevelWheatCell.addNeighbour(roadCell31);
         thirdLevelStoneCell.addNeighbour(roadCell2);
         thirdLevelStoneCell.addNeighbour(roadCell7);
+        thirdLevelStoneCell.addNeighbour(roadCell31);
+        thirdLevelStoneCell.addNeighbour(roadCell33);
         thirdLevelWheatCell2.addNeighbour(roadCell7);
         thirdLevelWheatCell2.addNeighbour(roadCell8);
+        thirdLevelWheatCell2.addNeighbour(roadCell29);
+        thirdLevelWheatCell2.addNeighbour(roadCell34);
 
         thirdLevelStoneCell.addNeighbour(forthLevelWoodCell);
-        thirdLevelStoneCell.addNeighbour(secondLevelSheepCell);
-        thirdLevelStoneCell.addNeighbour(secondLevelBrickCell);
         thirdLevelStoneCell.addNeighbour(forthLevelBrickCell);
         thirdLevelStoneCell.addNeighbour(firstLevelStoneCell);
-        thirdLevelWheatCell.addNeighbour(secondLevelWoodCell);
         thirdLevelWheatCell.addNeighbour(forthLevelWheatCell);
         thirdLevelWheatCell2.addNeighbour(forthLevelWoodCell);
-        thirdLevelWheatCell2.addNeighbour(secondLevelBrickCell);
         centerCell.addNeighbour(forthLevelBrickCell);
-        centerCell.addNeighbour(secondLevelWoodCell2);
         centerCell.addNeighbour(emptyCell);
 
         forthLevelWheatCell.addNeighbour(roadCell20);
@@ -164,6 +182,7 @@ public class Map implements Serializable {
         emptyCell.addNeighbour(roadCell22);
         forthLevelBrickCell.addNeighbour(roadCell22);
         forthLevelBrickCell.addNeighbour(roadCell23);
+        forthLevelBrickCell.addNeighbour(roadCell31);
         forthLevelWoodCell.addNeighbour(roadCell23);
         forthLevelWoodCell.addNeighbour(roadCell24);
 
