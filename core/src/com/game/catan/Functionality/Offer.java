@@ -14,6 +14,14 @@ public class Offer {
         this.offer = offer;
         this.playerId = playerId;
     }
+
+    public Offer(int playerId) {
+        this.offer = new Deck(true);
+        this.playerId = playerId;
+        players = new HashMap<>();
+
+    }
+
     public void addResource(ResourceType resource) {
         offer.addResource(resource);
     }
@@ -40,5 +48,9 @@ public class Offer {
 
     public HashMap<Integer, Boolean> getPlayers() {
         return players;
+    }
+
+    public int getResourceAmount(ResourceType resourceType) {
+        return offer.getResourceAmount(resourceType);
     }
 }

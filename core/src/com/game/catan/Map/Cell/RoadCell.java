@@ -1,8 +1,11 @@
 package com.game.catan.Map.Cell;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.catan.player.CatanPlayer;
 
 import java.io.ObjectOutputStream;
@@ -47,12 +50,12 @@ public class RoadCell extends Cell {
         if(button == null) {
             this.roadTexture = new Texture(texturePath);
             this.roadStyle = new ImageButton.ImageButtonStyle();
-            this.roadStyle.imageUp = new com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable(roadTexture);
+            this.roadStyle.imageUp = new TextureRegionDrawable(roadTexture);
             button = new ImageButton(roadStyle);
 
             if (!isBuilt) {
-                button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-                    public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
+                button.addListener(new InputListener() {
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         System.out.println("Button clicked");
                         try {
                             outputStream.writeObject("Clicked Road button:" + id);

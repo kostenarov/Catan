@@ -7,9 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import com.game.catan.Functionality.*;
@@ -45,15 +48,19 @@ public class CatanPlayer extends ApplicationAdapter {
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
     private Texture playerTexture;
-    private Image background;
-    private Image resourceBackground;
+    private Texture background;
+    private Texture resourceBackground;
+    private TextButton endTurnButton;
+    private TextButton diceThrowButton;
 
     private Label pointsLabel;
     private Label diceThrowLabel;
     private HashMap<ResourceType, ResourceDisplay> resourceLabels;
+    private HashMap<ResourceType, ResourceButton> resourceButtons;
 
     private Map map;
-    private Offer offer;
+    private Offer incomingOffer;
+    private Offer outgoingOffer;
     private final Deck deck;
     private UpdateListenerThread updateThread;
     private SenderThread senderThread;
@@ -62,45 +69,10 @@ public class CatanPlayer extends ApplicationAdapter {
     public CatanPlayer(Map map) {
         this.map = map;
         this.deck = new Deck();
+        this.outgoingOffer = new Offer(this.id);
+        this.incomingOffer = new Offer(this.id);
         this.resourceLabels = new HashMap<>();
-    }
-
-    @Override
-    public void create() {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch = new SpriteBatch();
-        backgroundBatch = new SpriteBatch();
-        playerIndicatorBatch = new SpriteBatch();
-        stage = new Stage(new ScreenViewport());
-        resourceStage = new Stage(new ScreenViewport());
-        backgroundStage = new Stage(new ScreenViewport());
-        background = new Image(new Texture("Backgrounds/background.png"));
-        resourceBackground = new Image(new Texture("Backgrounds/resourceBackground.png"));
-        connectToServer();
-        updateThread = new UpdateListenerThread(this, inputStream);
-        updateThread.start();
-        setUpInitialLabels();
-        setUpResourceLabels();
-        displayResources();
-
-    }
-
-    @Override
-    public void render() {
-        backgroundStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        backgroundStage.draw();
-        drawBackgrounds();
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        stage.draw();
-        resourceStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        resourceStage.draw();
-        renderNormalRound();
-        drawButtons();
-        drawPlayerIndicator();
-        Gdx.input.setInputProcessor(resourceStage);
-
-        Gdx.input.setInputProcessor(stage);
+        this.resourceButtons = new HashMap<>();
     }
 
     private void connectToServer() {
@@ -135,12 +107,52 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
+    @Override
+    public void create() {
+        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch = new SpriteBatch();
+        backgroundBatch = new SpriteBatch();
+        playerIndicatorBatch = new SpriteBatch();
+        stage = new Stage(new ScreenViewport());
+        resourceStage = new Stage(new ScreenViewport());
+        backgroundStage = new Stage(new ScreenViewport());
+        background = new Texture("Backgrounds/background.png");
+        resourceBackground = new Texture("Backgrounds/resourceBackground.png");
+        connectToServer();
+        updateThread = new UpdateListenerThread(this, inputStream);
+        updateThread.start();
+        setUpInitialLabels();
+        setUpResourceLabels();
+        setUpOutgoingOffer();
+        displayResources();
+
+        //displayOffer();
+    }
+
+    @Override
+    public void render() {
+        backgroundStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        backgroundStage.draw();
+        drawBackgrounds();
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        stage.draw();
+        resourceStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        resourceStage.draw();
+        drawButtons();
+
+        renderNormalRound();
+        drawPlayerIndicator();
+        Gdx.input.setInputProcessor(stage);
+    }
+
+
     private void drawIsYourTurnLight() {
         if(isTurn) {
-            playerIndicatorBatch.draw(new Texture("Indicators/greenIndicator.png"), 0, 0, 50, 50);
+            playerIndicatorBatch.draw(new Texture("Indicators/greenIndicator.png"), 0, 50, 50, 50);
         }
         else {
-            playerIndicatorBatch.draw(new Texture("Indicators/redIndicator.png"), 0, 0, 50, 50);
+            playerIndicatorBatch.draw(new Texture("Indicators/redIndicator.png"), 0, 50, 50, 50);
         }
     }
 
@@ -150,9 +162,9 @@ public class CatanPlayer extends ApplicationAdapter {
         pointsLabelStyle.font.getData().setScale(2f);
         pointsLabelStyle.fontColor = Color.SALMON;
         pointsLabel = new Label("Points: " + points, pointsLabelStyle);
-        pointsLabel.setPosition(1000, 50);
+        pointsLabel.setPosition(1500, 50);
         diceThrowLabel = new Label("Dice throw: " + diceThrow, pointsLabelStyle);
-        diceThrowLabel.setPosition(1000, 100);
+        diceThrowLabel.setPosition(1500, 100);
         stage.addActor(pointsLabel);
         stage.addActor(diceThrowLabel);
     }
@@ -176,26 +188,33 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void drawButtons() {
-        diceThrowButton();
         endTurnButton();
+        diceThrowButton();
     }
 
     private void drawBackground() {
-        backgroundStage.addActor(background);
+        backgroundBatch.draw(background, 0,0 );
     }
 
     private void drawResourceBackground() {
-        backgroundStage.addActor(resourceBackground);
+        backgroundBatch.draw(resourceBackground, 0, 0);
     }
 
     private void endTurnButton() {
-        TextButton button = ButtonSetUps.setUpTextButton("End Turn", 0, this);
-        ButtonSetUps.setUpEndTurnButtonFunc(stage, button, isTurn, isDiceThrown, outputStream);
+        TextButton temp = ButtonSetUps.setUpTextButton("End Turn", 30, this);
+        if(endTurnButton == null) {
+            endTurnButton = ButtonSetUps.setUpEndTurnButtonFunc(temp, outputStream);
+            stage.addActor(endTurnButton);
+        }
     }
 
     private void diceThrowButton() {
-        TextButton button = ButtonSetUps.setUpTextButton("Dice Throw", 100, this);
-        ButtonSetUps.setUpDiceThrowButtonFunc(stage, button, isTurn, isDiceThrown, outputStream);
+        TextButton temp = ButtonSetUps.setUpTextButton("Dice Throw", 130, this);
+        if(diceThrowButton == null) {
+            diceThrowButton = ButtonSetUps.setUpDiceThrowButtonFunc(temp, outputStream);
+            stage.addActor(diceThrowButton);
+        }
+
     }
 
     private void changeLabelAmount(ResourceType type, int amount) {
@@ -222,16 +241,63 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
-    private void renderThiefRound() {
-        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
-            if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
-                cell.buttonFunc(stage, outputStream, this);
-                batch.begin();
-                batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
-                batch.end();
+    private void displayOffer() {
+        for(ResourceType type : ResourceType.values()) {
+            if(type != ResourceType.EMPTY) {
+                outgoingOffer = resourceButtons.get(type).draw(resourceStage, outgoingOffer, deck);
             }
-            else {
-                cell.buttonFunc(stage, outputStream, this);
+        }
+    }
+
+    private void setUpOutgoingOffer() {
+        int x = 825;
+        for(final ResourceType type : ResourceType.values()) {
+            if(type != ResourceType.EMPTY) {
+                Label.LabelStyle labelStyle = new Label.LabelStyle();
+                labelStyle.font = new BitmapFont();
+                labelStyle.font.getData().setScale(2f);
+                labelStyle.fontColor = Color.SALMON;
+                final Label resourceLabel = new Label("0", labelStyle);
+                resourceLabel.setPosition(x, 50);
+                Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
+                ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
+                imageButtonStyle.imageUp = new TextureRegionDrawable(texture);
+                ImageButton imageButton = new ImageButton(imageButtonStyle);
+                imageButton.addListener(new InputListener() {
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        System.out.println("Offer Button for" + type + " clicked");
+                        if(outgoingOffer.getResourceAmount(type) < deck.getResourceAmount(type)) {
+                            outgoingOffer.addResource(type);
+                            resourceLabel.setText(Integer.toString(outgoingOffer.getResourceAmount(type)));
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                imageButton.setPosition(x - 25, 100);
+                x += 100;
+                ResourceButton resourceButton = new ResourceButton(imageButton, resourceLabel, type);
+                outgoingOffer = resourceButton.draw(resourceStage, outgoingOffer, deck);
+            }
+        }
+    }
+
+    private void setUpResourceLabels() {
+        int x = 275;
+        for(ResourceType type : ResourceType.values()) {
+            if (type != ResourceType.EMPTY) {
+                Label.LabelStyle labelStyle = new Label.LabelStyle();
+                labelStyle.font = new BitmapFont();
+                labelStyle.font.getData().setScale(2f);
+                labelStyle.fontColor = Color.SALMON;
+                Label resourceLabel = new Label(deck.getResourceAmount(type).toString(), labelStyle);
+                resourceLabel.setPosition(x, 50);
+                Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
+                Image image = new Image(texture);
+                image.setPosition(x - 25, 100);
+                x += 100;
+                ResourceDisplay resourceDisplay = new ResourceDisplay(image, resourceLabel);
+                resourceLabels.put(type, resourceDisplay);
             }
         }
     }
@@ -244,7 +310,8 @@ public class CatanPlayer extends ApplicationAdapter {
                 cell.buttonFunc(stage, outputStream, this);
                 batch.begin();
                 batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
-                batch.end();            }
+                batch.end();
+            }
             else if(cell instanceof ResourceCell) {
                 cell.buttonFunc(stage, outputStream, this);
             }
@@ -265,26 +332,6 @@ public class CatanPlayer extends ApplicationAdapter {
         int y = 700;
         playerTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         playerIndicatorBatch.draw(playerTexture, 1700, y+=100, 50, 50);
-    }
-
-    private void setUpResourceLabels() {
-        int x = 325;
-        for(ResourceType type : ResourceType.values()) {
-            if (type != ResourceType.EMPTY) {
-                Label.LabelStyle labelStyle = new Label.LabelStyle();
-                labelStyle.font = new BitmapFont();
-                labelStyle.font.getData().setScale(2f);
-                labelStyle.fontColor = Color.SALMON;
-                Label resourceLabel = new Label(deck.getResourceAmount(type).toString(), labelStyle);
-                resourceLabel.setPosition(x, 50);
-                Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
-                Image image = new Image(texture);
-                image.setPosition(x - 25, 100);
-                x += 100;
-                ResourceDisplay resourceDisplay = new ResourceDisplay(image, resourceLabel);
-                resourceLabels.put(type, resourceDisplay);
-            }
-        }
     }
 
     @Override
@@ -323,8 +370,12 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         }
     }
-    public synchronized void setOffer(Offer offer) {
-        this.offer = offer;
+    public synchronized void setIncomingOffer(Offer offer) {
+        this.incomingOffer = offer;
+    }
+
+    public synchronized void setOutgoingOffer(Offer offer) {
+        this.outgoingOffer = offer;
     }
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;
@@ -345,5 +396,9 @@ public class CatanPlayer extends ApplicationAdapter {
     }
     public synchronized int getId() {
         return id;
+    }
+
+    public synchronized boolean getIsDiceThrown() {
+        return isDiceThrown;
     }
 }

@@ -82,27 +82,8 @@ public class CatanServer {
 
     private void broadcastTurnNotification() {
         System.out.println("Current player index: " + currentPlayerIndex);
-        if(isInitialVillagePhase && !isSecondVillagePhase) {
-            sendTurnNotifications();
-            currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
-        }
-        else if(isSecondVillagePhase && !isInitialVillagePhase) {
-            sendTurnNotifications();
-            currentPlayerIndex = (currentPlayerIndex - 1) % clients.size();
-        }
-        else if (!isInitialVillagePhase) {
-            sendTurnNotifications();
-        }
+        sendTurnNotifications();
 
-        if(currentPlayerIndex == clients.size() - 1 && isInitialVillagePhase) {
-            isInitialVillagePhase = false;
-            System.out.println("Initial village phase ended");
-            isSecondVillagePhase = true;
-        }
-        else if(currentPlayerIndex == 0 && isSecondVillagePhase) {
-            isSecondVillagePhase = false;
-            System.out.println("Second village phase ended");
-        }
     }
 
     private void sendTurnNotifications() {
@@ -177,19 +158,9 @@ public class CatanServer {
                 while (isWorking) {
                     Object input = inputStream.readObject();
                     System.out.println("Received from client: " + input);
-                    if(isInitialVillagePhase) {
-                        System.out.println(input);
-                        initialVillagePressFunc((String) input);
-                        initialRoadPressFunc((String) input);
-                        diceThrowFunc((String) input);
-                        endTurnFunc((String) input);
-                    }
-                    else if(isSecondVillagePhase) {
-                        System.out.println(input);
-                        secondInitialVillagePressFunc((String) input);
-                        initialRoadPressFunc((String) input);
-                        diceThrowFunc((String) input);
-                        endTurnFunc((String) input);
+                    if(isInitialVillagePhase || isSecondVillagePhase) {
+                        System.out.println("Initial phase");
+                        initialVillagePhaseChecker(input);
                     }
                     else {
                         endTurnAndDiceThrowChecker(input);
@@ -211,8 +182,18 @@ public class CatanServer {
             }
         }
 
+        private void initialVillagePhaseChecker(Object input) {
+            if(input instanceof String) {
+                initialVillagePressFunc((String) input);
+                secondInitialVillagePressFunc((String) input);
+                initialRoadPressFunc((String) input);
+                diceThrowFunc((String) input);
+                initialEndTurnFunc((String) input);
+            }
+        }
+
         private void endTurnFunc(String input) {
-            if(input.equals("End Turn") && isDiceThrown) {
+            if(input.equals("End Turn") && isDiceThrown && currentPlayerIndex == clients.indexOf(this)){
                 currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
                 broadcastTurnNotification();
                 broadcastMap();
@@ -222,7 +203,7 @@ public class CatanServer {
         }
 
         private void diceThrowFunc(String input) {
-            if(input.equals("Dice Throw") && !isDiceThrown) {
+            if(input.equals("Dice Throw") && !isDiceThrown && currentPlayerIndex == clients.indexOf(this)) {
                 diceThrow = Functionality.diceThrow();
                 System.out.println(diceThrow);
                 broadcastDiceThrow();
@@ -290,18 +271,18 @@ public class CatanServer {
         private void villagePressFunc(String input) {
             if(input.contains("Village") && isDiceThrown) {
                 int villageId = Integer.parseInt(input.split(":")[1]);
+                VillageCell villageCell = map.getVillageCellById(villageId);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
-                if(Checkers.areVillageRequirementsMet(map.getVillageCellById(villageId), currentDeck, currentPlayerIndex)) {
+                if(villageCell.getOwner() == 5) {
                     try {
-                        VillageCell villageCell = map.getVillageCellById(villageId);
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
                         broadcastMap();
                         currentDeck.removeVillageResources();
                         playerResources.put(currentPlayerIndex, currentDeck);
+                        sendPlayerDeck();
                         pointCounter.addPoint(currentPlayerIndex);
                         sendPoints();
-                        sendPlayerDeck();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -310,15 +291,12 @@ public class CatanServer {
         }
 
         private void initialVillagePressFunc(String input) {
-            if(currentPlayerIndex == 1) {
-                System.out.println("Current player index: " + currentPlayerIndex);
-            }
             if(input.contains("Village") && initialVillages.get(currentPlayerIndex).hasNone()) {
                 int villageId = Integer.parseInt(input.split(":")[1]);
-                if(Checkers.areInitialVillageRequirementsMet(map.getVillageCellById(villageId))) {
+                VillageCell villageCell = map.getVillageCellById(villageId);
+                if(villageCell.getOwner() == 5) {
                     System.out.println("Player " + currentPlayerIndex + " clicked village " + villageId + " in initial phase");
                     try {
-                        VillageCell villageCell = map.getVillageCellById(villageId);
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
                         if(initialVillages.get(currentPlayerIndex) == null) {
@@ -337,12 +315,39 @@ public class CatanServer {
             }
         }
 
+        private void initialEndTurnFunc(String input) {
+            if(input.equals("End Turn")) {
+                broadcastMap();
+                if(isInitialVillagePhase) {
+                    if(currentPlayerIndex == clients.size() - 1) {
+                        isInitialVillagePhase = false;
+                        isSecondVillagePhase = true;
+                    }
+                    else {
+                        currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                    }
+                }
+                else if(isSecondVillagePhase) {
+                    if(currentPlayerIndex == 0) {
+                        isInitialVillagePhase = false;
+                        isSecondVillagePhase = false;
+                    }
+                    else {
+                        currentPlayerIndex = (currentPlayerIndex - 1) % clients.size();
+                    }
+                }
+                else {
+                    currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                }
+            }
+        }
+
         private void secondInitialVillagePressFunc(String input) {
             if(input.contains("Village") && initialVillages.get(currentPlayerIndex).hasOne()) {
                 int villageId = Integer.parseInt(input.split(":")[1]);
-                if(Checkers.areInitialVillageRequirementsMet(map.getVillageCellById(villageId))) {
+                VillageCell villageCell = map.getVillageCellById(villageId);
+                if(villageCell.getOwner() == 5) {
                     try {
-                        VillageCell villageCell = map.getVillageCellById(villageId);
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
                         initialVillages.get(currentPlayerIndex).setSecond(villageCell);

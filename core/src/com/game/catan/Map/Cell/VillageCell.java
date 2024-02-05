@@ -45,6 +45,7 @@ public class VillageCell extends Cell {
                     if (player.getIsTurn() && owner == 5) {
                         try {
                             outputStream.writeObject("Clicked Village button:" + id);
+                            outputStream.reset();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }

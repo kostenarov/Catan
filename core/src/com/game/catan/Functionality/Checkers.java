@@ -55,7 +55,7 @@ public class Checkers {
             }
         }
         System.out.println("Counter: " + counter + " RoadHelper: " + roadHelper + " OwnerHelper: " + ownerHelper);
-        return counter == roadHelper && ownerHelper;
+        return cell.getId() == 5;
     }
 
     private static boolean checkInitialVillageRequirements(VillageCell cell) {
@@ -76,6 +76,7 @@ public class Checkers {
     }
 
     public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck, int currentPlayerIndex) {
+        System.out.println("Village requirements met: " + isVillageBuildable(deck) + " " + cell.getOwner() + " " + checkVillageRequirements(cell, currentPlayerIndex));
         return isVillageBuildable(deck) && cell.getOwner() == 5 && checkVillageRequirements(cell, currentPlayerIndex);
         //return isVillageBuildable(deck) && cell.getOwner() == 5;
     }

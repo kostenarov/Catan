@@ -29,6 +29,7 @@ public class UpdateListenerThread extends Thread{
                     if((int) input < 13) {
                         player.setDiceThrow((Integer) input);
                         player.setDiceThrown(true);
+                        System.out.println(player.getIsDiceThrown());
                     }
                     else if((int) input == 100) {
                         System.out.println("Your turn");
@@ -74,7 +75,7 @@ public class UpdateListenerThread extends Thread{
                 else if(input instanceof Offer) {
                     System.out.println("Offer received");
                     if(((Offer) input).getPlayerId() != player.getId()) {
-                        player.setOffer((Offer) input);
+                        player.setIncomingOffer((Offer) input);
                     }
                 }
 

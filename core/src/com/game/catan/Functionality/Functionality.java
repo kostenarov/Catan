@@ -37,7 +37,8 @@ public class Functionality {
 
     public static Deck getResourcesFromInitialVillages(VillageCell villageCell, HashMap<ResourceType, Integer> resources) {
         for (ResourceCell cell : villageCell.getResourceNeighbours())
-            resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);
+            if(cell.getResource() != ResourceType.EMPTY)
+                resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);
         Deck deck = new Deck();
         deck.setDeck(resources);
         return deck;

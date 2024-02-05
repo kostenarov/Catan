@@ -123,7 +123,6 @@ public class ResourceCell extends Cell{
             stage.addActor(button);
             setUpLabel(stage);
         }
-
     }
 
     @Override
