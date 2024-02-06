@@ -11,14 +11,30 @@ public class Map implements Serializable {
     private ResourceCell robberCell;
     private final ResourceCell centerCell;
     public Map() {
+        RoadCell bottomLeftRoad = new RoadCell(800, 340, 63);
+        RoadCell bottomRightRoad = new RoadCell(830, 357, -63);
+        RoadCell bottomLeftRoad2 = new RoadCell(940, 340, 63);
+        RoadCell bottomRightRoad2 = new RoadCell(970, 357, -63);
+        RoadCell bottomLeftRoad3 = new RoadCell(1080, 340, 63);
+        RoadCell bottomRightRoad3 = new RoadCell(1110, 357, -63);
         //------------First row------------
+        ResourceCell firstLevelSheepCell = new ResourceCell(770, 360, ResourceType.SHEEP);
         ResourceCell firstLevelBrickCell = new ResourceCell(910, 360, ResourceType.BRICK);
         ResourceCell firstLevelStoneCell = new ResourceCell(1050, 360, ResourceType.STONE);
-        ResourceCell firstLevelSheepCell = new ResourceCell(770, 360, ResourceType.SHEEP);
-        RoadCell roadCell16 = new RoadCell(740, 390, 0);
-        RoadCell roadCell17 = new RoadCell(880, 390, 0);
-        RoadCell roadCell18 = new RoadCell(1020, 390, 0);
-        RoadCell roadCell19 = new RoadCell(1160, 390, 0);
+
+        RoadCell firstLevelVerticalRoad = new RoadCell(740, 390, 0);
+        RoadCell firstLevelVerticalRoad2 = new RoadCell(880, 390, 0);
+        RoadCell firstLevelVerticalRoad3 = new RoadCell(1020, 390, 0);
+        RoadCell firstLevelVerticalRoad4 = new RoadCell(1160, 390, 0);
+
+        RoadCell firstLevelRightCornerRoad = new RoadCell(730, 445, 63);
+        RoadCell firstLevelLeftRoad = new RoadCell(760, 462, -63);
+        RoadCell firstLevelRightRoad = new RoadCell(870, 445, 63);
+        RoadCell firstLevelLeftRoad2 = new RoadCell(900, 462, -63);
+        RoadCell firstLevelRightRoad2 = new RoadCell(1010, 445, 63);
+        RoadCell firstLevelLeftRoad3 = new RoadCell(1040, 462, -63);
+        RoadCell firstLevelRightRoad3 = new RoadCell(1150, 445, 63);
+        RoadCell firstLevelLeftCornerRoad = new RoadCell(1180, 462, -63);
 
 
         //------------Second row------------
@@ -26,24 +42,25 @@ public class Map implements Serializable {
         ResourceCell secondLevelWoodCell2 = new ResourceCell(840, 465, ResourceType.WOOD);
         ResourceCell secondLevelSheepCell = new ResourceCell(980, 465, ResourceType.SHEEP);
         ResourceCell secondLevelBrickCell = new ResourceCell(1120, 465, ResourceType.BRICK);
+
         //Vertical roads
-        RoadCell roadCell12 = new RoadCell(670, 495, 0);
-        RoadCell roadCell13 = new RoadCell(810, 495, 0);
-        RoadCell roadCell11 = new RoadCell(950, 495, 0);
-        RoadCell roadCell14 = new RoadCell(1090, 495, 0);
-        RoadCell roadCell15 = new RoadCell(1230, 495, 0);
+        RoadCell secondLevelVerticalRoad = new RoadCell(670, 495, 0);
+        RoadCell secondLevelVerticalRoad2 = new RoadCell(810, 495, 0);
+        RoadCell secondLevelVerticalRoad3 = new RoadCell(950, 495, 0);
+        RoadCell secondLevelVerticalRoad4 = new RoadCell(1090, 495, 0);
+        RoadCell secondLevelVerticalRoad5 = new RoadCell(1230, 495, 0);
 
         //---------Roads between second and third row
-        RoadCell roadCell30 = new RoadCell(660, 550, 63);
-        RoadCell roadCell32 = new RoadCell(690, 567, -60);
-        RoadCell roadCell10 = new RoadCell(800, 550, 63);
-        RoadCell roadCell31 = new RoadCell(830, 567, -60);
-        RoadCell roadCell4 = new RoadCell(940, 550, 63);
-        RoadCell roadCell9 = new RoadCell(970, 567, -60);
-        RoadCell roadCell3 = new RoadCell(1080, 550, 63);
-        RoadCell roadCell33 = new RoadCell(1110, 567, -60);
-        RoadCell roadCell29 = new RoadCell(1220, 550, 63);
-        RoadCell roadCell34 = new RoadCell(1250, 567, -60);
+        RoadCell secondLevelRightCornerRoad = new RoadCell(660, 550, 63);
+        RoadCell secondLevelLeftRoad = new RoadCell(690, 567, -63);
+        RoadCell secondLevelRightRoad2 = new RoadCell(800, 550, 63);
+        RoadCell secondLevelLeftRoad2 = new RoadCell(830, 567, -63);
+        RoadCell secondLevelRightRoad3 = new RoadCell(940, 550, 63);
+        RoadCell secondLevelLeftRoad3 = new RoadCell(970, 567, -63);
+        RoadCell secondLevelRightRoad4 = new RoadCell(1080, 550, 63);
+        RoadCell secondLevelLeftRoad4 = new RoadCell(1110, 567, -63);
+        RoadCell secondLevelRightRoad5 = new RoadCell(1220, 550, 63);
+        RoadCell secondLevelLeftCornerRoad = new RoadCell(1250, 567, -63);
 
         //------------Third row------------
         ResourceCell thirdLevelSheepCell = new ResourceCell(630, 570, ResourceType.SHEEP);
@@ -51,12 +68,23 @@ public class Map implements Serializable {
         centerCell = new ResourceCell(910, 570, ResourceType.BRICK);
         ResourceCell thirdLevelStoneCell = new ResourceCell(1050, 570, ResourceType.STONE);
         ResourceCell thirdLevelWheatCell2 = new ResourceCell(1190, 570, ResourceType.WHEAT);
-        RoadCell roadCell6 = new RoadCell(600, 600, 0);
-        RoadCell roadCell5 = new RoadCell(740, 600, 0);
-        RoadCell roadCell = new RoadCell(880, 600, 0);
-        RoadCell roadCell2 = new RoadCell(1020, 600, 0);
-        RoadCell roadCell7 = new RoadCell(1160, 600, 0);
-        RoadCell roadCell8 = new RoadCell(1300, 600, 0);
+        RoadCell thirdLevelVerticalRoad = new RoadCell(600, 600, 0);
+        RoadCell thirdLevelVerticalRoad2 = new RoadCell(740, 600, 0);
+        RoadCell thirdLevelVerticalRoad3 = new RoadCell(880, 600, 0);
+        RoadCell thirdLevelVerticalRoad4 = new RoadCell(1020, 600, 0);
+        RoadCell thirdLevelVerticalRoad5 = new RoadCell(1160, 600, 0);
+        RoadCell thirdLevelVerticalRoad6 = new RoadCell(1300, 600, 0);
+
+        RoadCell thirdLevelCornerLeftRoad = new RoadCell(620, 672, -63);
+        RoadCell thirdLevelRightRoad = new RoadCell(730, 655, 63);
+        RoadCell thirdLevelLeftRoad = new RoadCell(760, 672, -63);
+        RoadCell thirdLevelRightRoad2 = new RoadCell(870, 655, 63);
+        RoadCell thirdLevelLeftRoad2 = new RoadCell(900, 672, -63);
+        RoadCell thirdLevelRightRoad3 = new RoadCell(1010, 655, 63);
+        RoadCell thirdLevelLeftRoad3 = new RoadCell(1040, 672, -63);
+        RoadCell thirdLevelRightRoad4 = new RoadCell(1150, 655, 63);
+        RoadCell thirdLevelLeftRoad4 = new RoadCell(1180, 672, -63);
+        RoadCell thirdLevelCornerRightRoad = new RoadCell(1290, 655, 63);
 
 
         //------------Fourth row------------
@@ -64,21 +92,38 @@ public class Map implements Serializable {
         ResourceCell emptyCell = new ResourceCell(840, 675, ResourceType.EMPTY);
         ResourceCell forthLevelBrickCell = new ResourceCell(980, 675, ResourceType.BRICK);
         ResourceCell forthLevelWoodCell = new ResourceCell(1120, 675, ResourceType.WOOD);
-        RoadCell roadCell20 = new RoadCell(670, 705, 0);
-        RoadCell roadCell21 = new RoadCell(810, 705, 0);
-        RoadCell roadCell22 = new RoadCell(950, 705, 0);
-        RoadCell roadCell23 = new RoadCell(1090, 705, 0);
-        RoadCell roadCell24 = new RoadCell(1230, 705, 0);
 
+        RoadCell forthLevelVerticalRoad = new RoadCell(670, 705, 0);
+        RoadCell forthLevelVerticalRoad2 = new RoadCell(810, 705, 0);
+        RoadCell forthLevelVerticalRoad3 = new RoadCell(950, 705, 0);
+        RoadCell forthLevelVerticalRoad4 = new RoadCell(1090, 705, 0);
+        RoadCell forthLevelVerticalRoad5 = new RoadCell(1230, 705, 0);
+
+        RoadCell forthLevelCornerLeftRoad = new RoadCell(690, 777, -63);
+        RoadCell forthLevelRightRoad = new RoadCell(800, 760, 63);
+        RoadCell forthLevelLeftRoad2 = new RoadCell(830, 777, -63);
+        RoadCell forthLevelRightRoad2 = new RoadCell(940, 760, 63);
+        RoadCell forthLevelLeftRoad3 = new RoadCell(970, 777, -63);
+        RoadCell forthLevelRightRoad3 = new RoadCell(1080, 760, 63);
+        RoadCell forthLevelLeftRoad4 = new RoadCell(1110, 777, -63);
+        RoadCell forthLevelCornerRightRoad = new RoadCell(1220, 760, 63);
 
         //------------Fifth row------------
         ResourceCell fifthLevelStoneCell = new ResourceCell(770, 780, ResourceType.STONE);
         ResourceCell fifthLevelSheepCell = new ResourceCell(910, 780, ResourceType.SHEEP);
         ResourceCell fifthLevelWheatCell = new ResourceCell(1050, 780, ResourceType.WHEAT);
-        RoadCell roadCell25 = new RoadCell(740, 810, 0);
-        RoadCell roadCell26 = new RoadCell(880, 810, 0);
-        RoadCell roadCell27 = new RoadCell(1020, 810, 0);
-        RoadCell roadCell28 = new RoadCell(1160, 810, 0);
+
+        RoadCell fifthLevelRightRoad = new RoadCell(760, 882, -63);
+        RoadCell fifthLevelLeftRoad = new RoadCell(870, 865, 63);
+        RoadCell fifthLevelRightRoad2 = new RoadCell(900, 882, -63);
+        RoadCell fifthLevelLeftRoad2 = new RoadCell(1010, 865, 63);
+        RoadCell fifthLevelRightRoad3 = new RoadCell(1040, 882, -63);
+        RoadCell fifthLevelLeftRoad3 = new RoadCell(1150, 865, 63);
+
+        RoadCell fifthLevelVerticalRoad = new RoadCell(740, 810, 0);
+        RoadCell fifthLevelVerticalRoad2 = new RoadCell(880, 810, 0);
+        RoadCell fifthLevelVerticalRoad3 = new RoadCell(1020, 810, 0);
+        RoadCell fifthLevelVerticalRoad4 = new RoadCell(1160, 810, 0);
 
 
         VillageCell tempVillage = new VillageCell(873, 568);
@@ -92,119 +137,158 @@ public class Map implements Serializable {
 
 
 
-        roadCell.addNeighbour(tempVillage);
-        roadCell.addNeighbour(tempVillage2);
+        thirdLevelVerticalRoad3.addNeighbour(tempVillage);
+        thirdLevelVerticalRoad3.addNeighbour(tempVillage2);
 
-        roadCell2.addNeighbour(tempVillage3);
-        roadCell2.addNeighbour(tempVillage4);
+        thirdLevelVerticalRoad4.addNeighbour(tempVillage3);
+        thirdLevelVerticalRoad4.addNeighbour(tempVillage4);
 
-        roadCell3.addNeighbour(tempVillage3);
+        secondLevelRightRoad4.addNeighbour(tempVillage3);
 
-        roadCell4.addNeighbour(tempVillage);
-        roadCell4.addNeighbour(tempVillage5);
+        secondLevelRightRoad3.addNeighbour(tempVillage);
+        secondLevelRightRoad3.addNeighbour(tempVillage5);
 
-        roadCell5.addNeighbour(tempVillage6);
-        roadCell5.addNeighbour(tempVillage7);
+        thirdLevelVerticalRoad2.addNeighbour(tempVillage6);
+        thirdLevelVerticalRoad2.addNeighbour(tempVillage7);
 
-        roadCell9.addNeighbour(tempVillage3);
-        roadCell9.addNeighbour(tempVillage5);
+        secondLevelLeftRoad3.addNeighbour(tempVillage3);
+        secondLevelLeftRoad3.addNeighbour(tempVillage5);
 
-        roadCell10.addNeighbour(tempVillage7);
+        secondLevelRightRoad2.addNeighbour(tempVillage7);
 
-        roadCell11.addNeighbour(tempVillage8);
-        roadCell11.addNeighbour(tempVillage5);
+        secondLevelVerticalRoad3.addNeighbour(tempVillage8);
+        secondLevelVerticalRoad3.addNeighbour(tempVillage5);
 
-        roadCell32.addNeighbour(tempVillage7);
+        secondLevelLeftRoad.addNeighbour(tempVillage7);
 
-        firstLevelBrickCell.addNeighbour(roadCell16);
-        firstLevelBrickCell.addNeighbour(roadCell17);
-        firstLevelStoneCell.addNeighbour(roadCell17);
-        firstLevelStoneCell.addNeighbour(roadCell18);
-        firstLevelSheepCell.addNeighbour(roadCell18);
-        firstLevelSheepCell.addNeighbour(roadCell19);
+        firstLevelSheepCell.addNeighbour(bottomLeftRoad);
+        firstLevelSheepCell.addNeighbour(bottomRightRoad);
+        firstLevelBrickCell.addNeighbour(bottomLeftRoad2);
+        firstLevelBrickCell.addNeighbour(bottomRightRoad2);
+        firstLevelStoneCell.addNeighbour(bottomLeftRoad3);
+        firstLevelStoneCell.addNeighbour(bottomRightRoad3);
+
+        firstLevelBrickCell.addNeighbour(firstLevelVerticalRoad);
+        firstLevelBrickCell.addNeighbour(firstLevelVerticalRoad2);
+        firstLevelBrickCell.addNeighbour(firstLevelLeftRoad2);
+        firstLevelBrickCell.addNeighbour(firstLevelRightRoad2);
+        firstLevelSheepCell.addNeighbour(firstLevelVerticalRoad3);
+        firstLevelSheepCell.addNeighbour(firstLevelVerticalRoad4);
+        firstLevelSheepCell.addNeighbour(firstLevelLeftRoad);
+        firstLevelSheepCell.addNeighbour(firstLevelRightRoad);
+        firstLevelStoneCell.addNeighbour(firstLevelVerticalRoad2);
+        firstLevelStoneCell.addNeighbour(firstLevelVerticalRoad3);
+        firstLevelStoneCell.addNeighbour(firstLevelLeftRoad3);
+        firstLevelStoneCell.addNeighbour(firstLevelRightRoad3);
+
+        secondLevelWoodCell2.addNeighbour(secondLevelRightRoad3);
+        secondLevelWoodCell2.addNeighbour(secondLevelVerticalRoad3);
+        secondLevelWoodCell2.addNeighbour(secondLevelVerticalRoad2);
+        secondLevelWoodCell2.addNeighbour(secondLevelLeftRoad2);
+        secondLevelSheepCell.addNeighbour(secondLevelVerticalRoad3);
+        secondLevelSheepCell.addNeighbour(secondLevelRightRoad4);
+        secondLevelSheepCell.addNeighbour(secondLevelLeftRoad3);
+        secondLevelSheepCell.addNeighbour(secondLevelVerticalRoad4);
+        secondLevelWoodCell.addNeighbour(secondLevelVerticalRoad);
+        secondLevelWoodCell.addNeighbour(secondLevelVerticalRoad2);
+        secondLevelWoodCell.addNeighbour(secondLevelLeftRoad);
+        secondLevelWoodCell.addNeighbour(secondLevelRightRoad2);
+        secondLevelBrickCell.addNeighbour(secondLevelVerticalRoad4);
+        secondLevelBrickCell.addNeighbour(secondLevelVerticalRoad5);
+        secondLevelBrickCell.addNeighbour(secondLevelRightRoad5);
+        secondLevelBrickCell.addNeighbour(secondLevelLeftRoad4);
+
+        secondLevelWoodCell.addNeighbour(firstLevelLeftRoad);
+        secondLevelWoodCell.addNeighbour(firstLevelRightCornerRoad);
+        secondLevelWoodCell2.addNeighbour(firstLevelLeftRoad2);
+        secondLevelWoodCell2.addNeighbour(firstLevelRightRoad);
+        secondLevelSheepCell.addNeighbour(firstLevelLeftRoad3);
+        secondLevelSheepCell.addNeighbour(firstLevelRightRoad2);
+        secondLevelBrickCell.addNeighbour(firstLevelRightRoad3);
+        secondLevelBrickCell.addNeighbour(firstLevelLeftCornerRoad);
+
+        centerCell.addNeighbour(secondLevelRightRoad3);
+        centerCell.addNeighbour(secondLevelLeftRoad3);
+        centerCell.addNeighbour(thirdLevelVerticalRoad3);
+        centerCell.addNeighbour(thirdLevelVerticalRoad4);
+        thirdLevelSheepCell.addNeighbour(thirdLevelVerticalRoad);
+        thirdLevelSheepCell.addNeighbour(thirdLevelVerticalRoad2);
+        thirdLevelSheepCell.addNeighbour(secondLevelRightCornerRoad);
+        thirdLevelSheepCell.addNeighbour(secondLevelLeftRoad);
+        thirdLevelWheatCell.addNeighbour(thirdLevelVerticalRoad2);
+        thirdLevelWheatCell.addNeighbour(thirdLevelVerticalRoad3);
+        thirdLevelWheatCell.addNeighbour(secondLevelRightRoad2);
+        thirdLevelWheatCell.addNeighbour(secondLevelLeftRoad2);
+        thirdLevelStoneCell.addNeighbour(thirdLevelVerticalRoad4);
+        thirdLevelStoneCell.addNeighbour(thirdLevelVerticalRoad5);
+        thirdLevelStoneCell.addNeighbour(secondLevelLeftRoad2);
+        thirdLevelStoneCell.addNeighbour(secondLevelLeftRoad4);
+        thirdLevelWheatCell2.addNeighbour(thirdLevelVerticalRoad5);
+        thirdLevelWheatCell2.addNeighbour(thirdLevelVerticalRoad6);
+        thirdLevelWheatCell2.addNeighbour(secondLevelRightRoad5);
+        thirdLevelWheatCell2.addNeighbour(secondLevelLeftCornerRoad);
+
+        thirdLevelSheepCell.addNeighbour(thirdLevelCornerLeftRoad);
+        thirdLevelSheepCell.addNeighbour(thirdLevelRightRoad);
+        thirdLevelWheatCell.addNeighbour(thirdLevelLeftRoad);
+        thirdLevelWheatCell.addNeighbour(thirdLevelRightRoad2);
+        centerCell.addNeighbour(thirdLevelLeftRoad2);
+        centerCell.addNeighbour(thirdLevelRightRoad3);
+        thirdLevelStoneCell.addNeighbour(thirdLevelLeftRoad3);
+        thirdLevelStoneCell.addNeighbour(thirdLevelRightRoad4);
+        thirdLevelWheatCell2.addNeighbour(thirdLevelLeftRoad4);
+        thirdLevelWheatCell2.addNeighbour(thirdLevelCornerRightRoad);
 
 
-        secondLevelWoodCell2.addNeighbour(roadCell4);
-        secondLevelWoodCell2.addNeighbour(roadCell11);
-        secondLevelWoodCell2.addNeighbour(roadCell13);
-        secondLevelWoodCell2.addNeighbour(roadCell31);
-        secondLevelSheepCell.addNeighbour(roadCell11);
-        secondLevelSheepCell.addNeighbour(roadCell3);
-        secondLevelSheepCell.addNeighbour(roadCell9);
-        secondLevelSheepCell.addNeighbour(roadCell14);
-        secondLevelWoodCell.addNeighbour(roadCell12);
-        secondLevelWoodCell.addNeighbour(roadCell13);
-        secondLevelWoodCell.addNeighbour(roadCell32);
-        secondLevelWoodCell.addNeighbour(roadCell10);
-        secondLevelBrickCell.addNeighbour(roadCell14);
-        secondLevelBrickCell.addNeighbour(roadCell15);
-        secondLevelBrickCell.addNeighbour(roadCell29);
-        secondLevelBrickCell.addNeighbour(roadCell33);
+        forthLevelWheatCell.addNeighbour(thirdLevelRightRoad);
+        forthLevelWheatCell.addNeighbour(thirdLevelLeftRoad);
+        emptyCell.addNeighbour(thirdLevelRightRoad2);
+        emptyCell.addNeighbour(thirdLevelLeftRoad2);
+        forthLevelBrickCell.addNeighbour(thirdLevelRightRoad3);
+        forthLevelBrickCell.addNeighbour(thirdLevelLeftRoad3);
+        forthLevelWoodCell.addNeighbour(thirdLevelRightRoad4);
+        forthLevelWoodCell.addNeighbour(thirdLevelLeftRoad4);
+        forthLevelWheatCell.addNeighbour(forthLevelVerticalRoad);
+        forthLevelWheatCell.addNeighbour(forthLevelVerticalRoad2);
+        emptyCell.addNeighbour(forthLevelVerticalRoad2);
+        emptyCell.addNeighbour(forthLevelVerticalRoad3);
+        forthLevelBrickCell.addNeighbour(forthLevelVerticalRoad3);
+        forthLevelBrickCell.addNeighbour(forthLevelVerticalRoad4);
+        forthLevelBrickCell.addNeighbour(secondLevelLeftRoad3);
+        forthLevelWoodCell.addNeighbour(forthLevelVerticalRoad4);
+        forthLevelWoodCell.addNeighbour(forthLevelVerticalRoad5);
+        forthLevelWheatCell.addNeighbour(forthLevelCornerLeftRoad);
+        forthLevelWheatCell.addNeighbour(forthLevelRightRoad);
+        emptyCell.addNeighbour(forthLevelRightRoad2);
+        emptyCell.addNeighbour(forthLevelLeftRoad2);
+        forthLevelBrickCell.addNeighbour(forthLevelRightRoad3);
+        forthLevelBrickCell.addNeighbour(forthLevelLeftRoad3);
+        forthLevelWoodCell.addNeighbour(forthLevelCornerRightRoad);
+        forthLevelWoodCell.addNeighbour(forthLevelLeftRoad4);
 
-        secondLevelSheepCell.addNeighbour(firstLevelBrickCell);
-        secondLevelWoodCell2.addNeighbour(firstLevelSheepCell);
-        secondLevelWoodCell.addNeighbour(firstLevelSheepCell);
-        secondLevelWoodCell.addNeighbour(firstLevelBrickCell);
-        secondLevelBrickCell.addNeighbour(firstLevelStoneCell);
 
-        centerCell.addNeighbour(roadCell4);
-        centerCell.addNeighbour(roadCell9);
-        centerCell.addNeighbour(roadCell);
-        centerCell.addNeighbour(roadCell2);
-        thirdLevelSheepCell.addNeighbour(roadCell6);
-        thirdLevelSheepCell.addNeighbour(roadCell5);
-        thirdLevelSheepCell.addNeighbour(roadCell30);
-        thirdLevelSheepCell.addNeighbour(roadCell32);
-        thirdLevelWheatCell.addNeighbour(roadCell5);
-        thirdLevelWheatCell.addNeighbour(roadCell);
-        thirdLevelWheatCell.addNeighbour(roadCell10);
-        thirdLevelWheatCell.addNeighbour(roadCell31);
-        thirdLevelStoneCell.addNeighbour(roadCell2);
-        thirdLevelStoneCell.addNeighbour(roadCell7);
-        thirdLevelStoneCell.addNeighbour(roadCell31);
-        thirdLevelStoneCell.addNeighbour(roadCell33);
-        thirdLevelWheatCell2.addNeighbour(roadCell7);
-        thirdLevelWheatCell2.addNeighbour(roadCell8);
-        thirdLevelWheatCell2.addNeighbour(roadCell29);
-        thirdLevelWheatCell2.addNeighbour(roadCell34);
-
-        thirdLevelStoneCell.addNeighbour(forthLevelWoodCell);
-        thirdLevelStoneCell.addNeighbour(forthLevelBrickCell);
-        thirdLevelStoneCell.addNeighbour(firstLevelStoneCell);
-        thirdLevelWheatCell.addNeighbour(forthLevelWheatCell);
-        thirdLevelWheatCell2.addNeighbour(forthLevelWoodCell);
-        centerCell.addNeighbour(forthLevelBrickCell);
-        centerCell.addNeighbour(emptyCell);
-
-        forthLevelWheatCell.addNeighbour(roadCell20);
-        forthLevelWheatCell.addNeighbour(roadCell21);
-        emptyCell.addNeighbour(roadCell21);
-        emptyCell.addNeighbour(roadCell22);
-        forthLevelBrickCell.addNeighbour(roadCell22);
-        forthLevelBrickCell.addNeighbour(roadCell23);
-        forthLevelBrickCell.addNeighbour(roadCell31);
-        forthLevelWoodCell.addNeighbour(roadCell23);
-        forthLevelWoodCell.addNeighbour(roadCell24);
-
-        forthLevelWoodCell.addNeighbour(fifthLevelWheatCell);
-        forthLevelBrickCell.addNeighbour(fifthLevelSheepCell);
-        forthLevelBrickCell.addNeighbour(fifthLevelWheatCell);
-        forthLevelWheatCell.addNeighbour(thirdLevelSheepCell);
-        forthLevelWheatCell.addNeighbour(secondLevelWoodCell);
-        forthLevelWheatCell.addNeighbour(fifthLevelStoneCell);
         emptyCell.addNeighbour(tempVillage2);
-        emptyCell.addNeighbour(thirdLevelWheatCell);
-        emptyCell.addNeighbour(fifthLevelStoneCell);
-        emptyCell.addNeighbour(fifthLevelSheepCell);
+
         emptyCell.setRobber(true);
 
-        fifthLevelStoneCell.addNeighbour(forthLevelWheatCell);
-        fifthLevelStoneCell.addNeighbour(roadCell25);
-        fifthLevelStoneCell.addNeighbour(roadCell26);
-        fifthLevelSheepCell.addNeighbour(roadCell26);
-        fifthLevelSheepCell.addNeighbour(roadCell27);
-        fifthLevelWheatCell.addNeighbour(roadCell27);
-        fifthLevelWheatCell.addNeighbour(roadCell28);
+        fifthLevelStoneCell.addNeighbour(fifthLevelVerticalRoad);
+        fifthLevelStoneCell.addNeighbour(fifthLevelVerticalRoad2);
+        fifthLevelSheepCell.addNeighbour(fifthLevelVerticalRoad2);
+        fifthLevelSheepCell.addNeighbour(fifthLevelVerticalRoad3);
+        fifthLevelWheatCell.addNeighbour(fifthLevelVerticalRoad3);
+        fifthLevelWheatCell.addNeighbour(fifthLevelVerticalRoad4);
+        fifthLevelStoneCell.addNeighbour(forthLevelRightRoad);
+        fifthLevelStoneCell.addNeighbour(forthLevelLeftRoad2);
+        fifthLevelSheepCell.addNeighbour(forthLevelRightRoad2);
+        fifthLevelSheepCell.addNeighbour(forthLevelLeftRoad3);
+        fifthLevelWheatCell.addNeighbour(forthLevelRightRoad3);
+        fifthLevelWheatCell.addNeighbour(forthLevelLeftRoad4);
+        fifthLevelStoneCell.addNeighbour(fifthLevelRightRoad);
+        fifthLevelStoneCell.addNeighbour(fifthLevelLeftRoad);
+        fifthLevelSheepCell.addNeighbour(fifthLevelRightRoad2);
+        fifthLevelSheepCell.addNeighbour(fifthLevelLeftRoad2);
+        fifthLevelWheatCell.addNeighbour(fifthLevelRightRoad3);
+        fifthLevelWheatCell.addNeighbour(fifthLevelLeftRoad3);
 
         System.out.println(centerCell.getDiceThrow());
         robberCell = findRobber();
