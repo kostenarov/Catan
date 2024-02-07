@@ -74,4 +74,17 @@ public class Deck {
         removeResources(ResourceType.WOOD, 1);
         removeResources(ResourceType.BRICK, 1);
     }
+
+    public void robberMove() {
+        int resourceAmount = 0;
+        for (ResourceType resource : resources.keySet()) {
+            resourceAmount += resources.get(resource);
+        }
+
+        if (resourceAmount > 7) {
+            for (ResourceType resource : resources.keySet()) {
+                resources.put(resource, resources.get(resource) / 2);
+            }
+        }
+    }
 }

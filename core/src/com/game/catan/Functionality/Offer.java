@@ -53,4 +53,12 @@ public class Offer {
     public int getResourceAmount(ResourceType resourceType) {
         return offer.getResourceAmount(resourceType);
     }
+    public boolean isBankOffer() {
+        for(ResourceType resourceType : offer.getResources().keySet()) {
+            if(offer.getResourceAmount(resourceType) == 4) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
