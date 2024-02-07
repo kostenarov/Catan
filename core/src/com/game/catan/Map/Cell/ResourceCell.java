@@ -19,6 +19,7 @@ public class ResourceCell extends Cell{
     private ImageButton.ImageButtonStyle style;
     private Label resourceDice;
     private ImageButton button;
+    private Texture buttonTexture;
 
 
     public ResourceCell(int x, int y, ResourceType type) {
@@ -33,6 +34,16 @@ public class ResourceCell extends Cell{
         this.type = type;
         setTexturePath(type);
         this.diceThrow = diceThrow;
+    }
+
+    @Override
+    public void addNeighbour(Cell neighbour) {
+        neighbours.add(neighbour);
+        if(neighbour == null) {
+            throw new RuntimeException("Neighbour is null");
+        }
+        if(!neighbour.getNeighbours().contains(this))
+            neighbour.addNeighbour(this);
     }
 
     public void setTexturePath(ResourceType type){
@@ -82,16 +93,6 @@ public class ResourceCell extends Cell{
         return this.hasRobber;
     }
 
-    public void addNeighbour(Cell cell) {
-        if (cell instanceof ResourceCell)
-            super.addNeighbour(cell);
-    }
-
-    public void addVillageNeighbour(Cell cell) {
-        if(cell instanceof VillageCell)
-            super.addNeighbour(cell);
-    }
-
     public ArrayList<VillageCell> getVillages() {
         ArrayList<VillageCell> neighbours = new ArrayList<>();
         for(Cell neighbour : getNeighbours()) {
@@ -104,14 +105,8 @@ public class ResourceCell extends Cell{
 
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        if(type != ResourceType.EMPTY) {
-            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
-            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
-            stage.addActor(resourceDice);
-        }
         if(button == null) {
+            setUpResourceButtonStyle();
             button = new ImageButton(style);
             button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
                 public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
@@ -126,26 +121,40 @@ public class ResourceCell extends Cell{
                     return true;
                 }
             });
+            button.setSize(145, 145);
+            button.setPosition(this.getCellCords().getX() - 20, this.getCellCords().getY() - 20);
+            stage.addActor(button);
+            setUpLabel(stage);
         }
-        button.setSize(100, 100);
-        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
-        stage.addActor(button);
     }
 
     @Override
     public void drawWithoutFunc(Stage stage) {
-        style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(texturePath));
-        if(type != ResourceType.EMPTY) {
-            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
-            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
-            stage.addActor(resourceDice);
-        }
+        setUpLabel(stage);
         if(button == null) {
             button = new ImageButton(style);
         }
-        button.setSize(100, 100);
+        button.setSize(130, 130);
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
+    }
+
+    private void setUpLabel(Stage stage) {
+        if(type != ResourceType.EMPTY) {
+            resourceDice = new Label(Integer.toString(diceThrow), new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.BLUE));
+            resourceDice.setPosition(this.getCellCords().getX() + 50, this.getCellCords().getY() + 50);
+            resourceDice.setFontScale(2);
+            stage.addActor(resourceDice);
+        }
+    }
+
+    private void setUpResourceButtonStyle() {
+        style = new ImageButton.ImageButtonStyle();
+        buttonTexture = new Texture(texturePath);
+        style.imageUp = new TextureRegionDrawable(buttonTexture);
+    }
+
+    public String getResourceType() {
+        return type.toString();
     }
 }

@@ -1,13 +1,17 @@
 package com.game.catan.player;
 
+import com.game.catan.Functionality.Offer;
+import com.game.catan.Map.Cell.ResourceCell;
 import com.game.catan.Map.Cell.ResourceType;
+import com.game.catan.Map.Cell.RoadCell;
+import com.game.catan.Map.Cell.VillageCell;
 import com.game.catan.Map.Map;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 
 public class UpdateListenerThread extends Thread{
-    private CatanPlayer player;
-    private ObjectInputStream in;
+    private final CatanPlayer player;
+    private final ObjectInputStream in;
     private boolean isWorking = true;
 
     public UpdateListenerThread(CatanPlayer player, ObjectInputStream in) {
@@ -24,6 +28,8 @@ public class UpdateListenerThread extends Thread{
                 if (input instanceof Integer) {
                     if((int) input < 13) {
                         player.setDiceThrow((Integer) input);
+                        player.setDiceThrown(true);
+                        System.out.println(player.getIsDiceThrown());
                     }
                     else if((int) input == 100) {
                         System.out.println("Your turn");
@@ -33,7 +39,17 @@ public class UpdateListenerThread extends Thread{
                     else if((int) input == 200) {
                         System.out.println("Not your turn");
                         player.setIsTurn(false);
-                        player.sendMap();
+                    }
+                }
+                else if(input instanceof String) {
+                    if(((String) input).contains("Points")) {
+                        System.out.println("Points received");
+                        player.setPoints(Integer.parseInt(((String) input).split(":")[1]));
+                        player.displayPoints();
+                    }
+                    else if(((String) input).contains("Players")) {
+                        System.out.println("Players received");
+                        player.setPlayersAmount(Integer.parseInt(((String) input).split(":")[1]));
                     }
                 }
                 else if(input instanceof Map) {
@@ -44,6 +60,25 @@ public class UpdateListenerThread extends Thread{
                     System.out.println("Deck received");
                     player.setDeck((HashMap<ResourceType, Integer>) input);
                 }
+                else if(input instanceof ResourceCell) {
+                    System.out.println("Resource cell received");
+                    player.setRobberCell((ResourceCell) input);
+                }
+                else if(input instanceof VillageCell) {
+                    System.out.println("Village cell received");
+                    player.setVillageCell((VillageCell) input);
+                }
+                else if(input instanceof RoadCell) {
+                    System.out.println("Road cell received");
+                    player.setRoadCell((RoadCell) input);
+                }
+                else if(input instanceof Offer) {
+                    System.out.println("Offer received");
+                    if(((Offer) input).getPlayerId() != player.getId()) {
+                        player.setIncomingOffer((Offer) input);
+                    }
+                }
+
             } catch (Exception e) {
                 System.out.println("Could not read input");
             }

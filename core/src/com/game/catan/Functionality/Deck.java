@@ -16,6 +16,10 @@ public class Deck {
         resources.put(ResourceType.WHEAT, 2);
     }
 
+    public Deck(HashMap<ResourceType, Integer> resources) {
+        this.resources = resources;
+    }
+
     public Deck(boolean helper) {
         resources = new HashMap<>();
         resources.put(ResourceType.WOOD, 0);
@@ -64,5 +68,23 @@ public class Deck {
         removeResources(ResourceType.STONE, 1);
         removeResources(ResourceType.SHEEP, 1);
         removeResources(ResourceType.WHEAT, 1);
+    }
+
+    public void removeRoadResources() {
+        removeResources(ResourceType.WOOD, 1);
+        removeResources(ResourceType.BRICK, 1);
+    }
+
+    public void robberMove() {
+        int resourceAmount = 0;
+        for (ResourceType resource : resources.keySet()) {
+            resourceAmount += resources.get(resource);
+        }
+
+        if (resourceAmount > 7) {
+            for (ResourceType resource : resources.keySet()) {
+                resources.put(resource, resources.get(resource) / 2);
+            }
+        }
     }
 }

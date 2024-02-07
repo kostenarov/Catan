@@ -9,6 +9,7 @@ import com.game.catan.player.CatanPlayer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 
 public class VillageCell extends Cell {
     private int owner = 5;
@@ -25,11 +26,18 @@ public class VillageCell extends Cell {
     }
 
     @Override
+    public void addNeighbour(Cell neighbour) {
+        neighbours.add(neighbour);
+        if(!neighbour.getNeighbours().contains(this))
+            neighbour.addNeighbour(this);
+    }
+
+    @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
-        this.villageTexture = new Texture(texturePath);
-        this.style = new ImageButton.ImageButtonStyle();
-        this.style.imageUp = new TextureRegionDrawable(villageTexture);
         if(button == null) {
+            this.villageTexture = new Texture(texturePath);
+            this.style = new ImageButton.ImageButtonStyle();
+            this.style.imageUp = new TextureRegionDrawable(villageTexture);
             button = new ImageButton(style);
             button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
                 public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
@@ -37,6 +45,7 @@ public class VillageCell extends Cell {
                     if (player.getIsTurn() && owner == 5) {
                         try {
                             outputStream.writeObject("Clicked Village button:" + id);
+                            outputStream.reset();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -44,15 +53,12 @@ public class VillageCell extends Cell {
                     return true;
                 }
             });
+            button.setSize(35, 35);
+            button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
+            stage.addActor(button);
         }
-        else {
-            button.setStyle(style);
-        }
-        button.setSize(50, 50);
-        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
-        stage.addActor(button);
-    }
 
+    }
     @Override
     public void drawWithoutFunc(Stage stage) {
         this.villageTexture = new Texture(texturePath);
@@ -68,7 +74,6 @@ public class VillageCell extends Cell {
         button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
         stage.addActor(button);
     }
-
 
     public void setVillagePath(String path) {
         this.texturePath = path;
@@ -87,7 +92,25 @@ public class VillageCell extends Cell {
         return !getNeighbours().isEmpty();
     }
 
+    public HashSet<ResourceCell> getResourceNeighbours() {
+        HashSet<ResourceCell> resourceCells = new HashSet<>();
+        for(Cell cell : getNeighbours()) {
+            if(cell instanceof ResourceCell) {
+                resourceCells.add((ResourceCell) cell);
+            }
+        }
+        return resourceCells;
+    }
+
     public ImageButton getVillageButton() {
         return button;
+    }
+
+    public void setVillage(Texture texture) {
+        this.villageTexture = texture;
+    }
+
+    public String getVillagePath() {
+        return texturePath;
     }
 }

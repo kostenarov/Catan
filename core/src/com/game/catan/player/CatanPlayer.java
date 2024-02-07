@@ -1,19 +1,24 @@
 package com.game.catan.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import com.game.catan.Functionality.Deck;
-import com.game.catan.Functionality.VillagePair;
-import com.game.catan.Functionality.Functionality;
+import com.game.catan.Functionality.*;
 import com.game.catan.Map.Map;
 import com.game.catan.Map.Cell.*;
 import com.game.catan.Map.Cell.Cell;
@@ -23,43 +28,57 @@ import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 
 
 public class CatanPlayer extends ApplicationAdapter {
     private int id;
+    private int playersAmount;
     private int diceThrow;
     private boolean isTurn = true;
     private boolean isDiceThrown = false;
-    private String roadPath;
-    private String villagePath;
+    private int points = 0;
+
+
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+
     private Stage stage;
+    private Stage UIStage;
+    private Stage resourceFieldStage;
     private SpriteBatch batch;
-    private Deck deck;
+    private SpriteBatch backgroundBatch;
+    private SpriteBatch playerIndicatorBatch;
+    private Texture playerTexture;
+    private Texture background;
+    private Texture resourceBackground;
+    private Texture robber;
+    private Image robberImage;
+    private Table offerTable;
+    private TextButton endTurnButton;
+    private TextButton diceThrowButton;
+
+    private Label pointsLabel;
+    private Label diceThrowLabel;
+    private HashMap<ResourceType, ResourceDisplay> resourceLabels;
+    private HashMap<ResourceType, ResourceButton> resourceButtons;
+
     private Map map;
+    private Offer incomingOffer;
+    private Offer outgoingOffer;
+    private final Deck deck;
     private UpdateListenerThread updateThread;
-    private Variables variables;
+    private SenderThread senderThread;
     private VillagePair<VillageCell, VillageCell> villagePair;
-    private HashMap<ResourceType, Label> cardsAmount;
 
     public CatanPlayer(Map map) {
         this.map = map;
-        this.deck = new Deck();
-        this.cardsAmount = new HashMap<>();
-    }
-
-    @Override
-    public void create() {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch = new SpriteBatch();
-        stage = new Stage(new ScreenViewport());
-        connectToServer();
-        updateThread = new UpdateListenerThread(this, inputStream);
-        updateThread.start();
-        setUpInitialLabels();
+        this.deck = new Deck(true);
+        this.outgoingOffer = new Offer(this.id);
+        this.incomingOffer = new Offer(this.id);
+        this.resourceLabels = new HashMap<>();
+        this.resourceButtons = new HashMap<>();
     }
 
     private void connectToServer() {
@@ -77,16 +96,16 @@ public class CatanPlayer extends ApplicationAdapter {
             }
             switch (id) {
                 case 0:
-                    villagePath = "Villages/yellowVillage.png";
+                    playerTexture = new Texture("Indicators/yellowIndicator.png");
                     break;
                 case 1:
-                    villagePath = "Villages/redVillage.png";
+                    playerTexture = new Texture("Indicators/blueIndicator.png");
                     break;
                 case 2:
-                    villagePath = "Villages/blueVillage.png";
+                    playerTexture = new Texture("Indicators/redIndicator.png");
                     break;
                 case 3:
-                    villagePath = "Villages/greenVillage.png";
+                    playerTexture = new Texture("Indicators/greenIndicator.png");
                     break;
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -95,207 +114,240 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     @Override
+    public void create() {
+        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch = new SpriteBatch();
+        backgroundBatch = new SpriteBatch();
+        playerIndicatorBatch = new SpriteBatch();
+        UIStage = new Stage(new ScreenViewport());
+        resourceFieldStage = new Stage(new ScreenViewport());
+        stage = new Stage(new ScreenViewport());
+        background = new Texture("Backgrounds/background.png");
+        resourceBackground = new Texture("Backgrounds/resourceBackground.png");
+        robber = new Texture("Textures/robber.png");
+        robberImage = new Image(robber);
+        robberImage.setSize(50, 50);
+        connectToServer();
+        updateThread = new UpdateListenerThread(this, inputStream);
+        updateThread.start();
+        setUpInitialLabels();
+        setUpResourceLabels();
+        setUpOutgoingOffer();
+        displayResources();
+
+        //displayOffer();
+    }
+
+    @Override
     public void render() {
-        //setUpInitialLabels();
         drawBackgrounds();
+        resourceFieldStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        resourceFieldStage.draw();
+        UIStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        UIStage.draw();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-        drawSpecificRound();
         drawButtons();
-        batch.begin();
-        drawIsYourTurnLight();
-        batch.end();
-        Gdx.input.setInputProcessor(stage);
+        renderNormalRound();
+        drawPlayerIndicator();
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, resourceFieldStage, UIStage));
+        Gdx.graphics.setContinuousRendering(false);
     }
+
 
     private void drawIsYourTurnLight() {
         if(isTurn) {
-            batch.draw(new Texture("Villages/defaultVillage.png"), 0, 0);
+            playerIndicatorBatch.draw(new Texture("Indicators/greenIndicator.png"), 0, 50, 50, 50);
         }
         else {
-            batch.draw(new Texture("Villages/redVillage.png"), 0, 0);
-        }
-    }
-
-    private void drawSpecificRound() {
-        if(diceThrow == 7) {
-            renderThiefRound();
-            renderMap();
-        }
-        else {
-            renderNormalRound();
-            renderMap();
+            playerIndicatorBatch.draw(new Texture("Indicators/redIndicator.png"), 0, 50, 50, 50);
         }
     }
 
     private void setUpInitialLabels() {
-        int x = 525;
+        Label.LabelStyle pointsLabelStyle = new Label.LabelStyle();
+        pointsLabelStyle.font = new BitmapFont();
+        pointsLabelStyle.font.getData().setScale(2f);
+        pointsLabelStyle.fontColor = Color.SALMON;
+        pointsLabel = new Label("Points: " + points, pointsLabelStyle);
+        pointsLabel.setPosition(1500, 50);
+        diceThrowLabel = new Label("Dice throw: " + diceThrow, pointsLabelStyle);
+        diceThrowLabel.setPosition(1500, 100);
+        UIStage.addActor(pointsLabel);
+        UIStage.addActor(diceThrowLabel);
+    }
+
+    private void setUpOffer() {
+
+    }
+
+    private void drawBackgrounds() {
+        backgroundBatch.begin();
+        drawBackground();
+        drawResourceBackground();
+        backgroundBatch.end();
+    }
+
+    private void drawPlayerIndicator() {
+        playerIndicatorBatch.begin();
+        drawIsYourTurnLight();
+        displayPlayers();
+        playerIndicatorBatch.end();
+    }
+
+    private void drawButtons() {
+        endTurnButton();
+        diceThrowButton();
+    }
+
+    private void drawBackground() {
+        backgroundBatch.draw(background, 0,0 );
+    }
+
+    private void drawResourceBackground() {
+        backgroundBatch.draw(resourceBackground, 0, 0);
+    }
+
+    private void endTurnButton() {
+        TextButton temp = ButtonSetUps.setUpTextButton("End Turn", 30, this);
+        if(endTurnButton == null) {
+            endTurnButton = ButtonSetUps.setUpEndTurnButtonFunc(temp, outputStream);
+            UIStage.addActor(endTurnButton);
+        }
+    }
+
+    private void diceThrowButton() {
+        TextButton temp = ButtonSetUps.setUpTextButton("Dice Throw", 130, this);
+        if(diceThrowButton == null) {
+            diceThrowButton = ButtonSetUps.setUpDiceThrowButtonFunc(temp, outputStream);
+            UIStage.addActor(diceThrowButton);
+        }
+
+    }
+
+    private void changeLabelAmount(ResourceType type, int amount) {
+        resourceLabels.get(type).changeAmount(amount);
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public void displayPoints() {
+        pointsLabel.setText("Points: " + points);
+    }
+
+    public void displayDiceThrow() {
+        diceThrowLabel.setText("Dice throw: " + diceThrow);
+    }
+
+    private void displayResources() {
+        for(ResourceType type : ResourceType.values()) {
+            if(type != ResourceType.EMPTY) {
+                resourceLabels.get(type).draw(UIStage, batch);
+            }
+        }
+    }
+
+    private void displayOffer() {
+        for(ResourceType type : ResourceType.values()) {
+            if(type != ResourceType.EMPTY) {
+                outgoingOffer = resourceButtons.get(type).draw(UIStage, outgoingOffer, deck);
+            }
+        }
+    }
+
+    private void setUpOutgoingOffer() {
+        int x = 825;
+        for(final ResourceType type : ResourceType.values()) {
+            if(type != ResourceType.EMPTY) {
+                Label.LabelStyle labelStyle = new Label.LabelStyle();
+                labelStyle.font = new BitmapFont();
+                labelStyle.font.getData().setScale(2f);
+                labelStyle.fontColor = Color.SALMON;
+                final Label resourceLabel = new Label("0", labelStyle);
+                resourceLabel.setPosition(x, 50);
+                Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
+                ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
+                imageButtonStyle.imageUp = new TextureRegionDrawable(texture);
+                ImageButton imageButton = new ImageButton(imageButtonStyle);
+                imageButton.addListener(new InputListener() {
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        System.out.println("Offer Button for " + type + " clicked");
+                        if(outgoingOffer.getResourceAmount(type) < deck.getResourceAmount(type)) {
+                            outgoingOffer.addResource(type);
+                            resourceLabel.setText(Integer.toString(outgoingOffer.getResourceAmount(type)));
+                            System.out.println(outgoingOffer.getResourceAmount(type));
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                imageButton.setPosition(x - 25, 100);
+                x += 100;
+                ResourceButton resourceButton = new ResourceButton(imageButton, resourceLabel, type);
+                outgoingOffer = resourceButton.draw(UIStage, outgoingOffer, deck);
+                Gdx.graphics.requestRendering();
+            }
+        }
+    }
+
+    private void setUpResourceLabels() {
+        int x = 275;
         for(ResourceType type : ResourceType.values()) {
             if (type != ResourceType.EMPTY) {
                 Label.LabelStyle labelStyle = new Label.LabelStyle();
-                labelStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
+                labelStyle.font = new BitmapFont();
                 labelStyle.font.getData().setScale(2f);
                 labelStyle.fontColor = Color.SALMON;
                 Label resourceLabel = new Label(deck.getResourceAmount(type).toString(), labelStyle);
                 resourceLabel.setPosition(x, 50);
+                Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
+                Image image = new Image(texture);
+                image.setPosition(x - 25, 100);
                 x += 100;
-                cardsAmount.put(type, resourceLabel);
-                stage.addActor(resourceLabel);
-            }
-        }
-    }
-
-    private void drawBackgrounds() {
-        drawBackground();
-        drawResourceBackground();
-        displayResources(stage);
-    }
-
-    private void drawButtons() {
-        diceThrowButton(stage);
-        endTurnButton();
-    }
-
-    private void drawBackground() {
-        Texture background = new Texture("Backgrounds/background.png");
-        batch.begin();
-        batch.draw(background, 0, 0);
-        batch.end();
-    }
-
-    private void drawResourceBackground() {
-        Texture background = new Texture("Backgrounds/resourceBackground.png");
-        batch.begin();
-        batch.draw(background, 0, -100);
-        batch.end();
-    }
-
-    private TextButton setUpTextButton(String text, int x, int y) {
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
-        textButtonStyle.font.getData().setScale(2f);
-        textButtonStyle.fontColor = com.badlogic.gdx.graphics.Color.BLACK;
-        Texture buttonTexture = new Texture("Textures/button.png");
-        textButtonStyle.up = new TextureRegionDrawable(buttonTexture);
-        textButtonStyle.down = new TextureRegionDrawable(buttonTexture);
-
-        TextButton button = new TextButton(text, textButtonStyle);
-        button.setPosition(x, y);
-        button.setSize(200, 100);
-        return button;
-    }
-
-    private void endTurnButton() {
-        TextButton button = setUpTextButton("End Turn", 1720, 0);
-        Functionality.setUpButtonFunc(stage, button, isTurn, outputStream);
-    }
-
-    private void diceThrowButton(Stage stage) {
-        TextButton button = setUpTextButton("Throw Dice", 1720, 100);
-        stage.addActor(button);
-        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                try {
-                    if(isTurn && !isDiceThrown) {
-                        System.out.println("Dice thrown");
-                        outputStream.writeObject("Dice Throw");
-                        outputStream.reset();
-                        setDiceThrown(true);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Could not send dice throw");
-                }
-                return true;
-            }
-        });
-    }
-
-    private ImageButton setUpImageButton(final String path, int x, int y, int amount, ResourceType type) {
-        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(path));
-        ImageButton button = new ImageButton(style);
-        button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-                if(isTurn) {
-                    System.out.println("Button clicked" + path);
-                }
-                return true;
-            }
-        });
-
-        button.setPosition(x, y);
-        button.setSize(60, 100);
-        changeLabelAmount(type, amount);
-        return button;
-    }
-    private void changeLabelAmount(ResourceType type, int amount) {
-        for(ResourceType resourceType : ResourceType.values()) {
-            if(resourceType == type) {
-                cardsAmount.get(resourceType).setText(Integer.toString(amount));
-            }
-        }
-    }
-
-    private void displayResources(Stage stage) {
-        ImageButton brickButton = setUpImageButton("Cards/brickCard.png", 500, 100, deck.getResourceAmount(ResourceType.BRICK), ResourceType.BRICK);
-        stage.addActor(brickButton);
-        ImageButton wheatButton = setUpImageButton("Cards/wheatCard.png", 600, 100, deck.getResourceAmount(ResourceType.WHEAT), ResourceType.WHEAT);
-        stage.addActor(wheatButton);
-        ImageButton woodButton = setUpImageButton("Cards/woodCard.png", 700, 100, deck.getResourceAmount(ResourceType.WOOD), ResourceType.WOOD);
-        stage.addActor(woodButton);
-        ImageButton sheepButton = setUpImageButton("Cards/sheepCard.png", 800, 100, deck.getResourceAmount(ResourceType.SHEEP), ResourceType.SHEEP);
-        stage.addActor(sheepButton);
-        ImageButton stoneButton = setUpImageButton("Cards/stoneCard.png", 900, 100, deck.getResourceAmount(ResourceType.STONE), ResourceType.STONE);
-        stage.addActor(stoneButton);
-    }
-
-    public void sendMap() {
-        try {
-            outputStream.writeObject(map);
-            outputStream.reset();
-        } catch (IOException e) {
-            System.out.println("Could not send map");
-        }
-    }
-
-    private void renderMap() {
-        for(Cell cell : map.getMap()) {
-            if(cell instanceof RoadCell || cell instanceof VillageCell) {
-                cell.buttonFunc(stage, outputStream, this);
-            }
-        }
-    }
-
-    private void renderThiefRound() {
-        for(Cell cell : map.getMap()) {
-            if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
-                cell.buttonFunc(stage, outputStream, this);
-                batch.begin();
-                batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
-                batch.end();
-            }
-            else {
-                cell.buttonFunc(stage, outputStream, this);
-                Hexagon hexagon = new Hexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50, 70);
-                hexagon.draw(stage);
+                ResourceDisplay resourceDisplay = new ResourceDisplay(image, resourceLabel);
+                resourceLabels.put(type, resourceDisplay);
             }
         }
     }
 
     private void renderNormalRound() {
-        for(Cell cell : map.getMap()) {
+        HashSet<Cell> cells = new HashSet<>();
+        cells = map.getMap(map.getCenterCell(), cells);
+        for(Cell cell : cells) {
             if(cell instanceof ResourceCell) {
+                cell.buttonFunc(resourceFieldStage, outputStream, this);
+            }
+            else {
                 cell.buttonFunc(stage, outputStream, this);
-                Hexagon hexagon = new Hexagon(cell.getCellCords().getX() + 50, cell.getCellCords().getY() + 50, 70);
-                hexagon.draw(stage);
             }
         }
+        drawRobber();
+    }
+
+    private void drawRobber() {
+        ResourceCell cell = map.getRobberCell();
+        batch.begin();
+
+        batch.draw(robber, cell.getCellCords().getX(), cell.getCellCords().getY());
+        batch.end();
+    }
+
+    private void displayPlayers() {
+        int y = 700;
+        playerTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        playerIndicatorBatch.draw(playerTexture, 1700, y+=100, 50, 50);
     }
 
     @Override
     public void dispose() {
         batch.dispose();
         stage.dispose();
+        UIStage.dispose();
+        resourceFieldStage.dispose();
+        updateThread.stopThread();
         updateThread.interrupt();
         try {
             socket.close();
@@ -307,38 +359,69 @@ public class CatanPlayer extends ApplicationAdapter {
     //**********SETTERS**********//
     public synchronized void setMap(Map map) {
         this.map = map;
+        Gdx.graphics.requestRendering();
+    }
+    public synchronized void setPlayersAmount(int playersAmount) {
+        this.playersAmount = playersAmount;
+        Gdx.graphics.requestRendering();
     }
     public synchronized void setIsTurn(boolean isTurn) {
         this.isTurn = isTurn;
+        Gdx.graphics.requestRendering();
     }
     public synchronized void setDiceThrow(int diceThrow) {
         this.diceThrow = diceThrow;
+        displayDiceThrow();
+        Gdx.graphics.requestRendering();
     }
     public synchronized void setDeck(HashMap<ResourceType, Integer> deck) {
-        this.deck.setDeck(deck);
-    }
-    public synchronized void setDiceThrown(boolean isDiceThrown) {
-        this.isDiceThrown = isDiceThrown;
+        if(!this.deck.equals(new Deck(deck))) {
+            for (ResourceType type : ResourceType.values()) {
+                if (type != ResourceType.EMPTY) {
+                    changeLabelAmount(type, deck.get(type));
+                }
+            }
+        }
+        Gdx.graphics.requestRendering();
     }
 
+    public synchronized void setIncomingOffer(Offer offer) {
+        this.incomingOffer = offer;
+    }
+
+    public synchronized void setOutgoingOffer(Offer offer) {
+        this.outgoingOffer = offer;
+    }
+
+    public synchronized void setDiceThrown(boolean isDiceThrown) {
+        this.isDiceThrown = isDiceThrown;
+        Gdx.graphics.requestRendering();
+    }
+
+    public synchronized void setRobberCell(ResourceCell cell) {
+        map.setRobberCell(cell);
+        Gdx.graphics.requestRendering();
+    }
+
+    public synchronized void setVillageCell(VillageCell cell) {
+        map.setVillageCell(cell);
+        Gdx.graphics.requestRendering();
+    }
+
+    public synchronized void setRoadCell(RoadCell cell) {
+        map.setRoadCell(cell);
+        Gdx.graphics.requestRendering();
+    }
 
     //**********GETTERS**********//
     public synchronized boolean getIsTurn() {
         return isTurn;
     }
-    public synchronized int getDiceThrow() {
-        return diceThrow;
-    }
     public synchronized int getId() {
         return id;
     }
-    public synchronized Deck getDeck() {
-        return deck;
-    }
-    public String getVillagePath() {
-        return villagePath;
-    }
-    public String getRoadPath() {
-        return roadPath;
+
+    public synchronized boolean getIsDiceThrown() {
+        return isDiceThrown;
     }
 }
