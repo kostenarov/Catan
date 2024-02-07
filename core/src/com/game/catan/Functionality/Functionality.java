@@ -32,7 +32,7 @@ public class Functionality {
                 }
             }
         }
-        Deck deck = new Deck();
+        Deck deck = new Deck(true);
         deck.setDeck(resources);
         return deck;
     }
@@ -49,7 +49,7 @@ public class Functionality {
             }
         }
 
-        Deck deck = new Deck();
+        Deck deck = new Deck(true);
         deck.setDeck(resources);
         return deck;
     }
@@ -58,7 +58,7 @@ public class Functionality {
         for (ResourceCell cell : villageCell.getResourceNeighbours())
             if(cell.getResource() != ResourceType.EMPTY)
                 resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);
-        Deck deck = new Deck();
+        Deck deck = new Deck(true);
         deck.setDeck(resources);
         return deck;
     }

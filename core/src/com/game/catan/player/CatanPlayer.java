@@ -1,12 +1,14 @@
 package com.game.catan.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -42,14 +44,16 @@ public class CatanPlayer extends ApplicationAdapter {
     private ObjectOutputStream outputStream;
 
     private Stage stage;
-    private Stage resourceStage;
-    private Stage backgroundStage;
+    private Stage UIStage;
+    private Stage resourceFieldStage;
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
     private Texture playerTexture;
     private Texture background;
     private Texture resourceBackground;
+    private Texture robber;
+    private Image robberImage;
     private TextButton endTurnButton;
     private TextButton diceThrowButton;
 
@@ -68,7 +72,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public CatanPlayer(Map map) {
         this.map = map;
-        this.deck = new Deck();
+        this.deck = new Deck(true);
         this.outgoingOffer = new Offer(this.id);
         this.incomingOffer = new Offer(this.id);
         this.resourceLabels = new HashMap<>();
@@ -114,11 +118,14 @@ public class CatanPlayer extends ApplicationAdapter {
         batch = new SpriteBatch();
         backgroundBatch = new SpriteBatch();
         playerIndicatorBatch = new SpriteBatch();
+        UIStage = new Stage(new ScreenViewport());
+        resourceFieldStage = new Stage(new ScreenViewport());
         stage = new Stage(new ScreenViewport());
-        resourceStage = new Stage(new ScreenViewport());
-        backgroundStage = new Stage(new ScreenViewport());
         background = new Texture("Backgrounds/background.png");
         resourceBackground = new Texture("Backgrounds/resourceBackground.png");
+        robber = new Texture("Textures/robber.png");
+        robberImage = new Image(robber);
+        robberImage.setSize(50, 50);
         connectToServer();
         updateThread = new UpdateListenerThread(this, inputStream);
         updateThread.start();
@@ -132,18 +139,17 @@ public class CatanPlayer extends ApplicationAdapter {
 
     @Override
     public void render() {
-        backgroundStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        backgroundStage.draw();
         drawBackgrounds();
+        resourceFieldStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        resourceFieldStage.draw();
+        UIStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        UIStage.draw();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-        resourceStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        resourceStage.draw();
         drawButtons();
-
         renderNormalRound();
         drawPlayerIndicator();
-        Gdx.input.setInputProcessor(stage);
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, resourceFieldStage, UIStage));
     }
 
 
@@ -165,8 +171,8 @@ public class CatanPlayer extends ApplicationAdapter {
         pointsLabel.setPosition(1500, 50);
         diceThrowLabel = new Label("Dice throw: " + diceThrow, pointsLabelStyle);
         diceThrowLabel.setPosition(1500, 100);
-        stage.addActor(pointsLabel);
-        stage.addActor(diceThrowLabel);
+        UIStage.addActor(pointsLabel);
+        UIStage.addActor(diceThrowLabel);
     }
 
     private void setUpOffer() {
@@ -204,7 +210,7 @@ public class CatanPlayer extends ApplicationAdapter {
         TextButton temp = ButtonSetUps.setUpTextButton("End Turn", 30, this);
         if(endTurnButton == null) {
             endTurnButton = ButtonSetUps.setUpEndTurnButtonFunc(temp, outputStream);
-            stage.addActor(endTurnButton);
+            UIStage.addActor(endTurnButton);
         }
     }
 
@@ -212,7 +218,7 @@ public class CatanPlayer extends ApplicationAdapter {
         TextButton temp = ButtonSetUps.setUpTextButton("Dice Throw", 130, this);
         if(diceThrowButton == null) {
             diceThrowButton = ButtonSetUps.setUpDiceThrowButtonFunc(temp, outputStream);
-            stage.addActor(diceThrowButton);
+            UIStage.addActor(diceThrowButton);
         }
 
     }
@@ -236,7 +242,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private void displayResources() {
         for(ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
-                resourceLabels.get(type).draw(resourceStage, batch);
+                resourceLabels.get(type).draw(UIStage, batch);
             }
         }
     }
@@ -244,7 +250,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private void displayOffer() {
         for(ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
-                outgoingOffer = resourceButtons.get(type).draw(resourceStage, outgoingOffer, deck);
+                outgoingOffer = resourceButtons.get(type).draw(UIStage, outgoingOffer, deck);
             }
         }
     }
@@ -277,7 +283,7 @@ public class CatanPlayer extends ApplicationAdapter {
                 imageButton.setPosition(x - 25, 100);
                 x += 100;
                 ResourceButton resourceButton = new ResourceButton(imageButton, resourceLabel, type);
-                outgoingOffer = resourceButton.draw(resourceStage, outgoingOffer, deck);
+                outgoingOffer = resourceButton.draw(UIStage, outgoingOffer, deck);
             }
         }
     }
@@ -306,26 +312,22 @@ public class CatanPlayer extends ApplicationAdapter {
         HashSet<Cell> cells = new HashSet<>();
         cells = map.getMap(map.getCenterCell(), cells);
         for(Cell cell : cells) {
-            if(cell instanceof ResourceCell && ((ResourceCell) cell).hasRobber()) {
-                cell.buttonFunc(stage, outputStream, this);
-                batch.begin();
-                batch.draw(new Texture("Textures/robber.png"), cell.getCellCords().getX(), cell.getCellCords().getY());
-                batch.end();
+            if(cell instanceof ResourceCell) {
+                cell.buttonFunc(resourceFieldStage, outputStream, this);
             }
-            else if(cell instanceof ResourceCell) {
+            else {
                 cell.buttonFunc(stage, outputStream, this);
             }
         }
-        renderMap();
+        drawRobber();
     }
 
-    private void renderMap() {
-        for(Cell cell : map.getMap(map.getCenterCell(), new HashSet<Cell>())) {
-            if(cell instanceof VillageCell || cell instanceof RoadCell) {
-                cell.buttonFunc(stage, outputStream, this);
-            }
+    private void drawRobber() {
+        ResourceCell cell = map.getRobberCell();
+        batch.begin();
 
-        }
+        batch.draw(robber, cell.getCellCords().getX(), cell.getCellCords().getY());
+        batch.end();
     }
 
     private void displayPlayers() {
@@ -338,6 +340,8 @@ public class CatanPlayer extends ApplicationAdapter {
     public void dispose() {
         batch.dispose();
         stage.dispose();
+        UIStage.dispose();
+        resourceFieldStage.dispose();
         updateThread.stopThread();
         updateThread.interrupt();
         try {

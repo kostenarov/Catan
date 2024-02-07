@@ -153,4 +153,8 @@ public class ResourceCell extends Cell{
         buttonTexture = new Texture(texturePath);
         style.imageUp = new TextureRegionDrawable(buttonTexture);
     }
+
+    public String getResourceType() {
+        return type.toString();
+    }
 }

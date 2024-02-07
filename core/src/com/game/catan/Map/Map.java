@@ -567,6 +567,8 @@ public class Map implements Serializable {
     public void moveRobber(int resourceCellId) {
         robberCell.setRobber(false);
         getResourceCellById(resourceCellId).setRobber(true);
+        robberCell = getResourceCellById(resourceCellId);
+        System.out.println("Robber moved to " + getResourceCellById(resourceCellId).getResourceType());
     }
 
     public HashSet<Cell> getResources() {

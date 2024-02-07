@@ -27,18 +27,17 @@ public class CatanServer {
     private boolean isSecondVillagePhase = false;
     private int diceThrow;
     private boolean isDiceThrown = false;
-    private boolean isRobberMoved = false;
-    private final int initialSequenceCounter = 0;
-    private HashMap<Integer, VillagePair<VillageCell, VillageCell>> initialVillages = new HashMap<>();
+    private boolean isRobberMoved = true;
+    private final HashMap<Integer, VillagePair<VillageCell, VillageCell>> initialVillages;
     private final PointCounter pointCounter;
 
     public CatanServer(Map map) {
-        clients = new ArrayList<>();
         this.map = map;
-        playerResources = new HashMap<>();
-        villagePaths = new ArrayList<>();
+        clients = new ArrayList<>();
         roadPaths = new ArrayList<>();
+        villagePaths = new ArrayList<>();
         pointCounter = new PointCounter();
+        playerResources = new HashMap<>();
         initialVillages = new HashMap<>();
         villagePaths.add("Villages/yellowVillage.png");
         villagePaths.add("Villages/blueVillage.png");
@@ -67,7 +66,7 @@ public class CatanServer {
     private void setUpConnection() throws IOException {
         Socket clientSocket = serverSocket.accept();
         System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
-        playerResources.put(clients.size(), new Deck());
+        playerResources.put(clients.size(), new Deck(true));
         pointCounter.addPlayer(clients.size());
         initialVillages.put(clients.size(), new VillagePair<VillageCell, VillageCell>());
         ClientHandler clientHandler = new ClientHandler(clientSocket);
@@ -210,7 +209,7 @@ public class CatanServer {
                 broadcastTurnNotification();
                 broadcastMap();
                 isDiceThrown = false;
-                isRobberMoved = false;
+                isRobberMoved = true;
             }
         }
 
@@ -272,22 +271,23 @@ public class CatanServer {
         }
 
         private void resourcePressFunc(String input) {
-            if(input.contains("Resource") && diceThrow == 7 && isDiceThrown) {
+            if(input.contains("Resource") && diceThrow == 7 && isDiceThrown && !isRobberMoved && currentPlayerIndex == clients.indexOf(this)) {
                 isRobberMoved = true;
                 System.out.println(input + " by user " + currentPlayerIndex);
                 int resourceId = Integer.parseInt(input.split(":")[1]);
                 map.moveRobber(resourceId);
+                isRobberMoved = true;
                 //broadcastRobberMove();
                 broadcastMap();
             }
         }
 
         private void villagePressFunc(String input) {
-            if(input.contains("Village") && isDiceThrown && isRobberMoved) {
+            if(input.contains("Village") && isDiceThrown && isRobberMoved && !isInitialVillagePhase && !isSecondVillagePhase && currentPlayerIndex == clients.indexOf(this)){
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 VillageCell villageCell = map.getVillageCellById(villageId);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
-                if(villageCell.getOwner() == 5) {
+                if(Checkers.areVillageRequirementsMet(villageCell, playerResources.get(currentPlayerIndex), currentPlayerIndex)) {
                     try {
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
@@ -305,10 +305,13 @@ public class CatanServer {
         }
 
         private void initialVillagePressFunc(String input) {
-            if(input.contains("Village") && initialVillages.get(currentPlayerIndex).hasNone()) {
+
+            if(input.contains("Village") && initialVillages.get(currentPlayerIndex).hasNone()
+                    && isInitialVillagePhase && currentPlayerIndex == clients.indexOf(this)) {
+
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 VillageCell villageCell = map.getVillageCellById(villageId);
-                if(villageCell.getOwner() == 5) {
+                if(Checkers.areInitialVillageRequirementsMet(villageCell)) {
                     System.out.println("Player " + currentPlayerIndex + " clicked village " + villageId + " in initial phase");
                     try {
                         villageCell.setOwner(currentPlayerIndex);
@@ -332,7 +335,7 @@ public class CatanServer {
         }
 
         private void initialEndTurnFunc(String input) {
-            if(input.equals("End Turn")) {
+            if(input.equals("End Turn") && currentPlayerIndex == clients.indexOf(this)) {
                 broadcastMap();
                 if(isInitialVillagePhase) {
                     if(currentPlayerIndex == clients.size() - 1) {
@@ -358,10 +361,12 @@ public class CatanServer {
         }
 
         private void secondInitialVillagePressFunc(String input) {
-            if(input.contains("Village") && initialVillages.get(currentPlayerIndex).hasOne()) {
+
+            if(input.contains("Village") && initialVillages.get(currentPlayerIndex).hasOne()
+                    && isSecondVillagePhase && currentPlayerIndex == clients.indexOf(this)) {
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 VillageCell villageCell = map.getVillageCellById(villageId);
-                if(villageCell.getOwner() == 5) {
+                if(Checkers.areInitialVillageRequirementsMet(villageCell)) {
                     try {
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
@@ -382,8 +387,9 @@ public class CatanServer {
         }
 
         private void initialRoadPressFunc(String input) {
-            if(input.contains("Road") &&
+            if(input.contains("Road") &&currentPlayerIndex == clients.indexOf(this) &&
                     ((initialVillages.get(currentPlayerIndex).hasOne()) || initialVillages.get(currentPlayerIndex).hasBoth())) {
+
                 int roadId = Integer.parseInt(input.split(":")[1]);
                 if(Checkers.areInitialRoadRequirementsMet(map.getRoadCellById(roadId), currentPlayerIndex)) {
                     try {
@@ -399,7 +405,9 @@ public class CatanServer {
         }
 
         private void RoadPressFunc(String input) {
-            if(input.contains("Road") && isDiceThrown && isRobberMoved) {
+            if(input.contains("Road") && isDiceThrown && isRobberMoved && !isInitialVillagePhase &&
+                    !isSecondVillagePhase && currentPlayerIndex == clients.indexOf(this)) {
+
                 int roadId = Integer.parseInt(input.split(":")[1]);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
                 if(Checkers.areRoadRequirementsMet(map.getRoadCellById(roadId), currentDeck, currentPlayerIndex)) {
