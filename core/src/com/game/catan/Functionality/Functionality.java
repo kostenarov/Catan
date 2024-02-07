@@ -1,11 +1,13 @@
 package com.game.catan.Functionality;
 
+import com.game.catan.Map.Cell.Cell;
 import com.game.catan.Map.Cell.ResourceCell;
 import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Cell.VillageCell;
 import com.game.catan.Map.Map;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Functionality {
     public static int diceThrow() {
@@ -30,6 +32,23 @@ public class Functionality {
                 }
             }
         }
+        Deck deck = new Deck();
+        deck.setDeck(resources);
+        return deck;
+    }
+
+    public static Deck getResources(int diceThrow, Map map, HashMap<ResourceType, Integer> resources, int playerId, boolean Helper) {
+        HashSet<VillageCell> villages = new HashSet<>();
+        villages = map.getVillagesByPlayerId(playerId);
+
+        for (VillageCell villageCell : villages) {
+            for (ResourceCell cell : villageCell.getResourceNeighbours()) {
+                if (cell.getDiceThrow() == diceThrow && !cell.hasRobber() && cell.getResource() != ResourceType.EMPTY) {
+                    resources.put(cell.getResource(), resources.get(cell.getResource()) + 1);
+                }
+            }
+        }
+
         Deck deck = new Deck();
         deck.setDeck(resources);
         return deck;

@@ -629,6 +629,19 @@ public class Map implements Serializable {
         }
         return null;
     }
+
+    public HashSet<VillageCell> getVillagesByPlayerId(int playerId) {
+        HashSet<VillageCell> villages = new HashSet<>();
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+            if(cell instanceof VillageCell) {
+                if(((VillageCell) cell).getOwner() == playerId) {
+                    villages.add((VillageCell) cell);
+                }
+            }
+        }
+        return villages;
+    }
+
     public void setVillageCell(VillageCell cell){
         getVillageCellById(cell.getId()).setOwner(cell.getOwner());
         getVillageCellById(cell.getId()).setVillagePath(cell.getVillagePath());
