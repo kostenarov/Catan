@@ -30,8 +30,10 @@ public class RoadCell extends Cell {
         if(!neighbour.getNeighbours().contains(this))
             neighbour.addNeighbour(this);
         if(neighbour instanceof ResourceCell && getVillages().size() == 2) {
-            neighbour.addNeighbour(getVillages().get(0));
-            neighbour.addNeighbour(getOtherVillage(getVillages().get(0)));
+            VillageCell firstVillage = getVillages().get(0);
+            VillageCell secondVillage = getOtherVillage(firstVillage);
+            neighbour.addNeighbour(firstVillage);
+            neighbour.addNeighbour(getOtherVillage(firstVillage));
         }
     }
 

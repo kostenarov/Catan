@@ -39,6 +39,9 @@ public class ResourceCell extends Cell{
     @Override
     public void addNeighbour(Cell neighbour) {
         neighbours.add(neighbour);
+        if(neighbour == null) {
+            throw new RuntimeException("Neighbour is null");
+        }
         if(!neighbour.getNeighbours().contains(this))
             neighbour.addNeighbour(this);
     }
