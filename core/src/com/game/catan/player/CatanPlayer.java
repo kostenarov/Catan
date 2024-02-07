@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -54,6 +55,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private Texture resourceBackground;
     private Texture robber;
     private Image robberImage;
+    private Table offerTable;
     private TextButton endTurnButton;
     private TextButton diceThrowButton;
 
@@ -150,6 +152,7 @@ public class CatanPlayer extends ApplicationAdapter {
         renderNormalRound();
         drawPlayerIndicator();
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, resourceFieldStage, UIStage));
+        Gdx.graphics.setContinuousRendering(false);
     }
 
 
@@ -271,10 +274,11 @@ public class CatanPlayer extends ApplicationAdapter {
                 ImageButton imageButton = new ImageButton(imageButtonStyle);
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        System.out.println("Offer Button for" + type + " clicked");
+                        System.out.println("Offer Button for " + type + " clicked");
                         if(outgoingOffer.getResourceAmount(type) < deck.getResourceAmount(type)) {
                             outgoingOffer.addResource(type);
                             resourceLabel.setText(Integer.toString(outgoingOffer.getResourceAmount(type)));
+                            System.out.println(outgoingOffer.getResourceAmount(type));
                             return true;
                         }
                         return false;
@@ -284,6 +288,7 @@ public class CatanPlayer extends ApplicationAdapter {
                 x += 100;
                 ResourceButton resourceButton = new ResourceButton(imageButton, resourceLabel, type);
                 outgoingOffer = resourceButton.draw(UIStage, outgoingOffer, deck);
+                Gdx.graphics.requestRendering();
             }
         }
     }
@@ -354,16 +359,20 @@ public class CatanPlayer extends ApplicationAdapter {
     //**********SETTERS**********//
     public synchronized void setMap(Map map) {
         this.map = map;
+        Gdx.graphics.requestRendering();
     }
     public synchronized void setPlayersAmount(int playersAmount) {
         this.playersAmount = playersAmount;
+        Gdx.graphics.requestRendering();
     }
     public synchronized void setIsTurn(boolean isTurn) {
         this.isTurn = isTurn;
+        Gdx.graphics.requestRendering();
     }
     public synchronized void setDiceThrow(int diceThrow) {
         this.diceThrow = diceThrow;
         displayDiceThrow();
+        Gdx.graphics.requestRendering();
     }
     public synchronized void setDeck(HashMap<ResourceType, Integer> deck) {
         if(!this.deck.equals(new Deck(deck))) {
@@ -373,7 +382,9 @@ public class CatanPlayer extends ApplicationAdapter {
                 }
             }
         }
+        Gdx.graphics.requestRendering();
     }
+
     public synchronized void setIncomingOffer(Offer offer) {
         this.incomingOffer = offer;
     }
@@ -381,17 +392,25 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized void setOutgoingOffer(Offer offer) {
         this.outgoingOffer = offer;
     }
+
     public synchronized void setDiceThrown(boolean isDiceThrown) {
         this.isDiceThrown = isDiceThrown;
+        Gdx.graphics.requestRendering();
     }
+
     public synchronized void setRobberCell(ResourceCell cell) {
         map.setRobberCell(cell);
+        Gdx.graphics.requestRendering();
     }
+
     public synchronized void setVillageCell(VillageCell cell) {
         map.setVillageCell(cell);
+        Gdx.graphics.requestRendering();
     }
+
     public synchronized void setRoadCell(RoadCell cell) {
         map.setRoadCell(cell);
+        Gdx.graphics.requestRendering();
     }
 
     //**********GETTERS**********//

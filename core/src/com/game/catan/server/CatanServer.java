@@ -198,7 +198,6 @@ public class CatanServer {
                 initialVillagePressFunc((String) input);
                 secondInitialVillagePressFunc((String) input);
                 initialRoadPressFunc((String) input);
-                diceThrowFunc((String) input);
                 initialEndTurnFunc((String) input);
             }
         }
@@ -283,7 +282,8 @@ public class CatanServer {
         }
 
         private void villagePressFunc(String input) {
-            if(input.contains("Village") && isDiceThrown && isRobberMoved && !isInitialVillagePhase && !isSecondVillagePhase && currentPlayerIndex == clients.indexOf(this)){
+            if(input.contains("Village") && isDiceThrown && isRobberMoved && !isInitialVillagePhase &&
+                    !isSecondVillagePhase && currentPlayerIndex == clients.indexOf(this)){
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 VillageCell villageCell = map.getVillageCellById(villageId);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
@@ -343,7 +343,7 @@ public class CatanServer {
                         isSecondVillagePhase = true;
                     }
                     else {
-                        currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+                        currentPlayerIndex++;
                     }
                 }
                 else if(isSecondVillagePhase) {
@@ -351,12 +351,10 @@ public class CatanServer {
                         isSecondVillagePhase = false;
                     }
                     else {
-                        currentPlayerIndex = (currentPlayerIndex - 1) % clients.size();
+                        currentPlayerIndex--;
                     }
                 }
-                else {
-                    currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
-                }
+                broadcastTurnNotification();
             }
         }
 
