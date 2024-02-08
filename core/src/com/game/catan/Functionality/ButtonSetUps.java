@@ -17,9 +17,10 @@ public class ButtonSetUps {
         textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
         textButtonStyle.font.getData().setScale(2f);
         textButtonStyle.fontColor = com.badlogic.gdx.graphics.Color.BLACK;
-        Texture buttonTexture = new Texture("Textures/button.png");
-        textButtonStyle.up = new TextureRegionDrawable(buttonTexture);
-        textButtonStyle.down = new TextureRegionDrawable(buttonTexture);
+        Texture buttonTextureUp = new Texture("Textures/buttonUp.png");
+        Texture buttonTextureDown = new Texture("Textures/buttonDown.png");
+        textButtonStyle.up = new TextureRegionDrawable(buttonTextureUp);
+        textButtonStyle.down = new TextureRegionDrawable(buttonTextureDown);
 
         TextButton button = new TextButton(text, textButtonStyle);
         button.setPosition(1720, y);

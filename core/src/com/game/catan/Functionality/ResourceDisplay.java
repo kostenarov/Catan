@@ -14,7 +14,7 @@ public class ResourceDisplay {
         this.label = label;
     }
 
-    public void draw(Stage stage, Batch batch) {
+    public void draw(Stage stage) {
         stage.addActor(label);
         stage.addActor(texture);
     }

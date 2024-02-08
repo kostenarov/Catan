@@ -36,6 +36,8 @@ public class CatanPlayer extends ApplicationAdapter {
     private int playersAmount;
     private int diceThrow;
     private boolean isTurn = true;
+    private boolean isLoss = false;
+    private boolean isWin = false;
     private boolean isDiceThrown = false;
     private int points = 0;
 
@@ -46,6 +48,8 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private Stage stage;
     private Stage UIStage;
+    private Stage winStage;
+    private Stage lossStage;
     private Stage resourceFieldStage;
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
@@ -133,26 +137,42 @@ public class CatanPlayer extends ApplicationAdapter {
         updateThread.start();
         setUpInitialLabels();
         setUpResourceLabels();
-        setUpOutgoingOffer();
         displayResources();
-
+        setUpEndScreens();
         //displayOffer();
     }
 
     @Override
     public void render() {
-        drawBackgrounds();
-        resourceFieldStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        resourceFieldStage.draw();
-        UIStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        UIStage.draw();
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        stage.draw();
-        drawButtons();
-        renderNormalRound();
-        drawPlayerIndicator();
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, resourceFieldStage, UIStage));
-        Gdx.graphics.setContinuousRendering(false);
+        if(!isLoss && !isWin) {
+            drawBackgrounds();
+            resourceFieldStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            resourceFieldStage.draw();
+            UIStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            UIStage.draw();
+            stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            stage.draw();
+            drawButtons();
+            renderNormalRound();
+            setUpOutgoingOffer();
+            drawPlayerIndicator();
+            Gdx.input.setInputProcessor(new InputMultiplexer(stage, resourceFieldStage, UIStage));
+            Gdx.graphics.setContinuousRendering(false);
+            drawRobber();
+        }
+        else {
+            if(isLoss) {
+                lossStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+                lossStage.draw();
+                Gdx.graphics.requestRendering();
+            }
+            else if(isWin) {
+                winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+                winStage.draw();
+                Gdx.graphics.requestRendering();
+            }
+        }
+
     }
 
 
@@ -180,6 +200,20 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void setUpOffer() {
 
+    }
+
+    private void setUpEndScreens() {
+        winStage = new Stage(new ScreenViewport());
+        lossStage = new Stage(new ScreenViewport());
+        Table winTable = new Table();
+        Table lossTable = new Table();
+        winTable.setFillParent(true);
+        lossTable.setFillParent(true);
+        winTable.add(new Label("You won", new Label.LabelStyle(new BitmapFont(), Color.BLACK)));
+        lossTable.add(new Label("You lost", new Label.LabelStyle(new BitmapFont(), Color.BLACK)));
+        winStage.addActor(winTable);
+        lossStage.addActor(lossTable);
+        Gdx.graphics.requestRendering();
     }
 
     private void drawBackgrounds() {
@@ -226,11 +260,11 @@ public class CatanPlayer extends ApplicationAdapter {
 
     }
 
-    private void changeLabelAmount(ResourceType type, int amount) {
+    private synchronized void changeLabelAmount(ResourceType type, int amount) {
         resourceLabels.get(type).changeAmount(amount);
     }
 
-    public void setPoints(int points) {
+    public synchronized void setPoints(int points) {
         this.points = points;
     }
 
@@ -245,7 +279,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private void displayResources() {
         for(ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
-                resourceLabels.get(type).draw(UIStage, batch);
+                resourceLabels.get(type).draw(UIStage);
             }
         }
     }
@@ -258,10 +292,10 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
-    private void setUpOutgoingOffer() {
+    private synchronized void setUpOutgoingOffer() {
         int x = 825;
         for(final ResourceType type : ResourceType.values()) {
-            if(type != ResourceType.EMPTY) {
+            if(type != ResourceType.EMPTY && !resourceButtons.containsKey(type)) {
                 Label.LabelStyle labelStyle = new Label.LabelStyle();
                 labelStyle.font = new BitmapFont();
                 labelStyle.font.getData().setScale(2f);
@@ -275,22 +309,30 @@ public class CatanPlayer extends ApplicationAdapter {
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         System.out.println("Offer Button for " + type + " clicked");
-                        if(outgoingOffer.getResourceAmount(type) < deck.getResourceAmount(type)) {
-                            outgoingOffer.addResource(type);
-                            resourceLabel.setText(Integer.toString(outgoingOffer.getResourceAmount(type)));
-                            System.out.println(outgoingOffer.getResourceAmount(type));
-                            return true;
-                        }
-                        return false;
+                        System.out.println(getDeck().getResources());
+                        return updateTradeOfferLabel(type);
                     }
                 });
                 imageButton.setPosition(x - 25, 100);
                 x += 100;
                 ResourceButton resourceButton = new ResourceButton(imageButton, resourceLabel, type);
                 outgoingOffer = resourceButton.draw(UIStage, outgoingOffer, deck);
-                Gdx.graphics.requestRendering();
+                resourceButtons.put(type, resourceButton);
             }
         }
+    }
+
+
+    private synchronized boolean updateTradeOfferLabel(ResourceType type) {
+        System.out.println(getDeck().getResources());
+        if(outgoingOffer.getResourceAmount(type) <= getDeck().getResourceAmount(type)) {
+            outgoingOffer.addResource(type);
+            System.out.println(outgoingOffer.getOffer().getResources());
+            resourceButtons.get(type).changeAmount(outgoingOffer.getResourceAmount(type));
+            Gdx.graphics.requestRendering();
+            return true;
+        }
+        return false;
     }
 
     private void setUpResourceLabels() {
@@ -324,13 +366,11 @@ public class CatanPlayer extends ApplicationAdapter {
                 cell.buttonFunc(stage, outputStream, this);
             }
         }
-        drawRobber();
     }
 
     private void drawRobber() {
         ResourceCell cell = map.getRobberCell();
         batch.begin();
-
         batch.draw(robber, cell.getCellCords().getX(), cell.getCellCords().getY());
         batch.end();
     }
@@ -413,6 +453,15 @@ public class CatanPlayer extends ApplicationAdapter {
         Gdx.graphics.requestRendering();
     }
 
+    public synchronized void resetOffer() {
+        outgoingOffer = new Offer(this.id);
+        for(ResourceType type : ResourceType.values()) {
+            if(type != ResourceType.EMPTY) {
+                resourceButtons.get(type).changeAmount(0);
+            }
+        }
+    }
+
     //**********GETTERS**********//
     public synchronized boolean getIsTurn() {
         return isTurn;
@@ -420,8 +469,19 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized int getId() {
         return id;
     }
+    public synchronized Deck getDeck() {
+        return deck;
+    }
 
     public synchronized boolean getIsDiceThrown() {
         return isDiceThrown;
+    }
+
+    public synchronized void setLoss(boolean lose) {
+        isLoss = lose;
+    }
+
+    public synchronized void setWin(boolean win) {
+        isWin = win;
     }
 }

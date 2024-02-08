@@ -35,10 +35,12 @@ public class UpdateListenerThread extends Thread{
                         System.out.println("Your turn");
                         player.setIsTurn(true);
                         player.setDiceThrown(false);
+                        player.resetOffer();
                     }
                     else if((int) input == 200) {
                         System.out.println("Not your turn");
                         player.setIsTurn(false);
+                        player.resetOffer();
                     }
                 }
                 else if(input instanceof String) {
@@ -50,6 +52,14 @@ public class UpdateListenerThread extends Thread{
                     else if(((String) input).contains("Players")) {
                         System.out.println("Players received");
                         player.setPlayersAmount(Integer.parseInt(((String) input).split(":")[1]));
+                    }
+                    else if(((String) input).contains("Loss")) {
+                        System.out.println("Loss received");
+                        player.setLoss(true);
+                    }
+                    else if(((String) input).contains("Win")) {
+                        System.out.println("Win received");
+                        player.setWin(true);
                     }
                 }
                 else if(input instanceof Map) {

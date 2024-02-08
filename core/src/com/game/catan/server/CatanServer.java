@@ -297,10 +297,36 @@ public class CatanServer {
                         sendPlayerDeck();
                         pointCounter.addPoint(currentPlayerIndex);
                         sendPoints();
+                        //endGame();
+
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
+            }
+        }
+
+        private void endGame() {
+            if(pointCounter.getPoints(currentPlayerIndex) >= 2) {
+                for(ClientHandler client : clients) {
+                    if(clients.indexOf(client) == currentPlayerIndex) {
+                        try {
+                            client.outputStream.writeObject("Win");
+                            client.outputStream.reset();
+                        } catch (IOException e) {
+                            System.out.println("Could not send win");
+                        }
+                    }
+                    else {
+                        try {
+                            client.outputStream.writeObject("Loss");
+                            client.outputStream.reset();
+                        } catch (IOException e) {
+                            System.out.println("Could not send loss");
+                        }
+                    }
+                }
+                System.out.println("Game ended");
             }
         }
 

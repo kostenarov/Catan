@@ -22,12 +22,16 @@ public class Offer {
 
     }
 
-    public void addResource(ResourceType resource) {
+    public synchronized void addResource(ResourceType resource) {
         offer.addResource(resource);
     }
 
     public void getOffer(Deck deck) {
         deck.addDeck(offer);
+    }
+
+    public Deck getOffer() {
+        return offer;
     }
 
     public void emptyOffer() {
