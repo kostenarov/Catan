@@ -22,6 +22,11 @@ public class ResourceButton {
         return offer;
     }
 
+    public void draw(Stage stage) {
+        stage.addActor(label);
+        stage.addActor(button);
+    }
+
     public void changeAmount(int amount) {
         label.setText(Integer.toString(amount));
     }

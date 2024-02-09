@@ -2,9 +2,10 @@ package com.game.catan.Functionality;
 
 import com.game.catan.Map.Cell.ResourceType;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Offer {
+public class Offer implements Serializable {
     private Deck offer;
     private final int playerId;
     private HashMap<Integer, Boolean> players;
@@ -24,6 +25,10 @@ public class Offer {
 
     public synchronized void addResource(ResourceType resource) {
         offer.addResource(resource);
+    }
+
+    public synchronized void removeResource(ResourceType resource) {
+        offer.removeResource(resource);
     }
 
     public void getOffer(Deck deck) {

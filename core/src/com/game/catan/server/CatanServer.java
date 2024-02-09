@@ -199,6 +199,9 @@ public class CatanServer {
                 villagePressFunc((String) input);
                 RoadPressFunc((String) input);
             }
+            else if(input instanceof Offer) {
+                OfferPressFunc(input);
+            }
         }
 
         private void initialVillagePhaseChecker(Object input) {
