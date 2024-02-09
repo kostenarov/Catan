@@ -30,6 +30,7 @@ public class CatanServer {
     private boolean isRobberMoved = true;
     private final HashMap<Integer, VillagePair<VillageCell, VillageCell>> initialVillages;
     private final PointCounter pointCounter;
+    private Offer currentOffer;
 
     public CatanServer(Map map) {
         this.map = map;
@@ -89,6 +90,13 @@ public class CatanServer {
         for(ClientHandler client : clients) {
             client.sendTurnNotification(currentPlayerIndex);
         }
+    }
+
+    private void broadcastOffer() {
+        for(ClientHandler client : clients) {
+            client.sendOffer();
+        }
+        System.out.println("Offer sent");
     }
 
     private void broadcastMap() {
@@ -357,6 +365,23 @@ public class CatanServer {
                     pointCounter.addPoint(currentPlayerIndex);
                     sendPoints();
                 }
+            }
+        }
+
+        private void OfferPressFunc(Object input) {
+            if(input instanceof Offer && currentPlayerIndex == clients.indexOf(this)) {
+                System.out.println("Offer received");
+                currentOffer = (Offer) input;
+                broadcastOffer();
+            }
+        }
+
+        private void sendOffer() {
+            try {
+                outputStream.writeObject(currentOffer);
+                outputStream.reset();
+            } catch (IOException e) {
+                System.out.println("Could not send offer");
             }
         }
 

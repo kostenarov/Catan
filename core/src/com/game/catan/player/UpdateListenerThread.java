@@ -87,6 +87,9 @@ public class UpdateListenerThread extends Thread{
                     if(((Offer) input).getPlayerId() != player.getId()) {
                         player.setIncomingOffer((Offer) input);
                     }
+                    else {
+                        player.setOutgoingOffer((Offer) input);
+                    }
                 }
 
             } catch (Exception e) {
