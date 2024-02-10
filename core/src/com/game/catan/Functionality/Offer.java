@@ -59,7 +59,7 @@ public class Offer implements Serializable {
         return players;
     }
 
-    public int getResourceAmount(ResourceType resourceType) {
+    public Integer getResourceAmount(ResourceType resourceType) {
         return offer.getResourceAmount(resourceType);
     }
     public boolean isBankOffer() {

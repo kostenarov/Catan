@@ -83,12 +83,13 @@ public class UpdateListenerThread extends Thread{
                     player.setRoadCell((RoadCell) input);
                 }
                 else if(input instanceof Offer) {
-                    System.out.println("Offer received");
                     if(((Offer) input).getPlayerId() != player.getId()) {
                         player.setIncomingOffer((Offer) input);
+                        System.out.println("Incoming offer set");
                     }
                     else {
                         player.setOutgoingOffer((Offer) input);
+                        System.out.println("Outgoing offer set");
                     }
                 }
 

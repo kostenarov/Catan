@@ -30,4 +30,8 @@ public class ResourceButton {
     public void changeAmount(int amount) {
         label.setText(Integer.toString(amount));
     }
+
+    public int getLabelAmount() {
+        return Integer.parseInt(label.getText().toString());
+    }
 }
