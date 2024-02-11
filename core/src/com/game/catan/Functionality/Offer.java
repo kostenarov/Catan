@@ -6,45 +6,45 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 public class Offer implements Serializable {
-    private Deck offer;
+    private boolean isBankOffer = false;
+    private Deck givenOffer;
+    private Deck wantedOffer;
     private final int playerId;
     private HashMap<Integer, Boolean> players;
 
     public Offer(Deck offer, int playerId) {
-        this.offer = new Deck(true);
-        this.offer = offer;
+        this.givenOffer = offer;
+        this.wantedOffer = new Deck(true);
         this.playerId = playerId;
     }
 
     public Offer(int playerId) {
-        this.offer = new Deck(true);
+        this.givenOffer = new Deck(true);
+        this.wantedOffer = new Deck(true);
         this.playerId = playerId;
         players = new HashMap<>();
 
     }
 
-    public synchronized void addResource(ResourceType resource) {
-        offer.addResource(resource);
+    public synchronized void addResourceToWantedOffer(ResourceType resource) {
+        wantedOffer.addResource(resource);
     }
 
-    public synchronized void removeResource(ResourceType resource) {
-        offer.removeResource(resource);
+    public synchronized void removeResourceFromWantedOffer(ResourceType resource) {
+        wantedOffer.removeResource(resource);
     }
+
+    public synchronized void addResourceToGivenOffer(ResourceType resource) {
+        givenOffer.addResource(resource);
+    }
+
+    public synchronized void removeResourceFromGivenOffer(ResourceType resource) {
+        givenOffer.removeResource(resource);
+    }
+
 
     public void getOffer(Deck deck) {
-        deck.addDeck(offer);
-    }
-
-    public Deck getOffer() {
-        return offer;
-    }
-
-    public void emptyOffer() {
-        offer = new Deck(true);
-    }
-
-    public void addRejection(int playerId) {
-        players.put(playerId, false);
+        deck.addDeck(givenOffer);
     }
 
     public void addAcceptance(int playerId) {
@@ -59,12 +59,17 @@ public class Offer implements Serializable {
         return players;
     }
 
-    public Integer getResourceAmount(ResourceType resourceType) {
-        return offer.getResourceAmount(resourceType);
+    public Integer getWantedOfferResourceAmount(ResourceType resourceType) {
+        return wantedOffer.getResourceAmount(resourceType);
     }
+
+    public Integer getGivenOfferResourceAmount(ResourceType resourceType) {
+        return givenOffer.getResourceAmount(resourceType);
+    }
+
     public boolean isBankOffer() {
-        for(ResourceType resourceType : offer.getResources().keySet()) {
-            if(offer.getResourceAmount(resourceType) == 4) {
+        for(ResourceType resourceType : givenOffer.getResources().keySet()) {
+            if(givenOffer.getResourceAmount(resourceType) == 4 && isBankOffer) {
                 return true;
             }
         }

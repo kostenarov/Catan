@@ -153,6 +153,13 @@ public class CatanServer {
         }
     }
 
+    private void broadcastOfferConfirmation() {
+        int id = 0;
+        for (ClientHandler client : clients) {
+            client.sendOfferConfirmation(id);
+        }
+    }
+
     private class ClientHandler implements Runnable {
         private final Socket socket;
         private ObjectOutputStream outputStream;
@@ -198,9 +205,13 @@ public class CatanServer {
                 resourcePressFunc((String) input);
                 villagePressFunc((String) input);
                 RoadPressFunc((String) input);
+                manageOfferConfirmation((String) input);
             }
             else if(input instanceof Offer) {
                 OfferPressFunc(input);
+            }
+            else if(input instanceof MessageWrapper) {
+                System.out.println("Offer confirmation received");
             }
         }
 
@@ -268,6 +279,16 @@ public class CatanServer {
                 outputStream.reset();
             } catch (IOException e) {
                 System.out.println("Could not send village");
+            }
+        }
+
+        private void sendOfferConfirmation(int id) {
+            try {
+                outputStream.writeObject(new MessageWrapper<Integer>(MessageType.INT, id));
+                outputStream.reset();
+            }
+            catch (IOException e) {
+                System.out.println("Could not send offer confirmation");
             }
         }
 
@@ -520,6 +541,15 @@ public class CatanServer {
                 outputStream.reset();
             } catch (IOException e) {
                 System.out.println("Could not send dice throw");
+            }
+        }
+
+        private void manageOfferConfirmation(String message) {
+            if(message.contains("Offer confirmed")) {
+                int id = Integer.parseInt(message.split(":")[1]);
+                currentOffer.addAcceptance(id);
+                broadcastOfferConfirmation();
+                System.out.println("Offer confirmation received by client " + id);
             }
         }
 
