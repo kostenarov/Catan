@@ -70,6 +70,11 @@ public class UpdateListenerThread extends Thread{
                     else if(((String) input).contains("Players")) {
                         System.out.println("Players received");
                         player.setPlayersAmount(Integer.parseInt(((String) input).split(":")[1]));
+                        for(int i = 0; i < player.getPlayersAmount(); i++) {
+                            if(i != player.getId()) {
+                                System.out.println("Player " + i + " added");
+                            }
+                        }
                     }
                     else if(((String) input).contains("Loss")) {
                         System.out.println("Loss received");

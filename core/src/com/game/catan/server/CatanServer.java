@@ -284,8 +284,10 @@ public class CatanServer {
 
         private void sendOfferConfirmation(int id) {
             try {
-                outputStream.writeObject(new MessageWrapper<Integer>(MessageType.INT, id));
-                outputStream.reset();
+                if (id == clients.indexOf(this)) {
+                    outputStream.writeObject(new MessageWrapper<Integer>(MessageType.INT, id));
+                    outputStream.reset();
+                }
             }
             catch (IOException e) {
                 System.out.println("Could not send offer confirmation");

@@ -43,7 +43,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private boolean isOfferBeingReceived = false;
     private int points = 0;
 
-
+    private final int resourceX = 200;
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -70,14 +70,16 @@ public class CatanPlayer extends ApplicationAdapter {
     private Label diceThrowLabel;
     private final HashMap<ResourceType, ResourceDisplay> incomingOfferGivenDisplays;
     private final HashMap<ResourceType, ResourceDisplay> incomingOfferWantedDisplays;
+    private final HashMap<Integer, Image> playerIndicators;
 
     private final HashMap<ResourceType, ResourceButton> resourceButtons;
     private final HashMap<ResourceType, ResourceButton> offerGivenButtons;
     private final HashMap<ResourceType, ResourceButton> offerWantedButtons;
     private final HashMap<ResourceType, ResourceButtonWithoutLabel> offerWantedIncreaseButtons;
+    private final HashMap<Integer, Image> acceptanceIndicators;
 
     private Map map;
-    private Offer incomingOffer;
+    private final Offer incomingOffer;
     private Offer outgoingOffer;
     private final Deck deck;
     private UpdateListenerThread updateThread;
@@ -94,6 +96,8 @@ public class CatanPlayer extends ApplicationAdapter {
         this.offerGivenButtons = new HashMap<>();
         this.offerWantedButtons = new HashMap<>();
         this.offerWantedIncreaseButtons = new HashMap<>();
+        this.acceptanceIndicators = new HashMap<>();
+        this.playerIndicators = new HashMap<>();
     }
 
     private void connectToServer() {
@@ -145,6 +149,7 @@ public class CatanPlayer extends ApplicationAdapter {
         background = new Texture("Backgrounds/background.png");
         resourceBackground = new Texture("Backgrounds/resourceBackground.png");
         robber = new Texture("Textures/robber.png");
+        initiateIndicators();
         robberImage = new Image(robber);
         robberImage.setSize(50, 50);
         connectToServer();
@@ -156,12 +161,12 @@ public class CatanPlayer extends ApplicationAdapter {
         setupConfirmOfferButton();
         setUpOutgoingOfferGivenButtons();
         setUpOutgoingOfferWantedIncreaseButtons();
-        setUpOutgoingofferWantedIncreaseButtons();
+        setUpOutgoingOfferWantedDecreaseButtons();
+        setUpOutgoingOfferConfirmation();
         setUpResourceCards();
-        setUpincomingOfferGivenDisplays();
+        setUpIncomingOfferGivenDisplays();
         setUpIncomingOfferWantedDisplays();
         displayResources();
-        //displayOffer();
     }
 
     @Override
@@ -192,15 +197,34 @@ public class CatanPlayer extends ApplicationAdapter {
         }
         else {
             if(isLoss) {
+                drawBackgrounds();
+
                 lossStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 lossStage.draw();
             }
-            else if(isWin) {
+            else {
+                drawBackgrounds();
+
                 winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 winStage.draw();
             }
         }
 
+    }
+
+    private void initiateIndicators() {
+        Image yellowIndicator = new Image(new Texture("Indicators/yellowIndicator.png"));
+        Image blueIndicator = new Image(new Texture("Indicators/blueIndicator.png"));
+        Image redIndicator = new Image(new Texture("Indicators/redIndicator.png"));
+        Image greenIndicator = new Image(new Texture("Indicators/greenIndicator.png"));
+        yellowIndicator.setPosition(1700, 700);
+        blueIndicator.setPosition(1700, 600);
+        redIndicator.setPosition(1700, 500);
+        greenIndicator.setPosition(1700, 400);
+        this.playerIndicators.put(0, yellowIndicator);
+        this.playerIndicators.put(1, blueIndicator);
+        this.playerIndicators.put(2, redIndicator);
+        this.playerIndicators.put(3, greenIndicator);
     }
 
 
@@ -226,8 +250,8 @@ public class CatanPlayer extends ApplicationAdapter {
         UIStage.addActor(diceThrowLabel);
     }
     
-    private void setUpincomingOfferGivenDisplays() {
-        int x = 275;
+    private void setUpIncomingOfferGivenDisplays() {
+        int x = resourceX;
         for(ResourceType type : ResourceType.values()) {
             if (type != ResourceType.EMPTY) {
                 Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -348,14 +372,14 @@ public class CatanPlayer extends ApplicationAdapter {
     }
     
     private void setUpOutgoingOfferWantedIncreaseButtons() {
-        int x = 775;
+        int x = resourceX;
         for(final ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
                 Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
                 ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
                 imageButtonStyle.imageUp = new TextureRegionDrawable(texture);
                 ImageButton imageButton = new ImageButton(imageButtonStyle);
-                imageButton.setPosition(x - 25, 50);
+                imageButton.setPosition(x - 25, 550);
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         if(isDiceThrown && isTurn) {
@@ -372,9 +396,38 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         }
     }
+    
+    private void setUpOutgoingOfferConfirmation() {
+    }
 
-    private void setUpOutgoingofferWantedIncreaseButtons() {
-        int x = 775;
+    public synchronized void addAcceptanceIndicators(int id) {
+
+    }
+
+    public void setUpOfferIndicators() {
+        for(int i = 0; i < playersAmount; i++) {
+            if(i != id) {
+                UIStage.addActor(playerIndicators.get(i));
+            }
+        }
+    }
+
+    private String pathHelper(int id) {
+        switch (id) {
+            case 0:
+                return "yellow";
+            case 1:
+                return "blue";
+            case 2:
+                return "red";
+            case 3:
+                return "green";
+        }
+        return null;
+    }
+
+    private void setUpOutgoingOfferWantedDecreaseButtons() {
+        int x = resourceX;
         for(final ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
                 Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -382,12 +435,12 @@ public class CatanPlayer extends ApplicationAdapter {
                 labelStyle.font.getData().setScale(2f);
                 labelStyle.fontColor = Color.SALMON;
                 Label resourceLabel = new Label(outgoingOffer.getWantedOfferResourceAmount(type).toString(), labelStyle);
-                resourceLabel.setPosition(x, 200);
+                resourceLabel.setPosition(x, 350);
                 Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
                 ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
                 imageButtonStyle.imageUp = new TextureRegionDrawable(texture);
                 ImageButton imageButton = new ImageButton(imageButtonStyle);
-                imageButton.setPosition(x - 25, 250);
+                imageButton.setPosition(x - 25, 400);
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         if(isDiceThrown && isTurn) {
@@ -406,7 +459,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void setUpOutgoingOfferGivenButtons() {
-        int x = 275;
+        int x = resourceX;
         for(final ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
                 Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -438,7 +491,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private synchronized void setUpResourceCards() {
-        int x = 275;
+        int x = resourceX;
         for(final ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY && !resourceButtons.containsKey(type)) {
                 Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -483,7 +536,6 @@ public class CatanPlayer extends ApplicationAdapter {
         TextButton button = new TextButton("Send Offer", textButtonStyle);
         button.addListener(new ClickListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    isOfferBeingCreated = false;
                     try {
                         outputStream.writeObject(outgoingOffer);
                         outputStream.reset();
@@ -495,7 +547,7 @@ public class CatanPlayer extends ApplicationAdapter {
                     }
             }
         });
-        button.setPosition(60, 0);
+        button.setPosition(300, 0);
         button.setSize(200, 100);
         outgoingOfferStage.addActor(button);
     }
@@ -522,7 +574,7 @@ public class CatanPlayer extends ApplicationAdapter {
                 }
             }
         });
-        button.setPosition(60, 0);
+        button.setPosition(300, 100);
         button.setSize(200, 100);
         incomingOfferStage.addActor(button);
     }
@@ -560,7 +612,6 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private synchronized boolean increaseTradeOfferWantedLabel(ResourceType type) {
         if(outgoingOffer.getGivenOfferResourceAmount(type) == 0) {
-            System.out.println("You need to give something first");
             outgoingOffer.addResourceToWantedOffer(type);
             offerWantedButtons.get(type).changeAmount(outgoingOffer.getWantedOfferResourceAmount(type));
             Gdx.graphics.requestRendering();
@@ -652,7 +703,8 @@ public class CatanPlayer extends ApplicationAdapter {
     public synchronized void setIncomingOffer(Offer offer) {
         for(ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
-                incomingOfferGivenDisplays.get(type).changeAmount(offer.getWantedOfferResourceAmount(type));
+                incomingOfferGivenDisplays.get(type).changeAmount(offer.getGivenOfferResourceAmount(type));
+                incomingOfferWantedDisplays.get(type).changeAmount(offer.getWantedOfferResourceAmount(type));
             }
         }
         isOfferBeingReceived = true;
@@ -691,7 +743,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 offerGivenButtons.get(type).changeAmount(0);
             }
         }
-        isOfferBeingCreated = false;
         Gdx.graphics.requestRendering();
     }
 
@@ -732,5 +783,9 @@ public class CatanPlayer extends ApplicationAdapter {
         isOfferBeingReceived = false;
         isDiceThrown = false;
         Gdx.graphics.requestRendering();
+    }
+
+    public synchronized int getPlayersAmount() {
+        return playersAmount;
     }
 }
