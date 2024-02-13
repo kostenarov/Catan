@@ -43,12 +43,15 @@ public class Offer implements Serializable {
     }
 
 
-    public void getOffer(Deck deck) {
-        deck.addDeck(givenOffer);
+    public Deck getGivenOffer() {
+        return givenOffer;
     }
 
     public void addAcceptance(int playerId) {
         players.put(playerId, true);
+    }
+    public void addRejection(int playerId) {
+        players.put(playerId, false);
     }
 
     public int getPlayerId() {

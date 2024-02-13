@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import com.game.catan.Functionality.*;
+import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Cell.RoadCell;
 import com.game.catan.Map.Cell.VillageCell;
 import com.game.catan.Map.Map;
@@ -206,6 +207,7 @@ public class CatanServer {
                 villagePressFunc((String) input);
                 RoadPressFunc((String) input);
                 manageOfferConfirmation((String) input);
+                manageOfferRejection((String) input);
             }
             else if(input instanceof Offer) {
                 OfferPressFunc(input);
@@ -549,10 +551,30 @@ public class CatanServer {
         private void manageOfferConfirmation(String message) {
             if(message.contains("Offer confirmed")) {
                 int id = Integer.parseInt(message.split(":")[1]);
-                currentOffer.addAcceptance(id);
-                broadcastOfferConfirmation();
-                System.out.println("Offer confirmation received by client " + id);
+                if(canAfford(id)) {
+                    currentOffer.addAcceptance(id);
+                    broadcastOfferConfirmation();
+                    System.out.println("Offer confirmation received by client " + id);
+                }
             }
+        }
+
+        private void manageOfferRejection(String message) {
+            if(message.contains("Offer rejected")) {
+                int id = Integer.parseInt(message.split(":")[1]);
+                currentOffer.addRejection(id);
+                broadcastOfferConfirmation();
+                System.out.println("Offer rejection received by client " + id);
+            }
+        }
+
+        private boolean canAfford(int id) {
+            for(ResourceType resource : ResourceType.values()) {
+                if(resource != ResourceType.EMPTY && playerResources.get(id).getResources().get(resource) < currentOffer.getWantedOfferResourceAmount(resource)){
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void sendDeck(int diceThrow) {

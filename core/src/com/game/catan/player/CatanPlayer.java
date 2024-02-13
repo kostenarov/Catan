@@ -41,6 +41,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private boolean isOfferBeingCreated = false;
     private boolean hasOfferBeenCreated = false;
     private boolean isOfferBeingReceived = false;
+    private boolean haveIndicatorsBeenSet = false;
     private int points = 0;
 
     private final int resourceX = 200;
@@ -55,6 +56,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private Stage resourceFieldStage;
     private Stage outgoingOfferStage;
     private Stage incomingOfferStage;
+    private Stage indicatorStage;
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
@@ -76,7 +78,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private final HashMap<ResourceType, ResourceButton> offerGivenButtons;
     private final HashMap<ResourceType, ResourceButton> offerWantedButtons;
     private final HashMap<ResourceType, ResourceButtonWithoutLabel> offerWantedIncreaseButtons;
-    private final HashMap<Integer, Image> acceptanceIndicators;
+    private final HashMap<Integer, ImageButton> acceptanceIndicators;
 
     private Map map;
     private final Offer incomingOffer;
@@ -121,10 +123,10 @@ public class CatanPlayer extends ApplicationAdapter {
                     playerTexture = new Texture("Indicators/blueIndicator.png");
                     break;
                 case 2:
-                    playerTexture = new Texture("Indicators/redIndicator.png");
+                    playerTexture = new Texture("Indicators/greenIndicator.png");
                     break;
                 case 3:
-                    playerTexture = new Texture("Indicators/greenIndicator.png");
+                    playerTexture = new Texture("Indicators/redIndicator.png");
                     break;
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -146,6 +148,7 @@ public class CatanPlayer extends ApplicationAdapter {
         winStage = new Stage(new ScreenViewport());
         lossStage = new Stage(new ScreenViewport());
         stage = new Stage(new ScreenViewport());
+        indicatorStage = new Stage(new ScreenViewport());
         background = new Texture("Backgrounds/background.png");
         resourceBackground = new Texture("Backgrounds/resourceBackground.png");
         robber = new Texture("Textures/robber.png");
@@ -159,6 +162,7 @@ public class CatanPlayer extends ApplicationAdapter {
         setUpEndScreens();
         setUpSendOfferButton();
         setupConfirmOfferButton();
+        setUpRejectOfferButton();
         setUpOutgoingOfferGivenButtons();
         setUpOutgoingOfferWantedIncreaseButtons();
         setUpOutgoingOfferWantedDecreaseButtons();
@@ -167,6 +171,30 @@ public class CatanPlayer extends ApplicationAdapter {
         setUpIncomingOfferGivenDisplays();
         setUpIncomingOfferWantedDisplays();
         displayResources();
+    }
+
+    private void setUpOfferIndicators(Stage tempStage) {
+        ImageButton yellowIndicator = new ImageButton(new TextureRegionDrawable(new Texture("Indicators/yellowIndicator.png")));
+        yellowIndicator.setPosition(1700, 700);
+        yellowIndicator.setSize(50, 50);
+        ImageButton blueIndicator = new ImageButton(new TextureRegionDrawable(new Texture("Indicators/blueIndicator.png")));
+        blueIndicator.setPosition(1700, 600);
+        blueIndicator.setSize(50, 50);
+        ImageButton greenIndicator = new ImageButton(new TextureRegionDrawable(new Texture("Indicators/greenIndicator.png")));
+        greenIndicator.setPosition(1700, 400);
+        greenIndicator.setSize(50, 50);
+        ImageButton redIndicator = new ImageButton(new TextureRegionDrawable(new Texture("Indicators/redIndicator.png")));
+        redIndicator.setPosition(1700, 500);
+        redIndicator.setSize(50, 50);
+        acceptanceIndicators.put(0, yellowIndicator);
+        acceptanceIndicators.put(1, blueIndicator);
+        acceptanceIndicators.put(2, greenIndicator);
+        acceptanceIndicators.put(3, redIndicator);
+        for(int i = 0; i < playersAmount; i++) {
+            if(i != id) {
+                tempStage.addActor(acceptanceIndicators.get(i));
+            }
+        }
     }
 
     @Override
@@ -189,10 +217,18 @@ public class CatanPlayer extends ApplicationAdapter {
             if(isOfferBeingCreated || hasOfferBeenCreated) {
                 outgoingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 outgoingOfferStage.draw();
+                if(!haveIndicatorsBeenSet) {
+                    setUpOfferIndicators(outgoingOfferStage);
+                    haveIndicatorsBeenSet = true;
+                }
             }
             if(isOfferBeingReceived) {
                 incomingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 incomingOfferStage.draw();
+                if(!haveIndicatorsBeenSet) {
+                    setUpOfferIndicators(incomingOfferStage);
+                    haveIndicatorsBeenSet = true;
+                }
             }
         }
         else {
@@ -331,7 +367,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void endTurnButton() {
-        TextButton temp = ButtonSetUps.setUpTextButton("End Turn", 30, this);
+        TextButton temp = ButtonSetUps.setUpTextButton("End Turn", 30);
         if(endTurnButton == null) {
             endTurnButton = ButtonSetUps.setUpEndTurnButtonFunc(temp, outputStream);
             UIStage.addActor(endTurnButton);
@@ -339,7 +375,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void diceThrowButton() {
-        TextButton temp = ButtonSetUps.setUpTextButton("Dice Throw", 130, this);
+        TextButton temp = ButtonSetUps.setUpTextButton("Dice Throw", 130);
         if(diceThrowButton == null) {
             diceThrowButton = ButtonSetUps.setUpDiceThrowButtonFunc(temp, outputStream);
             UIStage.addActor(diceThrowButton);
@@ -402,14 +438,6 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public synchronized void addAcceptanceIndicators(int id) {
 
-    }
-
-    public void setUpOfferIndicators() {
-        for(int i = 0; i < playersAmount; i++) {
-            if(i != id) {
-                UIStage.addActor(playerIndicators.get(i));
-            }
-        }
     }
 
     private String pathHelper(int id) {
@@ -552,6 +580,33 @@ public class CatanPlayer extends ApplicationAdapter {
         outgoingOfferStage.addActor(button);
     }
 
+    private synchronized void setUpRejectOfferButton() {
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.font = new BitmapFont();
+        textButtonStyle.font.getData().setScale(2f);
+        textButtonStyle.fontColor = Color.BLACK;
+        Texture buttonTextureUp = new Texture("Textures/buttonUp.png");
+        Texture buttonTextureDown = new Texture("Textures/buttonDown.png");
+        textButtonStyle.up = new TextureRegionDrawable(buttonTextureUp);
+        textButtonStyle.down = new TextureRegionDrawable(buttonTextureDown);
+        TextButton button = new TextButton("Reject Offer", textButtonStyle);
+        button.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                try {
+                    outputStream.writeObject("Offer rejected by:" + id);
+                    outputStream.reset();
+                    System.out.println("Offer rejected");
+                    return true;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        button.setPosition(500, 200);
+        button.setSize(200, 100);
+        incomingOfferStage.addActor(button);
+    }
+
     private synchronized void setupConfirmOfferButton() {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = new BitmapFont();
@@ -574,7 +629,7 @@ public class CatanPlayer extends ApplicationAdapter {
                 }
             }
         });
-        button.setPosition(300, 100);
+        button.setPosition(500, 100);
         button.setSize(200, 100);
         incomingOfferStage.addActor(button);
     }
@@ -787,5 +842,9 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public synchronized int getPlayersAmount() {
         return playersAmount;
+    }
+
+    public synchronized Offer getIncomingOffer() {
+        return incomingOffer;
     }
 }
