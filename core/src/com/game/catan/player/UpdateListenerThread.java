@@ -46,21 +46,6 @@ public class UpdateListenerThread extends Thread{
                         player.resetFlags();
                     }
                 }
-                else if(input instanceof MessageWrapper<?>) {
-                    if(((MessageWrapper<?>) input).getType() == MessageType.STRING) {
-                        if(((String) ((MessageWrapper<?>) input).getMessage()).contains("Offer accepted")) {
-                            int id = Integer.parseInt(((String) ((MessageWrapper<?>) input).getMessage()).split(":")[1]);
-                            System.out.println("Offer accepted");
-                            if(player.isOfferBeingCreated()) {
-                                player.addOutgoingOfferAcceptance(id);
-                            }
-                            else {
-                                player.addIncomingOfferAcceptance(id);
-
-                            }
-                        }
-                    }
-                }
                 else if(input instanceof String) {
                     if(((String) input).contains("Points")) {
                         System.out.println("Points received");
@@ -83,6 +68,26 @@ public class UpdateListenerThread extends Thread{
                     else if(((String) input).contains("Win")) {
                         System.out.println("Win received");
                         player.setWin(true);
+                    }
+                    else if(((String) input).contains("Offer accepted")) {
+                        if(player.isOfferBeingCreated() || player.hasOfferBeenCreated()) {
+                            System.out.println("Outgoing accepted");
+                            player.addOutgoingOfferAcceptance(Integer.parseInt(((String) input).split(":")[1]));
+                        }
+                        else {
+                            System.out.println("Incoming accepted");
+                            player.addIncomingOfferAcceptance(Integer.parseInt(((String) input).split(":")[1]));
+                        }
+                    }
+                    else if(((String) input).contains("Offer rejected")) {
+                        if(player.isOfferBeingCreated() || player.hasOfferBeenCreated()) {
+                            System.out.println("Outgoing rejected");
+                            player.addOutgoingOfferRejection(Integer.parseInt(((String) input).split(":")[1]));
+                        }
+                        else {
+                            System.out.println("Incoming rejected");
+                            player.addIncomingOfferRejection(Integer.parseInt(((String) input).split(":")[1]));
+                        }
                     }
                 }
                 else if(input instanceof Map) {

@@ -10,7 +10,7 @@ public class Offer implements Serializable {
     private Deck givenOffer;
     private Deck wantedOffer;
     private final int playerId;
-    private HashMap<Integer, Boolean> players;
+    private HashMap<Integer, Integer> players;
 
     public Offer(Deck offer, int playerId) {
         this.givenOffer = offer;
@@ -47,18 +47,21 @@ public class Offer implements Serializable {
         return givenOffer;
     }
 
+    public void addPlayer(int playerId) {
+        players.put(playerId, 0);
+    }
     public void addAcceptance(int playerId) {
-        players.put(playerId, true);
+        players.put(playerId, 1);
     }
     public void addRejection(int playerId) {
-        players.put(playerId, false);
+        players.put(playerId, 2);
     }
 
     public int getPlayerId() {
         return playerId;
     }
 
-    public HashMap<Integer, Boolean> getPlayers() {
+    public HashMap<Integer, Integer> getPlayers() {
         return players;
     }
 

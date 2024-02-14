@@ -171,7 +171,7 @@ public class CatanPlayer extends ApplicationAdapter {
         displayResources();
     }
 
-    private void setUpOfferIndicators(Stage tempStage) {
+    private void setUpOfferIndicators() {
         int y = 500;
         ImageButton yellowIndicator = new ImageButton(new TextureRegionDrawable(new Texture("Indicators/yellowIndicator.png")));
         yellowIndicator.setSize(50, 50);
@@ -185,13 +185,6 @@ public class CatanPlayer extends ApplicationAdapter {
         acceptanceIndicators.put(1, blueIndicator);
         acceptanceIndicators.put(2, greenIndicator);
         acceptanceIndicators.put(3, redIndicator);
-        for(int i = 0; i < playersAmount; i++) {
-            if(i != id) {
-                acceptanceIndicators.get(i).setPosition(1700, y);
-                tempStage.addActor(acceptanceIndicators.get(i));
-                y += 100;
-            }
-        }
     }
 
     @Override
@@ -215,7 +208,7 @@ public class CatanPlayer extends ApplicationAdapter {
                 outgoingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 outgoingOfferStage.draw();
                 if(!haveIndicatorsBeenSet) {
-                    setUpOfferIndicators(outgoingOfferStage);
+                    setUpOfferIndicators();
                     haveIndicatorsBeenSet = true;
                 }
             }
@@ -223,7 +216,7 @@ public class CatanPlayer extends ApplicationAdapter {
                 incomingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 incomingOfferStage.draw();
                 if(!haveIndicatorsBeenSet) {
-                    setUpOfferIndicators(incomingOfferStage);
+                    setUpOfferIndicators();
                     haveIndicatorsBeenSet = true;
                 }
             }
@@ -518,6 +511,11 @@ public class CatanPlayer extends ApplicationAdapter {
         button.addListener(new ClickListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     try {
+                        for(int i = 0; i < playersAmount; i++) {
+                            if(i != id) {
+                                outgoingOffer.addPlayer(i);
+                            }
+                        }
                         outputStream.writeObject(outgoingOffer);
                         outputStream.reset();
                         resetOffer();
@@ -609,6 +607,20 @@ public class CatanPlayer extends ApplicationAdapter {
         Gdx.graphics.requestRendering();
     }
 
+    public synchronized void addOutgoingOfferRejection(final int id) {
+        outgoingOffer.addRejection(id);
+        float y = indicatorStage.getActors().get(id).getY();
+        indicatorStage.getActors().get(id).remove();
+        String color = colorHelper(id);
+        ImageButton imageButton = new ImageButton(new TextureRegionDrawable(new Texture("Indicators/" + color + "Rejected.png")));
+        ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
+        imageButtonStyle.imageUp = new TextureRegionDrawable(new Texture("Indicators/" + color + "Rejected.png"));
+        imageButton.setStyle(imageButtonStyle);
+        imageButton.setPosition(1700, y);
+        indicatorStage.addActor(imageButton);
+        Gdx.graphics.requestRendering();
+    }
+
     private String colorHelper(int id) {
         switch (id) {
             case 0:
@@ -625,6 +637,11 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public synchronized void addIncomingOfferAcceptance(int id) {
         incomingOffer.addAcceptance(id);
+        Gdx.graphics.requestRendering();
+    }
+
+    public synchronized void addIncomingOfferRejection(int id) {
+        incomingOffer.addRejection(id);
         Gdx.graphics.requestRendering();
     }
 
@@ -841,5 +858,9 @@ public class CatanPlayer extends ApplicationAdapter {
 
     public synchronized Offer getIncomingOffer() {
         return incomingOffer;
+    }
+
+    public synchronized boolean hasOfferBeenCreated() {
+        return hasOfferBeenCreated;
     }
 }

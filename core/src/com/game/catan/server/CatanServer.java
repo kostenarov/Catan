@@ -154,10 +154,15 @@ public class CatanServer {
         }
     }
 
-    private void broadcastOfferConfirmation() {
-        int id = 0;
+    private void broadcastOfferConfirmation(int id) {
         for (ClientHandler client : clients) {
             client.sendOfferConfirmation(id);
+        }
+    }
+
+    private void broadcastOfferRejection(int id) {
+        for (ClientHandler client : clients) {
+            client.sendOfferRejection(id);
         }
     }
 
@@ -287,12 +292,24 @@ public class CatanServer {
         private void sendOfferConfirmation(int id) {
             try {
                 if (id == clients.indexOf(this)) {
-                    outputStream.writeObject(new MessageWrapper<Integer>(MessageType.INT, id));
+                    outputStream.writeObject("Offer confirmed:" + id);
                     outputStream.reset();
                 }
             }
             catch (IOException e) {
                 System.out.println("Could not send offer confirmation");
+            }
+        }
+
+        private void sendOfferRejection(int id) {
+            try {
+                if (id == clients.indexOf(this)) {
+                    outputStream.writeObject("Offer rejected:" + id);
+                    outputStream.reset();
+                }
+            }
+            catch (IOException e) {
+                System.out.println("Could not send offer rejection");
             }
         }
 
@@ -553,7 +570,7 @@ public class CatanServer {
                 int id = Integer.parseInt(message.split(":")[1]);
                 if(canAfford(id)) {
                     currentOffer.addAcceptance(id);
-                    broadcastOfferConfirmation();
+                    broadcastOfferConfirmation(id);
                     System.out.println("Offer confirmation received by client " + id);
                 }
             }
@@ -563,7 +580,7 @@ public class CatanServer {
             if(message.contains("Offer rejected")) {
                 int id = Integer.parseInt(message.split(":")[1]);
                 currentOffer.addRejection(id);
-                broadcastOfferConfirmation();
+                broadcastOfferRejection(id);
                 System.out.println("Offer rejection received by client " + id);
             }
         }
