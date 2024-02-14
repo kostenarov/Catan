@@ -42,6 +42,9 @@ public class Offer implements Serializable {
         givenOffer.removeResource(resource);
     }
 
+    public Deck getWantedOffer() {
+        return wantedOffer;
+    }
 
     public Deck getGivenOffer() {
         return givenOffer;
@@ -71,6 +74,19 @@ public class Offer implements Serializable {
 
     public Integer getGivenOfferResourceAmount(ResourceType resourceType) {
         return givenOffer.getResourceAmount(resourceType);
+    }
+
+    public Integer getPlayerAnswer(int playerId) {
+        return players.get(playerId);
+    }
+
+    public void setOffer(Deck givenOffer, Deck wantedOffer) {
+        this.givenOffer = givenOffer;
+        this.wantedOffer = wantedOffer;
+    }
+
+    public void setPlayers(HashMap<Integer, Integer> players) {
+        this.players = players;
     }
 
     public boolean isBankOffer() {

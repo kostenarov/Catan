@@ -291,10 +291,8 @@ public class CatanServer {
 
         private void sendOfferConfirmation(int id) {
             try {
-                if (id == clients.indexOf(this)) {
-                    outputStream.writeObject("Offer confirmed:" + id);
-                    outputStream.reset();
-                }
+                outputStream.writeObject("Offer accepted:" + id);
+                outputStream.reset();
             }
             catch (IOException e) {
                 System.out.println("Could not send offer confirmation");
@@ -303,7 +301,12 @@ public class CatanServer {
 
         private void sendOfferRejection(int id) {
             try {
-                if (id == clients.indexOf(this)) {
+                if(checkAllRejected()) {
+                    currentOffer = null;
+                    outputStream.writeObject("All rejected");
+                    outputStream.reset();
+                }
+                else {
                     outputStream.writeObject("Offer rejected:" + id);
                     outputStream.reset();
                 }
@@ -311,6 +314,15 @@ public class CatanServer {
             catch (IOException e) {
                 System.out.println("Could not send offer rejection");
             }
+        }
+
+        private boolean checkAllRejected() {
+            for(ClientHandler client : clients) {
+                if(currentOffer.getPlayers().get(clients.indexOf(client)) != 2) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void sendRoad(RoadCell roadCell) {
@@ -417,6 +429,7 @@ public class CatanServer {
             if(input instanceof Offer && currentPlayerIndex == clients.indexOf(this)) {
                 System.out.println("Offer received");
                 currentOffer = (Offer) input;
+                System.out.println(currentOffer.getPlayers());
                 broadcastOffer();
             }
         }

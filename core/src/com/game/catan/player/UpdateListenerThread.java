@@ -37,12 +37,10 @@ public class UpdateListenerThread extends Thread{
                         System.out.println("Your turn");
                         player.setIsTurn(true);
                         player.resetFlags();
-                        player.resetOffer();
                     }
                     else if((int) input == 200) {
                         System.out.println("Not your turn");
                         player.setIsTurn(false);
-                        player.resetOffer();
                         player.resetFlags();
                     }
                 }
@@ -74,7 +72,7 @@ public class UpdateListenerThread extends Thread{
                             System.out.println("Outgoing accepted");
                             player.addOutgoingOfferAcceptance(Integer.parseInt(((String) input).split(":")[1]));
                         }
-                        else {
+                        else if(player.isOfferBeingReceived()){
                             System.out.println("Incoming accepted");
                             player.addIncomingOfferAcceptance(Integer.parseInt(((String) input).split(":")[1]));
                         }
@@ -84,10 +82,14 @@ public class UpdateListenerThread extends Thread{
                             System.out.println("Outgoing rejected");
                             player.addOutgoingOfferRejection(Integer.parseInt(((String) input).split(":")[1]));
                         }
-                        else {
+                        else if(player.isOfferBeingReceived()){
                             System.out.println("Incoming rejected");
                             player.addIncomingOfferRejection(Integer.parseInt(((String) input).split(":")[1]));
                         }
+                    }
+                    else if(((String) input).contains("All rejected")) {
+                        System.out.println("All rejected");
+                        player.resetOffer();
                     }
                 }
                 else if(input instanceof Map) {
