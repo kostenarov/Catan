@@ -124,6 +124,12 @@ public class CatanServer {
         }
     }
 
+    private void broadcastTradeFinished() {
+        for (ClientHandler client : clients) {
+            client.sendTrade();
+        }
+    }
+
     private void broadcastRobberDeck() {
         for (ClientHandler client : clients) {
             client.sendPlayerDeck();
@@ -161,9 +167,26 @@ public class CatanServer {
     }
 
     private void broadcastOfferRejection(int id) {
-        for (ClientHandler client : clients) {
-            client.sendOfferRejection(id);
+        if(checkAllRejected()) {
+            for (ClientHandler client : clients) {
+                client.sendAllRejected();
+            }
         }
+        else {
+            for (ClientHandler client : clients) {
+                client.sendOfferRejection(id);
+            }
+        }
+    }
+
+    private boolean checkAllRejected() {
+        HashMap<Integer, Integer> players = currentOffer.getPlayers();
+        for(Integer playerId : players.keySet()) {
+            if(players.get(playerId) != 2) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private class ClientHandler implements Runnable {
@@ -213,6 +236,7 @@ public class CatanServer {
                 RoadPressFunc((String) input);
                 manageOfferConfirmation((String) input);
                 manageOfferRejection((String) input);
+                manageTrade((String) input);
             }
             else if(input instanceof Offer) {
                 OfferPressFunc(input);
@@ -301,28 +325,64 @@ public class CatanServer {
 
         private void sendOfferRejection(int id) {
             try {
-                if(checkAllRejected()) {
-                    currentOffer = null;
-                    outputStream.writeObject("All rejected");
-                    outputStream.reset();
-                }
-                else {
                     outputStream.writeObject("Offer rejected:" + id);
                     outputStream.reset();
-                }
             }
             catch (IOException e) {
                 System.out.println("Could not send offer rejection");
             }
         }
+        
+        private void manageTrade(String input) {
+            if(input.contains("Accepted trade") && currentPlayerIndex == clients.indexOf(this) && currentOffer != null) {
+                int id = Integer.parseInt(input.split(":")[1]);
+                if(currentOffer.getPlayers().get(id) == 1) {
+                    swapCards(currentOffer.getPlayerId(), id);
+                }
+                broadcastDeck();
+                broadcastTradeFinished();
+            }
 
-        private boolean checkAllRejected() {
-            for(ClientHandler client : clients) {
-                if(currentOffer.getPlayers().get(clients.indexOf(client)) != 2) {
-                    return false;
+        }
+
+        private void sendTrade() {
+            try {
+                outputStream.writeObject("Trade");
+                outputStream.reset();
+            }
+            catch (IOException e) {
+                System.out.println("Could not send trade");
+            }
+        }
+        
+        private void swapCards(int id1, int id2) {
+            Deck deckSender = playerResources.get(id1);
+            Deck deckReciever = playerResources.get(id2);
+            System.out.println("Swapping cards");
+            System.out.println(currentOffer.getWantedOffer().getResources());
+            System.out.println(currentOffer.getGivenOffer().getResources());
+            for(ResourceType resource : ResourceType.values()) {
+                if(resource != ResourceType.EMPTY) {
+                    int temp = currentOffer.getGivenOfferResourceAmount(resource);
+                    deckSender.removeResources(resource, temp);
+                    deckReciever.addResources(resource, temp);
+                    int temp2 = currentOffer.getWantedOfferResourceAmount(resource);
+                    deckReciever.removeResources(resource, temp2);
+                    deckSender.addResources(resource, temp2);
                 }
             }
-            return true;
+            playerResources.put(id1, deckSender);
+            playerResources.put(id2, deckReciever);
+        }
+
+        private void sendAllRejected() {
+            try {
+                outputStream.writeObject("All rejected");
+                outputStream.reset();
+            }
+            catch (IOException e) {
+                System.out.println("Could not send all rejected");
+            }
         }
 
         private void sendRoad(RoadCell roadCell) {
@@ -341,7 +401,6 @@ public class CatanServer {
                 int resourceId = Integer.parseInt(input.split(":")[1]);
                 map.moveRobber(resourceId);
                 isRobberMoved = true;
-                //broadcastRobberMove();
                 broadcastMap();
             }
         }
@@ -429,7 +488,6 @@ public class CatanServer {
             if(input instanceof Offer && currentPlayerIndex == clients.indexOf(this)) {
                 System.out.println("Offer received");
                 currentOffer = (Offer) input;
-                System.out.println(currentOffer.getPlayers());
                 broadcastOffer();
             }
         }

@@ -91,6 +91,11 @@ public class UpdateListenerThread extends Thread{
                         System.out.println("All rejected");
                         player.resetOffer();
                     }
+                    else if(((String) input).contains("Trade")) {
+                        System.out.println("Trade received");
+                        player.disposeIndicatorStage();
+                        player.resetOffer();
+                    }
                 }
                 else if(input instanceof Map) {
                     System.out.println("Map received");

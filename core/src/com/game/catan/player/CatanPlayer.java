@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -223,13 +224,17 @@ public class CatanPlayer extends ApplicationAdapter {
                 outgoingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 outgoingOfferStage.draw();
 
-
+                indicatorStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+                indicatorStage.draw();
+                drawOutcomingOfferIndicators();
             }
             if(isOfferBeingReceived) {
                 incomingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 incomingOfferStage.draw();
+
                 indicatorStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 indicatorStage.draw();
+                drawIncomingOfferIndicators();
             }
         }
 
@@ -612,26 +617,99 @@ public class CatanPlayer extends ApplicationAdapter {
         Gdx.graphics.requestRendering();
     }
 
-    public void drawOfferIndicators() {
-        System.out.println(incomingOffer.getPlayers());
-        for(int i = 0; i < playersAmount; i++) {
-            if(incomingOffer.getPlayerId() != i) {
-                String color = colorHelper(i);
-                Image image;
-                if(incomingOffer.getPlayerAnswer(i) == 1) {
-                    image = new Image(new Texture("Indicators/" + color + "Accepted.png"));
-                }
-                else if(incomingOffer.getPlayerAnswer(i) == 2) {
-                    image = new Image(new Texture("Indicators/" + color + "Rejected.png"));
-                }
-                else {
-                    image = new Image(new Texture("Indicators/" + color + "Indicator.png"));
-                }
-                image.setPosition(100, 500 - i * 100);
-                image.setSize(50, 50);
-                indicatorStage.addActor(image);
+    private void drawIncomingOfferIndicators() {
+        for(int id : incomingOffer.getPlayers().keySet()) {
+            if(incomingOffer.getPlayers().get(id) == 1) {
+                addIncomingAcceptance(id);
+            }
+            else if(incomingOffer.getPlayers().get(id) == 2) {
+                addIncomingRejection(id);
+            }
+            else {
+                addIncomingOfferIndicator(id);
+
             }
         }
+
+    }
+
+    private void addIncomingAcceptance(int id) {
+        playerIndicatorBatch.begin();
+        String color = colorHelper(id);
+        Texture texture = new Texture("Indicators/" + color + "Accepted.png");
+        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.end();
+    }
+
+    private void addIncomingRejection(int id) {
+        playerIndicatorBatch.begin();
+        String color = colorHelper(id);
+        Texture texture = new Texture("Indicators/" + color + "Declined.png");
+        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.end();
+    }
+
+    private void addIncomingOfferIndicator(int id) {
+        playerIndicatorBatch.begin();
+        String color = colorHelper(id);
+        Texture texture = new Texture("Indicators/" + color + "Indicator.png");
+        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.end();
+    }
+
+    private void drawOutcomingOfferIndicators() {
+        for(int id : outgoingOffer.getPlayers().keySet()) {
+            if(outgoingOffer.getPlayers().get(id) == 1) {
+                addOutgoingAcceptance(id);
+            }
+            else if(outgoingOffer.getPlayers().get(id) == 2) {
+                addOutcomingRejection(id);
+            }
+            else {
+                addOutcomingIndicator(id);
+            }
+        }
+    }
+
+
+    public void addOutcomingIndicator(int id) {
+        playerIndicatorBatch.begin();
+        String color = colorHelper(id);
+        Texture texture = new Texture("Indicators/" + color + "Indicator.png");
+        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.end();
+    }
+    public void addOutcomingRejection(int id) {
+        playerIndicatorBatch.begin();
+        String color = colorHelper(id);
+        Texture texture = new Texture("Indicators/" + color + "Declined.png");
+        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.end();
+    }
+
+    public void addOutgoingAcceptance(final int id) {
+
+        String color = colorHelper(id);
+        Texture texture = new Texture("Indicators/" + color + "Accepted.png");
+        ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
+        imageButtonStyle.imageUp = new TextureRegionDrawable(texture);
+        ImageButton imageButton = new ImageButton(imageButtonStyle);
+        imageButton.setPosition(100, 500 - id * 100);
+        imageButton.setSize(50, 50);
+        imageButton.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                try {
+                    outputStream.writeObject("Accepted trade:" + id);
+                    outputStream.reset();
+                    System.out.println("Offer accepted");
+                    return true;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        acceptanceIndicators.put(id, imageButton);
+        indicatorStage.addActor(imageButton);
     }
 
     private synchronized boolean increaseTradeOfferGivenLabel(ResourceType type) {
@@ -709,6 +787,10 @@ public class CatanPlayer extends ApplicationAdapter {
             playerIndicatorBatch.draw(playerIndicators.get(i), 1800, y, 50, 50);
             y -= 100;
         }
+    }
+
+    public void disposeIndicatorStage() {
+        indicatorStage.clear();
     }
 
     @Override
