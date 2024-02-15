@@ -6,20 +6,20 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.game.catan.player.CatanPlayer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 public class ButtonSetUps {
-    public static TextButton setUpTextButton(String text, int y, CatanPlayer player) {
+    public static TextButton setUpTextButton(String text, int y) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = new com.badlogic.gdx.graphics.g2d.BitmapFont();
         textButtonStyle.font.getData().setScale(2f);
         textButtonStyle.fontColor = com.badlogic.gdx.graphics.Color.BLACK;
-        Texture buttonTexture = new Texture("Textures/button.png");
-        textButtonStyle.up = new TextureRegionDrawable(buttonTexture);
-        textButtonStyle.down = new TextureRegionDrawable(buttonTexture);
+        Texture buttonTextureUp = new Texture("Textures/buttonUp.png");
+        Texture buttonTextureDown = new Texture("Textures/buttonDown.png");
+        textButtonStyle.up = new TextureRegionDrawable(buttonTextureUp);
+        textButtonStyle.down = new TextureRegionDrawable(buttonTextureDown);
 
         TextButton button = new TextButton(text, textButtonStyle);
         button.setPosition(1720, y);
@@ -49,10 +49,9 @@ public class ButtonSetUps {
         endTurnButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 try {
-                        System.out.println("End turn");
-                        outputStream.writeObject("End Turn");
-                        outputStream.reset();
-
+                    System.out.println("End turn");
+                    outputStream.writeObject("End Turn");
+                    outputStream.reset();
                 } catch (IOException e) {
                     System.out.println("Could not send end turn");
                 }
@@ -66,11 +65,9 @@ public class ButtonSetUps {
         diceThrowButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 try {
-
-                        System.out.println("Dice throw");
-                        outputStream.writeObject("Dice Throw");
-                        outputStream.reset();
-
+                    System.out.println("Dice throw");
+                    outputStream.writeObject("Dice Throw");
+                    outputStream.reset();
                 } catch (IOException e) {
                     System.out.println("Could not send dice throw");
                 }

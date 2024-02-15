@@ -1,5 +1,7 @@
 package com.game.catan.player;
 
+import com.game.catan.Functionality.MessageType;
+import com.game.catan.Functionality.MessageWrapper;
 import com.game.catan.Functionality.Offer;
 import com.game.catan.Map.Cell.ResourceCell;
 import com.game.catan.Map.Cell.ResourceType;
@@ -34,11 +36,12 @@ public class UpdateListenerThread extends Thread{
                     else if((int) input == 100) {
                         System.out.println("Your turn");
                         player.setIsTurn(true);
-                        player.setDiceThrown(false);
+                        player.resetFlags();
                     }
                     else if((int) input == 200) {
                         System.out.println("Not your turn");
                         player.setIsTurn(false);
+                        player.resetFlags();
                     }
                 }
                 else if(input instanceof String) {
@@ -50,6 +53,48 @@ public class UpdateListenerThread extends Thread{
                     else if(((String) input).contains("Players")) {
                         System.out.println("Players received");
                         player.setPlayersAmount(Integer.parseInt(((String) input).split(":")[1]));
+                        for(int i = 0; i < player.getPlayersAmount(); i++) {
+                            if(i != player.getId()) {
+                                System.out.println("Player " + i + " added");
+                            }
+                        }
+                    }
+                    else if(((String) input).contains("Loss")) {
+                        System.out.println("Loss received");
+                        player.setLoss(true);
+                    }
+                    else if(((String) input).contains("Win")) {
+                        System.out.println("Win received");
+                        player.setWin(true);
+                    }
+                    else if(((String) input).contains("Offer accepted")) {
+                        if(player.isOfferBeingCreated() || player.hasOfferBeenCreated()) {
+                            System.out.println("Outgoing accepted");
+                            player.addOutgoingOfferAcceptance(Integer.parseInt(((String) input).split(":")[1]));
+                        }
+                        else if(player.isOfferBeingReceived()){
+                            System.out.println("Incoming accepted");
+                            player.addIncomingOfferAcceptance(Integer.parseInt(((String) input).split(":")[1]));
+                        }
+                    }
+                    else if(((String) input).contains("Offer rejected")) {
+                        if(player.isOfferBeingCreated() || player.hasOfferBeenCreated()) {
+                            System.out.println("Outgoing rejected");
+                            player.addOutgoingOfferRejection(Integer.parseInt(((String) input).split(":")[1]));
+                        }
+                        else if(player.isOfferBeingReceived()){
+                            System.out.println("Incoming rejected");
+                            player.addIncomingOfferRejection(Integer.parseInt(((String) input).split(":")[1]));
+                        }
+                    }
+                    else if(((String) input).contains("All rejected")) {
+                        System.out.println("All rejected");
+                        player.resetOffer();
+                    }
+                    else if(((String) input).contains("Trade")) {
+                        System.out.println("Trade received");
+                        player.disposeIndicatorStage();
+                        player.resetOffer();
                     }
                 }
                 else if(input instanceof Map) {
@@ -73,9 +118,13 @@ public class UpdateListenerThread extends Thread{
                     player.setRoadCell((RoadCell) input);
                 }
                 else if(input instanceof Offer) {
-                    System.out.println("Offer received");
                     if(((Offer) input).getPlayerId() != player.getId()) {
                         player.setIncomingOffer((Offer) input);
+                        System.out.println("Incoming offer set");
+                    }
+                    else {
+                        player.setOutgoingOffer((Offer) input);
+                        System.out.println("Outgoing offer set");
                     }
                 }
 

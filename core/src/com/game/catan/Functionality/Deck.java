@@ -2,9 +2,10 @@ package com.game.catan.Functionality;
 
 import com.game.catan.Map.Cell.ResourceType;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Deck {
+public class Deck implements Serializable {
     private HashMap<ResourceType, Integer> resources;
 
     public Deck() {
