@@ -1,5 +1,6 @@
 package com.game.catan.server;
 
+import java.net.InetAddress;
 import java.util.*;
 import java.net.Socket;
 import java.util.HashMap;
@@ -51,6 +52,8 @@ public class CatanServer {
         roadPaths.add("Roads/redNormalRoad.png");
         try {
             serverSocket = new ServerSocket(12345);
+            InetAddress serverAddress = InetAddress.getLocalHost();
+            System.out.println("Server address: " + serverAddress.getHostAddress());
             System.out.println("Server started. Waiting for clients...");
 
             while (isWorking) {
@@ -359,8 +362,10 @@ public class CatanServer {
             Deck deckSender = playerResources.get(id1);
             Deck deckReciever = playerResources.get(id2);
             System.out.println("Swapping cards");
-            System.out.println(currentOffer.getWantedOffer().getResources());
             System.out.println(currentOffer.getGivenOffer().getResources());
+            System.out.println(currentOffer.getWantedOffer().getResources());
+            System.out.println("Sender deck:" + deckSender.getResources());
+            System.out.println("Reciever deck:" + deckReciever.getResources());
             for(ResourceType resource : ResourceType.values()) {
                 if(resource != ResourceType.EMPTY) {
                     int temp = currentOffer.getGivenOfferResourceAmount(resource);
@@ -421,7 +426,7 @@ public class CatanServer {
                         sendPlayerDeck();
                         pointCounter.addPoint(currentPlayerIndex);
                         sendPoints();
-                        //endGame();
+                        endGame();
 
                     } catch (Exception e) {
                         throw new RuntimeException(e);
@@ -431,7 +436,7 @@ public class CatanServer {
         }
 
         private void endGame() {
-            if(pointCounter.getPoints(currentPlayerIndex) >= 2) {
+            if(pointCounter.getPoints(currentPlayerIndex) >= 3) {
                 for(ClientHandler client : clients) {
                     if(clients.indexOf(client) == currentPlayerIndex) {
                         try {
@@ -504,7 +509,7 @@ public class CatanServer {
         private void initialEndTurnFunc(String input) {
             if(input.equals("End Turn") && currentPlayerIndex == clients.indexOf(this)) {
                 broadcastMap();
-                if(isInitialVillagePhase) {
+                if(isInitialVillagePhase && initialVillages.get(currentPlayerIndex).hasOne()) {
                     if(currentPlayerIndex == clients.size() - 1) {
                         isInitialVillagePhase = false;
                         isSecondVillagePhase = true;
@@ -512,16 +517,17 @@ public class CatanServer {
                     else {
                         currentPlayerIndex++;
                     }
+                    broadcastTurnNotification();
                 }
-                else if(isSecondVillagePhase) {
+                else if(isSecondVillagePhase && initialVillages.get(currentPlayerIndex).hasBoth()) {
                     if(currentPlayerIndex == 0) {
                         isSecondVillagePhase = false;
                     }
                     else {
                         currentPlayerIndex--;
                     }
+                    broadcastTurnNotification();
                 }
-                broadcastTurnNotification();
             }
         }
 
