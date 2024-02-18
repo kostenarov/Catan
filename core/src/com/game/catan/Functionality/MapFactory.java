@@ -4,7 +4,6 @@ import com.game.catan.Map.Cell.ResourceCell;
 import com.game.catan.Map.Cell.ResourceType;
 import com.game.catan.Map.Cell.RoadCell;
 import com.game.catan.Map.Cell.VillageCell;
-import com.game.catan.Map.Map;
 
 public class MapFactory {
     public static ResourceCell createMap() {

@@ -14,7 +14,6 @@ import java.util.HashSet;
 public class VillageCell extends Cell {
     private int owner = 5;
     private Texture villageTexture;
-    private ImageButton.ImageButtonStyle style;
     private ImageButton button;
     public VillageCell(int x, int y) {
         super(x, y);
@@ -36,8 +35,8 @@ public class VillageCell extends Cell {
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player) {
         if(button == null) {
             this.villageTexture = new Texture(texturePath);
-            this.style = new ImageButton.ImageButtonStyle();
-            this.style.imageUp = new TextureRegionDrawable(villageTexture);
+            ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+            style.imageUp = new TextureRegionDrawable(villageTexture);
             button = new ImageButton(style);
             button.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
                 public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
@@ -58,21 +57,6 @@ public class VillageCell extends Cell {
             stage.addActor(button);
         }
 
-    }
-    @Override
-    public void drawWithoutFunc(Stage stage) {
-        this.villageTexture = new Texture(texturePath);
-        this.style = new ImageButton.ImageButtonStyle();
-        this.style.imageUp = new TextureRegionDrawable(villageTexture);
-        if(button == null) {
-            button = new ImageButton(style);
-        }
-        else {
-            button.setStyle(style);
-        }
-        button.setSize(50, 50);
-        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
-        stage.addActor(button);
     }
 
     public void setVillagePath(String path) {

@@ -14,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -45,10 +44,9 @@ public class CatanPlayer extends ApplicationAdapter {
     private boolean isOfferBeingCreated = false;
     private boolean hasOfferBeenCreated = false;
     private boolean isOfferBeingReceived = false;
-    private boolean haveIndicatorsBeenSet = false;
     private int points = 0;
-
     private final int resourceX = 200;
+
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -64,19 +62,17 @@ public class CatanPlayer extends ApplicationAdapter {
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
-    private SpriteBatch offerBatch;
     private Texture background;
     private Texture resourceBackground;
     private Texture isTurnBackground;
     private Texture isNotTurnBackground;
-
     private Texture robber;
     private Image robberImage;
     private TextButton endTurnButton;
     private TextButton diceThrowButton;
-
     private Label pointsLabel;
     private Label diceThrowLabel;
+
     private final HashMap<ResourceType, ResourceDisplay> incomingOfferGivenDisplays;
     private final HashMap<ResourceType, ResourceDisplay> incomingOfferWantedDisplays;
     private final HashMap<Integer, Texture> playerIndicators;
@@ -133,7 +129,6 @@ public class CatanPlayer extends ApplicationAdapter {
         batch = new SpriteBatch();
         backgroundBatch = new SpriteBatch();
         playerIndicatorBatch = new SpriteBatch();
-        offerBatch = new SpriteBatch();
         UIStage = new Stage(new ScreenViewport());
         resourceFieldStage = new Stage(new ScreenViewport());
         outgoingOfferStage = new Stage(new ScreenViewport());
@@ -153,6 +148,11 @@ public class CatanPlayer extends ApplicationAdapter {
         connectToServer();
         updateThread = new UpdateListenerThread(this, inputStream);
         updateThread.start();
+        offerSetUps();
+        drawButtons();
+    }
+
+    private void offerSetUps() {
         setUpInitialLabels();
         setUpEndScreens();
         setUpSendOfferButton();
@@ -169,7 +169,6 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void setUpOfferIndicators() {
-        int y = 500;
         ImageButton.ImageButtonStyle yellowStyle = new ImageButton.ImageButtonStyle();
         yellowStyle.over = new TextureRegionDrawable(new Texture("Indicators/yellowAccepted.png"));
         yellowStyle.down = new TextureRegionDrawable(new Texture("Indicators/yellowDeclined.png"));
@@ -215,11 +214,11 @@ public class CatanPlayer extends ApplicationAdapter {
             stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
             stage.draw();
 
-            drawButtons();
             renderNormalRound();
             drawPlayerIndicator();
             Gdx.graphics.setContinuousRendering(false);
             drawRobber();
+            Gdx.input.setInputProcessor(new InputMultiplexer(stage, UIStage, resourceFieldStage, outgoingOfferStage, incomingOfferStage, indicatorStage));
             if(isOfferBeingCreated || hasOfferBeenCreated) {
                 outgoingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 outgoingOfferStage.draw();
@@ -249,8 +248,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 winStage.draw();
             }
         }
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, resourceFieldStage, UIStage, outgoingOfferStage, incomingOfferStage, indicatorStage));
-
     }
 
     private void initiateIndicators() {
@@ -713,7 +710,7 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private synchronized boolean increaseTradeOfferGivenLabel(ResourceType type) {
-        if(outgoingOffer.getGivenOfferResourceAmount(type) < resourceButtons.get(type).getLabelAmount()) {
+        if(outgoingOffer.getGivenOfferResourceAmount(type) < deck.getResourceAmount(type)) {
             outgoingOffer.addResourceToGivenOffer(type);
             offerGivenButtons.get(type).changeAmount(outgoingOffer.getGivenOfferResourceAmount(type));
             Gdx.graphics.requestRendering();
@@ -862,6 +859,7 @@ public class CatanPlayer extends ApplicationAdapter {
                     changeLabelAmount(type, deck.get(type));
                 }
             }
+            this.deck.setDeck(deck);
         }
         Gdx.graphics.requestRendering();
     }
