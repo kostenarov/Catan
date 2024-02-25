@@ -27,24 +27,6 @@ public class ButtonSetUps {
         return button;
     }
 
-    public static ImageButton setUpImageButton(final String path, int x, final boolean isTurn) {
-        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-        style.imageUp = new TextureRegionDrawable(new Texture(path));
-        ImageButton button = new ImageButton(style);
-        button.addListener(new InputListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if(isTurn) {
-                    System.out.println("Button clicked" + path);
-                }
-                return true;
-            }
-        });
-
-        button.setPosition(x, 100);
-        button.setSize(60, 100);
-        return button;
-    }
-
     public static TextButton setUpEndTurnButtonFunc(TextButton endTurnButton, final ObjectOutputStream outputStream) {
         endTurnButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
