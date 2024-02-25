@@ -244,9 +244,6 @@ public class CatanServer {
             else if(input instanceof Offer) {
                 OfferPressFunc(input);
             }
-            else if(input instanceof MessageWrapper) {
-                System.out.println("Offer confirmation received");
-            }
         }
 
         private void initialVillagePhaseChecker(Object input) {
@@ -259,7 +256,8 @@ public class CatanServer {
         }
 
         private void endTurnFunc(String input) {
-            if(input.equals("End Turn") && isDiceThrown && currentPlayerIndex == clients.indexOf(this) && isRobberMoved){
+            if(input.equals("End Turn") && isDiceThrown &&
+                    currentPlayerIndex == clients.indexOf(this) && isRobberMoved){
                 currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
                 broadcastTurnNotification();
                 broadcastMap();
@@ -269,7 +267,8 @@ public class CatanServer {
         }
 
         private void diceThrowFunc(String input) {
-            if(input.equals("Dice Throw") && !isDiceThrown && currentPlayerIndex == clients.indexOf(this)) {
+            if(input.equals("Dice Throw") && !isDiceThrown &&
+                    currentPlayerIndex == clients.indexOf(this)) {
                 diceThrow = Functionality.diceThrow();
                 System.out.println(diceThrow);
                 broadcastDiceThrow();
@@ -362,10 +361,6 @@ public class CatanServer {
             Deck deckSender = playerResources.get(id1);
             Deck deckReciever = playerResources.get(id2);
             System.out.println("Swapping cards");
-            System.out.println(currentOffer.getGivenOffer().getResources());
-            System.out.println(currentOffer.getWantedOffer().getResources());
-            System.out.println("Sender deck:" + deckSender.getResources());
-            System.out.println("Reciever deck:" + deckReciever.getResources());
             for(ResourceType resource : ResourceType.values()) {
                 if(resource != ResourceType.EMPTY) {
                     int temp = currentOffer.getGivenOfferResourceAmount(resource);
@@ -480,11 +475,11 @@ public class CatanServer {
                         System.out.println("Initial village set");
                         System.out.println(initialVillages.get(currentPlayerIndex).getFirst().getId());
                         broadcastMap();
+                        pointCounter.addPoint(currentPlayerIndex);
+                        sendPoints();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                    pointCounter.addPoint(currentPlayerIndex);
-                    sendPoints();
                 }
             }
         }
@@ -509,7 +504,8 @@ public class CatanServer {
         private void initialEndTurnFunc(String input) {
             if(input.equals("End Turn") && currentPlayerIndex == clients.indexOf(this)) {
                 broadcastMap();
-                if(isInitialVillagePhase && initialVillages.get(currentPlayerIndex).hasOne()) {
+                if(isInitialVillagePhase && initialVillages.get(currentPlayerIndex).hasOne() &&
+                        Checkers.isInitialRoadBuilt(initialVillages.get(currentPlayerIndex).getFirst())) {
                     if(currentPlayerIndex == clients.size() - 1) {
                         isInitialVillagePhase = false;
                         isSecondVillagePhase = true;
@@ -519,7 +515,8 @@ public class CatanServer {
                     }
                     broadcastTurnNotification();
                 }
-                else if(isSecondVillagePhase && initialVillages.get(currentPlayerIndex).hasBoth()) {
+                else if(isSecondVillagePhase && initialVillages.get(currentPlayerIndex).hasBoth() &&
+                        Checkers.isInitialRoadBuilt(initialVillages.get(currentPlayerIndex).getSecond())) {
                     if(currentPlayerIndex == 0) {
                         isSecondVillagePhase = false;
                     }
@@ -558,8 +555,9 @@ public class CatanServer {
         }
 
         private void initialRoadPressFunc(String input) {
-            if(input.contains("Road") &&currentPlayerIndex == clients.indexOf(this) &&
-                    ((initialVillages.get(currentPlayerIndex).hasOne()) || initialVillages.get(currentPlayerIndex).hasBoth())) {
+            if(input.contains("Road") && currentPlayerIndex == clients.indexOf(this) &&
+                    ((initialVillages.get(currentPlayerIndex).hasOne()) ||
+                            initialVillages.get(currentPlayerIndex).hasBoth())) {
 
                 int roadId = Integer.parseInt(input.split(":")[1]);
                 if(Checkers.areInitialRoadRequirementsMet(map.getRoadCellById(roadId), currentPlayerIndex)) {

@@ -9,7 +9,7 @@ public class Offer implements Serializable {
     private boolean isBankOffer = false;
     private Deck givenOffer;
     private Deck wantedOffer;
-    private final int playerId;
+    private int playerId;
     private HashMap<Integer, Integer> players;
 
     public Offer(Deck offer, int playerId) {
@@ -23,7 +23,10 @@ public class Offer implements Serializable {
         this.wantedOffer = new Deck(true);
         this.playerId = playerId;
         players = new HashMap<>();
+    }
 
+    public void setPlayerId(int playerId) {
+        this.playerId = playerId;
     }
 
     public synchronized void addResourceToWantedOffer(ResourceType resource) {

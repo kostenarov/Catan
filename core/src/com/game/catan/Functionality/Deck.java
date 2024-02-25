@@ -35,7 +35,8 @@ public class Deck implements Serializable {
     }
 
     public void removeResource(ResourceType resource) {
-        resources.put(resource, resources.get(resource) - 1);
+        if(resources.get(resource) > 0)
+            resources.put(resource, resources.get(resource) - 1);
     }
 
     public HashMap<ResourceType, Integer> getResources() {
@@ -43,7 +44,10 @@ public class Deck implements Serializable {
     }
 
     public void removeResources(ResourceType resource, int amount) {
-        resources.put(resource, resources.get(resource) - amount);
+        if(resources.get(resource) >= amount) {
+            System.out.println("Removed " + amount + " " + resource);
+            resources.put(resource, resources.get(resource) - amount);
+        }
     }
 
     public void addResources(ResourceType resource, int amount) {
