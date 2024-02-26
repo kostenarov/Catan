@@ -268,8 +268,9 @@ public class CatanPlayer extends ApplicationAdapter {
         Texture greenIndicator = new Texture("Indicators/greenIndicator.png");
         this.playerIndicators.put(0, yellowIndicator);
         this.playerIndicators.put(1, blueIndicator);
-        this.playerIndicators.put(2, redIndicator);
-        this.playerIndicators.put(3, greenIndicator);
+        this.playerIndicators.put(2, greenIndicator);
+        this.playerIndicators.put(3, redIndicator);
+
     }
 
     private void setUpInitialLabels() {
