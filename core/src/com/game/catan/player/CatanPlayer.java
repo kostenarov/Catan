@@ -221,13 +221,13 @@ public class CatanPlayer extends ApplicationAdapter {
             resourceFieldStage.draw();
             UIStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
             UIStage.draw();
+            drawRobber();
             stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
             stage.draw();
 
             renderNormalRound();
             drawPlayerIndicator();
             Gdx.graphics.setContinuousRendering(false);
-            drawRobber();
             Gdx.input.setInputProcessor(new InputMultiplexer(stage, UIStage, resourceFieldStage,
                     outgoingOfferStage, incomingOfferStage, indicatorStage));
             if(isOfferBeingCreated || hasOfferBeenCreated) {

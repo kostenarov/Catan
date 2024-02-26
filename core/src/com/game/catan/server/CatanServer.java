@@ -431,7 +431,7 @@ public class CatanServer {
         }
 
         private void endGame() {
-            if(pointCounter.getPoints(currentPlayerIndex) >= 3) {
+            if(pointCounter.getPoints(currentPlayerIndex) >= 5) {
                 for(ClientHandler client : clients) {
                     if(clients.indexOf(client) == currentPlayerIndex) {
                         try {
