@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Map implements Serializable {
     private ResourceCell robberCell;
-    private ResourceCell centerCell;
+    private final ResourceCell centerCell;
     public Map() {
 
         centerCell = MapFactory.createMap();
@@ -138,17 +138,6 @@ public class Map implements Serializable {
         return resourceCells;
     }
 
-    public ResourceCell getResourceCellById(int id) {
-        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
-            if(cell instanceof ResourceCell) {
-                if(cell.getId() == id) {
-                    return (ResourceCell) cell;
-                }
-            }
-        }
-        return null;
-    }
-
     public void setRobberCell(ResourceCell newRobber) {
         robberCell.setRobber(false);
         robberCell = newRobber;
@@ -179,25 +168,16 @@ public class Map implements Serializable {
         return null;
     }
 
-    public HashSet<VillageCell> getVillagesByPlayerId(int playerId) {
-        HashSet<VillageCell> villages = new HashSet<>();
+
+    public ResourceCell getResourceCellById(int id) {
         for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
-            if(cell instanceof VillageCell) {
-                if(((VillageCell) cell).getOwner() == playerId) {
-                    villages.add((VillageCell) cell);
+            if(cell instanceof ResourceCell) {
+                if(cell.getId() == id) {
+                    return (ResourceCell) cell;
                 }
             }
         }
-        return villages;
-    }
-
-    public void setVillageCell(VillageCell cell){
-        getVillageCellById(cell.getId()).setOwner(cell.getOwner());
-        getVillageCellById(cell.getId()).setVillagePath(cell.getVillagePath());
-    }
-
-    public void setCenterCell(ResourceCell cell){
-        centerCell = cell;
+        return null;
     }
 
     public RoadCell getRoadCellById(int id) {
@@ -210,6 +190,24 @@ public class Map implements Serializable {
         }
         return null;
     }
+
+    public void setVillageCell(VillageCell cell){
+        getVillageCellById(cell.getId()).setOwner(cell.getOwner());
+        getVillageCellById(cell.getId()).setVillagePath(cell.getVillagePath());
+    }
+
+    public HashSet<VillageCell> getVillagesByPlayerId(int playerId) {
+        HashSet<VillageCell> villages = new HashSet<>();
+        for(Cell cell : getMap(centerCell, new HashSet<Cell>())) {
+            if(cell instanceof VillageCell) {
+                if(((VillageCell) cell).getOwner() == playerId) {
+                    villages.add((VillageCell) cell);
+                }
+            }
+        }
+        return villages;
+    }
+
 
     public void setRoadCell(RoadCell cell){
         getRoadCellById(cell.getId()).setOwner(cell.getOwner());

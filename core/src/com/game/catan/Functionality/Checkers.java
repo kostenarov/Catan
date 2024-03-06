@@ -75,6 +75,7 @@ public class Checkers {
             }
         }
         System.out.println("Counter: " + counter + " RoadHelper: " + roadHelper + " OwnerHelper: " + ownerHelper);
+        System.out.println("Owner: " + cell.getOwner() + " CurrentPlayerIndex: " + currentPlayerIndex);
         return cell.getOwner() == 5 && counter == roadHelper && ownerHelper;
     }
 
@@ -95,10 +96,20 @@ public class Checkers {
         return counter == roadHelper;
     }
 
+    public static boolean isInitialRoadBuilt(VillageCell cell) {
+        for(Cell iteratorCell : cell.getNeighbours()) {
+            if(iteratorCell instanceof RoadCell) {
+                if(((RoadCell) iteratorCell).getOwner() == cell.getOwner()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static boolean areVillageRequirementsMet(VillageCell cell, Deck deck, int currentPlayerIndex) {
         System.out.println("Village requirements met: " + isVillageBuildable(deck) + " " + cell.getOwner() + " " + checkVillageRequirements(cell, currentPlayerIndex));
         return isVillageBuildable(deck) && checkVillageRequirements(cell, currentPlayerIndex);
-        //return isVillageBuildable(deck) && cell.getOwner() == 5;
     }
 
     public static boolean areInitialVillageRequirementsMet(VillageCell cell) {
@@ -107,7 +118,7 @@ public class Checkers {
 
     private static boolean isVillageBuildable(Deck deck) {
         return deck.getResourceAmount(ResourceType.WOOD) >= 1 &&
-                deck.getResourceAmount(ResourceType.STONE) >= 1 &&
+                deck.getResourceAmount(ResourceType.BRICK) >= 1 &&
                 deck.getResourceAmount(ResourceType.SHEEP) >= 1 &&
                 deck.getResourceAmount(ResourceType.WHEAT) >= 1;
     }

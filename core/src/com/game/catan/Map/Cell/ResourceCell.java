@@ -29,13 +29,6 @@ public class ResourceCell extends Cell{
         this.diceThrow = randomDiceThrow();
     }
 
-    public ResourceCell(int x, int y, ResourceType type, int diceThrow) {
-        super(x, y);
-        this.type = type;
-        setTexturePath(type);
-        this.diceThrow = diceThrow;
-    }
-
     @Override
     public void addNeighbour(Cell neighbour) {
         neighbours.add(neighbour);
@@ -126,17 +119,6 @@ public class ResourceCell extends Cell{
             stage.addActor(button);
             setUpLabel(stage);
         }
-    }
-
-    @Override
-    public void drawWithoutFunc(Stage stage) {
-        setUpLabel(stage);
-        if(button == null) {
-            button = new ImageButton(style);
-        }
-        button.setSize(130, 130);
-        button.setPosition(this.getCellCords().getX(), this.getCellCords().getY());
-        stage.addActor(button);
     }
 
     private void setUpLabel(Stage stage) {

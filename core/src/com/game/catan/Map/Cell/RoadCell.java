@@ -14,8 +14,6 @@ import java.util.ArrayList;
 public class RoadCell extends Cell {
     private int owner = 5;
     private boolean isBuilt = false;
-    private Texture roadTexture;
-    private ImageButton.ImageButtonStyle roadStyle;
     private ImageButton button;
     private final int rotation;
     public RoadCell(int x, int y, int rotation) {
@@ -31,7 +29,6 @@ public class RoadCell extends Cell {
             neighbour.addNeighbour(this);
         if(neighbour instanceof ResourceCell && getVillages().size() == 2) {
             VillageCell firstVillage = getVillages().get(0);
-            VillageCell secondVillage = getOtherVillage(firstVillage);
             neighbour.addNeighbour(firstVillage);
             neighbour.addNeighbour(getOtherVillage(firstVillage));
         }
@@ -50,9 +47,9 @@ public class RoadCell extends Cell {
     @Override
     public void buttonFunc(Stage stage, final ObjectOutputStream outputStream, final CatanPlayer player){
         if(button == null) {
-            this.roadTexture = new Texture(texturePath);
-            this.roadStyle = new ImageButton.ImageButtonStyle();
-            this.roadStyle.imageUp = new TextureRegionDrawable(roadTexture);
+            Texture roadTexture = new Texture(texturePath);
+            ImageButton.ImageButtonStyle roadStyle = new ImageButton.ImageButtonStyle();
+            roadStyle.imageUp = new TextureRegionDrawable(roadTexture);
             button = new ImageButton(roadStyle);
 
             if (!isBuilt) {
@@ -73,11 +70,6 @@ public class RoadCell extends Cell {
             button.setRotation(rotation);
             stage.addActor(button);
         }
-    }
-
-    @Override
-    public void drawWithoutFunc(Stage stage) {
-
     }
 
     public void setRoadTexture(String texturePath) {

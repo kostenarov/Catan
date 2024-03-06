@@ -25,18 +25,6 @@ public class PointCounter {
         return points.get(playerIndex);
     }
 
-    public int getWinner() {
-        int max = 5;
-        int winner = 5;
-        for (int playerIndex : points.keySet()) {
-            if (points.get(playerIndex) > max) {
-                max = points.get(playerIndex);
-                winner = playerIndex;
-            }
-        }
-        return winner;
-    }
-
     public void addLongestRoadPoints(int playerIndex) {
         this.points.put(playerIndex, 2);
     }
