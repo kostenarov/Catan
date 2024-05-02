@@ -15,6 +15,9 @@ public class UpdateListenerThread extends Thread{
     private final CatanPlayer player;
     private final ObjectInputStream in;
     private boolean isWorking = true;
+    private final int MAX_DICE_THROW = 12;
+    private final int YOUR_TURN = 100;
+    private final int NOT_YOUR_TURN = 200;
 
     public UpdateListenerThread(CatanPlayer player, ObjectInputStream in) {
         this.player = player;
@@ -28,17 +31,17 @@ public class UpdateListenerThread extends Thread{
                 Object input = in.readObject();
                 System.out.println(input);
                 if (input instanceof Integer) {
-                    if((int) input < 13) {
+                    if((int) input <= MAX_DICE_THROW) {
                         player.setDiceThrow((Integer) input);
                         player.setDiceThrown(true);
                         System.out.println(player.getIsDiceThrown());
                     }
-                    else if((int) input == 100) {
+                    else if((int) input == YOUR_TURN) {
                         System.out.println("Your turn");
                         player.setIsTurn(true);
                         player.resetFlags();
                     }
-                    else if((int) input == 200) {
+                    else if((int) input == NOT_YOUR_TURN) {
                         System.out.println("Not your turn");
                         player.setIsTurn(false);
                         player.resetFlags();

@@ -17,6 +17,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class CatanServer {
+    private final int ROBBER_THROW = 7;
+    private final int REQUIRED_POINTS = 5;
+    private final int MAX_PLAYERS = 4;
+    private final int YOUR_TURN = 100;
+    private final int NOT_YOUR_TURN = 200;
+    private final int SOCKET_PORT = 12345;
     private ServerSocket serverSocket;
     private final List<ClientHandler> clients;
     private int currentPlayerIndex = 0;
@@ -51,13 +57,13 @@ public class CatanServer {
         roadPaths.add("Roads/greenNormalRoad.png");
         roadPaths.add("Roads/redNormalRoad.png");
         try {
-            serverSocket = new ServerSocket(12345);
+            serverSocket = new ServerSocket(SOCKET_PORT);
             InetAddress serverAddress = InetAddress.getLocalHost();
             System.out.println("Server address: " + serverAddress.getHostAddress());
             System.out.println("Server started. Waiting for clients...");
 
             while (isWorking) {
-                if(clients.size() < 4) {
+                if(clients.size() < MAX_PLAYERS) {
                     setUpConnection();
                 }
             }
@@ -111,7 +117,7 @@ public class CatanServer {
 
     private void broadcastDiceThrow() {
         for (ClientHandler client : clients) {
-            if(diceThrow == 7) {
+            if(diceThrow == ROBBER_THROW) {
                 for(int playerId = 0; playerId < clients.size(); playerId++) {
                     playerResources.get(playerId).robberMove();
                 }
@@ -431,7 +437,7 @@ public class CatanServer {
         }
 
         private void endGame() {
-            if(pointCounter.getPoints(currentPlayerIndex) >= 5) {
+            if(pointCounter.getPoints(currentPlayerIndex) >= REQUIRED_POINTS) {
                 for(ClientHandler client : clients) {
                     if(clients.indexOf(client) == currentPlayerIndex) {
                         try {
@@ -618,11 +624,11 @@ public class CatanServer {
         private void sendTurnNotification(int currentPlayerIndex) {
             try {
                 if(currentPlayerIndex == clients.indexOf(this)) {
-                    outputStream.writeObject(100);
+                    outputStream.writeObject(YOUR_TURN);
                     outputStream.reset();
                 }
                 else {
-                    outputStream.writeObject(200);
+                    outputStream.writeObject(NOT_YOUR_TURN);
                     outputStream.reset();
                 }
                 outputStream.reset();
