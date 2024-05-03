@@ -54,6 +54,20 @@ public class Functionality {
         return deck;
     }
 
+    public static Deck getResources(int diceThrow, HashSet<VillageCell> villages) {
+        Deck deck = new Deck(true);
+        HashSet<ResourceCell> resources = new HashSet<>();
+        for(VillageCell village : villages) {
+            resources.addAll(village.getResourceNeighbours());
+        }
+        for(ResourceCell cell : resources) {
+            if(cell.getDiceThrow() == diceThrow && !cell.hasRobber() && cell.getResource() != ResourceType.EMPTY) {
+                deck.addResource(cell.getResource());
+            }
+        }
+        return deck;
+    }
+
     public static Deck getResourcesFromInitialVillages(VillageCell villageCell, HashMap<ResourceType, Integer> resources) {
         for (ResourceCell cell : villageCell.getResourceNeighbours())
             if(cell.getResource() != ResourceType.EMPTY)

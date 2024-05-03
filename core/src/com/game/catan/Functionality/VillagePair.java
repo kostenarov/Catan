@@ -1,10 +1,12 @@
 package com.game.catan.Functionality;
 
-public class VillagePair <K, U> {
-    private K first;
-    private U second;
+import com.game.catan.Map.Cell.VillageCell;
 
-    public VillagePair(K first, U second) {
+public class VillagePair {
+    private VillageCell first;
+    private VillageCell second;
+
+    public VillagePair(VillageCell first, VillageCell second) {
         this.first = first;
         this.second = second;
     }
@@ -12,27 +14,27 @@ public class VillagePair <K, U> {
     public VillagePair() {
     }
 
-    public VillagePair(K first) {
+    public VillagePair(VillageCell first) {
         this.first = first;
     }
 
-    public K getFirst() {
-        return first;
+    public VillageCell getFirst() {
+        return (VillageCell) first;
     }
 
-    public U getSecond() {
+    public VillageCell getSecond() {
         return second;
     }
 
-    public void setFirst(K first) {
+    public void setFirst(VillageCell first) {
         this.first = first;
     }
 
-    public void setSecond(U second) {
+    public void setSecond(VillageCell second) {
         this.second = second;
     }
 
-    public void addSecond(U second) {
+    public void addSecond(VillageCell second) {
         this.second = second;
     }
 

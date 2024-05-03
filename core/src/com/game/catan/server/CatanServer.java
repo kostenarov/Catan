@@ -36,7 +36,7 @@ public class CatanServer {
     private int diceThrow;
     private boolean isDiceThrown = false;
     private boolean isRobberMoved = true;
-    private final HashMap<Integer, VillagePair<VillageCell, VillageCell>> initialVillages;
+    private final HashMap<Integer, VillagePair> initialVillages;
     private final PointCounter pointCounter;
     private Offer currentOffer;
 
@@ -79,7 +79,7 @@ public class CatanServer {
         System.out.println("Client connected: " + clientSocket + "with id: " + clients.size());
         playerResources.put(clients.size(), new Deck(true));
         pointCounter.addPlayer(clients.size());
-        initialVillages.put(clients.size(), new VillagePair<VillageCell, VillageCell>());
+        initialVillages.put(clients.size(), new VillagePair());
         ClientHandler clientHandler = new ClientHandler(clientSocket);
         clients.add(clientHandler);
         broadcastPlayersAmount();
@@ -417,7 +417,7 @@ public class CatanServer {
                 int villageId = Integer.parseInt(input.split(":")[1]);
                 VillageCell villageCell = map.getVillageCellById(villageId);
                 Deck currentDeck = playerResources.get(currentPlayerIndex);
-                if(Checkers.areVillageRequirementsMet(villageCell, playerResources.get(currentPlayerIndex), currentPlayerIndex)) {
+                if(Checkers.areVillageRequirementsMet(villageCell, currentDeck, currentPlayerIndex)) {
                     try {
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
@@ -473,7 +473,7 @@ public class CatanServer {
                         villageCell.setOwner(currentPlayerIndex);
                         villageCell.setVillagePath(villagePaths.get(currentPlayerIndex));
                         if(initialVillages.get(currentPlayerIndex) == null) {
-                            initialVillages.put(currentPlayerIndex, new VillagePair<VillageCell, VillageCell>(villageCell));
+                            initialVillages.put(currentPlayerIndex, new VillagePair(villageCell));
                         }
                         else {
                             initialVillages.get(currentPlayerIndex).setFirst(villageCell);

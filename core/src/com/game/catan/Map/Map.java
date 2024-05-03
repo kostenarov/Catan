@@ -1,6 +1,7 @@
 package com.game.catan.Map;
 
 import com.game.catan.Functionality.MapFactory;
+import com.game.catan.Functionality.VillagePair;
 import com.game.catan.Map.Cell.*;
 
 import java.io.Serializable;
@@ -12,7 +13,6 @@ public class Map implements Serializable {
     private ResourceCell robberCell;
     private final ResourceCell centerCell;
     public Map() {
-
         centerCell = MapFactory.createMap();
         System.out.println("Map created, center cell id:" + centerCell.getId());
         robberCell = findRobber();
@@ -42,6 +42,33 @@ public class Map implements Serializable {
             }
         }
         return visited;
+    }
+
+    public HashSet<VillageCell> getAllPlayerVillages(VillagePair villagePair) {
+        HashSet<VillageCell> villages = new HashSet<>();
+        HashSet<Cell> visitQueue = new HashSet<>();
+        villages.add(villagePair.getFirst());
+        villages.add(villagePair.getSecond());
+        visitQueue.add(villagePair.getFirst());
+        visitQueue.add(villagePair.getSecond());
+        for(Cell cell : visitQueue) {
+            if(cell instanceof VillageCell) {
+                if(((VillageCell) cell).getOwner() == villagePair.getFirst().getOwner()) {
+                    villages.add((VillageCell) cell);
+                    visitQueue.add(cell);
+                    visitQueue.addAll(getVillageNeighbours((VillageCell) cell));
+                    visitQueue.addAll(getVillageNeighbours((VillageCell) cell));
+                }
+            }
+            if(cell instanceof RoadCell) {
+                if(((RoadCell) cell).getOwner() == villagePair.getFirst().getOwner()) {
+                    if(((RoadCell) cell).getOwner() == villagePair.getFirst().getOwner()) {
+                        visitQueue.add(cell);
+                    }
+                }
+            }
+        }
+        return villages;
     }
 
     private HashSet<Cell> getCellNeighbours(Cell cell) {

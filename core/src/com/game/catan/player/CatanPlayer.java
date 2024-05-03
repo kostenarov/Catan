@@ -43,6 +43,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private boolean isLoss = false;
     private boolean isWin = false;
     private boolean hasStarted = false;
+    private boolean rulesOn = false;
     private boolean isDiceThrown = false;
     private boolean initialSequence = true;
     private boolean secondSequence = false;
@@ -62,6 +63,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private Stage incomingOfferStage;
     private Stage indicatorStage;
     private Stage startMenuStage;
+    private Stage rulesStage;
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
@@ -134,15 +136,7 @@ public class CatanPlayer extends ApplicationAdapter {
         batch = new SpriteBatch();
         backgroundBatch = new SpriteBatch();
         playerIndicatorBatch = new SpriteBatch();
-        UIStage = new Stage(new ScreenViewport());
-        resourceFieldStage = new Stage(new ScreenViewport());
-        outgoingOfferStage = new Stage(new ScreenViewport());
-        incomingOfferStage = new Stage(new ScreenViewport());
-        winStage = new Stage(new ScreenViewport());
-        lossStage = new Stage(new ScreenViewport());
-        stage = new Stage(new ScreenViewport());
-        indicatorStage = new Stage(new ScreenViewport());
-        startMenuStage = new Stage(new ScreenViewport());
+        setUpStages();
         background = new Texture("Backgrounds/background.png");
         resourceBackground = new Texture("Backgrounds/resourceBackground.png");
         robber = new Texture("Textures/robber.png");
@@ -159,6 +153,19 @@ public class CatanPlayer extends ApplicationAdapter {
         updateThread = new UpdateListenerThread(this, inputStream);
         updateThread.start();
         setUps();
+    }
+
+    private void setUpStages() {
+        UIStage = new Stage(new ScreenViewport());
+        resourceFieldStage = new Stage(new ScreenViewport());
+        outgoingOfferStage = new Stage(new ScreenViewport());
+        incomingOfferStage = new Stage(new ScreenViewport());
+        winStage = new Stage(new ScreenViewport());
+        lossStage = new Stage(new ScreenViewport());
+        stage = new Stage(new ScreenViewport());
+        indicatorStage = new Stage(new ScreenViewport());
+        startMenuStage = new Stage(new ScreenViewport());
+        rulesStage = new Stage(new ScreenViewport());
     }
 
     private void setUps() {
@@ -183,33 +190,51 @@ public class CatanPlayer extends ApplicationAdapter {
     @Override
     public void render() {
         if(!hasStarted) {
-            drawBackgrounds();
-            startMenuStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-            startMenuStage.draw();
+            startMenuLogic();
+            if(rulesOn) {
+                rulesLogic();
+            }
         }
         else if(!isLoss && !isWin) {
             mainLoopLogic();
         }
-
         else {
-            drawBackgrounds();
-            if(isLoss) {
-                lossStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-                lossStage.draw();
-            }
-            else {
-                winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-                winStage.draw();
-            }
+            endGameLogic();
         }
         Gdx.graphics.setContinuousRendering(false);
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, startMenuStage, UIStage, resourceFieldStage,
                 outgoingOfferStage, incomingOfferStage, indicatorStage));
     }
 
+    private void rulesLogic(){
+        backgroundBatch.begin();
+        backgroundBatch.draw(background, 0,0 );
+        backgroundBatch.end();
+        addRules();
+        rulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        rulesStage.draw();
+    }
+
+    private void addRules() {
+        Image buildingsRules = new Image(new Texture("Rules/Buildings.png"));
+        buildingsRules.setPosition(100, 100);
+        buildingsRules.setSize(400, 500);
+        rulesStage.addActor(buildingsRules);
+    }
+
+    private void startMenuLogic(){
+        backgroundBatch.begin();
+        backgroundBatch.draw(background, 0,0 );
+        backgroundBatch.end();
+        startMenuStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        startMenuStage.draw();
+    }
 
     private void mainLoopLogic() {
         drawBackgrounds();
+        backgroundBatch.begin();
+        backgroundBatch.draw(background, 0,0 );
+        backgroundBatch.end();
         resourceFieldStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         resourceFieldStage.draw();
         UIStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -239,6 +264,20 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
+    private void endGameLogic() {
+        backgroundBatch.begin();
+        backgroundBatch.draw(background, 0,0 );
+        backgroundBatch.end();
+        if(isLoss) {
+            lossStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            lossStage.draw();
+        }
+        else {
+            winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            winStage.draw();
+        }
+    }
+
     private void initiateIndicators() {
         Texture yellowIndicator = new Texture("Indicators/yellowIndicator.png");
         Texture blueIndicator = new Texture("Indicators/blueIndicator.png");
@@ -249,7 +288,6 @@ public class CatanPlayer extends ApplicationAdapter {
         this.playerIndicators.put(2, greenIndicator);
         this.playerIndicators.put(3, redIndicator);
     }
-
 
     private void setUpInitialLabels() {
         Label.LabelStyle pointsLabelStyle = new Label.LabelStyle();
@@ -319,6 +357,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void setUpStartMenu() {
         TextButton startButton = ButtonSetUps.setUpTextButton("Start", 50);
+        TextButton rulesButton = ButtonSetUps.setUpTextButton("Rules", 150);
         startButton.addListener(new ClickListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 hasStarted = true;
@@ -328,7 +367,23 @@ public class CatanPlayer extends ApplicationAdapter {
         startButton.setPosition(800, 400);
         startButton.setSize(200, 100);
         startButton.setStyle(textButtonStyleSetUp());
+
+        rulesButton.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if(rulesOn){
+                    rulesOn = false;
+                }
+                else{
+                    rulesOn = true;
+                }
+                return true;
+            }
+        });
         startMenuStage.addActor(startButton);
+        rulesButton.setPosition(800, 300);
+        rulesButton.setSize(200, 100);
+        rulesButton.setStyle(textButtonStyleSetUp());
+        startMenuStage.addActor(rulesButton);
     }
 
     private void drawBackgrounds() {
@@ -801,6 +856,7 @@ public class CatanPlayer extends ApplicationAdapter {
         batch.dispose();
         stage.dispose();
         UIStage.dispose();
+        startMenuStage.dispose();
         resourceFieldStage.dispose();
         outgoingOfferStage.dispose();
         incomingOfferStage.dispose();
