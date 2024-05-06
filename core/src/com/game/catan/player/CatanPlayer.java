@@ -39,6 +39,11 @@ public class CatanPlayer extends ApplicationAdapter {
     private final int resourceX = 200;
     private final int DEFAULT_WIDTH = 50;
     private final int DEFAULT_HEIGHT = 50;
+
+
+    private int rulesHeight = 500;
+    private int rulesWidth = 400;
+
     private boolean isTurn = true;
     private boolean isLoss = false;
     private boolean isWin = false;
@@ -180,8 +185,7 @@ public class CatanPlayer extends ApplicationAdapter {
         setUpOutgoingOfferWantedIncreaseButtons();
         setUpOutgoingOfferWantedDecreaseButtons();
         setUpResourceCards();
-        setUpIncomingOfferGivenDisplays();
-        setUpIncomingOfferWantedDisplays();
+        setUpIncomingOfferDisplays();
         displayResources();
         outgoingTradeBackground.setPosition(150, 100);
         incomingTradeBackground.setPosition(1600, 800);
@@ -202,7 +206,7 @@ public class CatanPlayer extends ApplicationAdapter {
             endGameLogic();
         }
         Gdx.graphics.setContinuousRendering(false);
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, startMenuStage, UIStage, resourceFieldStage,
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, startMenuStage, rulesStage, UIStage, resourceFieldStage,
                 outgoingOfferStage, incomingOfferStage, indicatorStage));
     }
 
@@ -210,6 +214,16 @@ public class CatanPlayer extends ApplicationAdapter {
         backgroundBatch.begin();
         backgroundBatch.draw(background, 0,0 );
         backgroundBatch.end();
+        ImageButton closeButton = new ImageButton(ButtonSetUps.setUpCloseButton());
+        closeButton.setPosition(1800, 1000);
+        closeButton.setSize(50, 50);
+        closeButton.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                rulesOn = false;
+                return true;
+            }
+        });
+        rulesStage.addActor(closeButton);
         addRules();
         rulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         rulesStage.draw();
@@ -217,9 +231,19 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void addRules() {
         Image buildingsRules = new Image(new Texture("Rules/Buildings.png"));
-        buildingsRules.setPosition(100, 100);
-        buildingsRules.setSize(400, 500);
+        Image resourceRules = new Image(new Texture("Rules/Resources.png"));
+        Image diceRules = new Image(new Texture("Rules/Dice.png"));
+        buildingsRules.setPosition(100, 400);
+        buildingsRules.setSize(rulesWidth, rulesHeight);
+
+        resourceRules.setPosition(500, 400);
+        resourceRules.setSize(rulesWidth, rulesHeight);
+
+        diceRules.setPosition(900, 400);
+        diceRules.setSize(rulesWidth, rulesHeight);
+        rulesStage.addActor(resourceRules);
         rulesStage.addActor(buildingsRules);
+        rulesStage.addActor(diceRules);
     }
 
     private void startMenuLogic(){
@@ -302,47 +326,33 @@ public class CatanPlayer extends ApplicationAdapter {
         UIStage.addActor(diceThrowLabel);
     }
     
-    private void setUpIncomingOfferGivenDisplays() {
+    private void setUpIncomingOfferDisplays() {
         int x = 1400;
+        int y = 700;
         for(ResourceType type : ResourceType.values()) {
             if (type != ResourceType.EMPTY) {
-                Label.LabelStyle labelStyle = new Label.LabelStyle();
-                labelStyle.font = new BitmapFont();
-                labelStyle.font.getData().setScale(2f);
-                labelStyle.fontColor = Color.SALMON;
-                Label resourceLabel = new Label(incomingOffer.getGivenOfferResourceAmount(type).toString(), labelStyle);
-                resourceLabel.setPosition(x, 900);
-                Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
-                Image image = new Image(texture);
-                image.setPosition(x - 25, 950);
+                setUpIncomingOfferDisplay(type.toString(), incomingOffer.getGivenOfferResourceAmount(type).toString(), x, y + 200, incomingOfferGivenDisplays);
+                setUpIncomingOfferDisplay(type.toString(), incomingOffer.getWantedOfferResourceAmount(type).toString(), x, y, incomingOfferWantedDisplays);
                 x += 75;
-                ResourceDisplay resourceDisplay = new ResourceDisplay(image, resourceLabel);
-                incomingOfferGivenDisplays.put(type, resourceDisplay);
-                resourceDisplay.draw(incomingOfferStage);
             }
         }
     }
 
-    private void setUpIncomingOfferWantedDisplays() {
-        int x = 1400;
-        for(ResourceType type : ResourceType.values()) {
-            if (type != ResourceType.EMPTY) {
-                Label.LabelStyle labelStyle = new Label.LabelStyle();
-                labelStyle.font = new BitmapFont();
-                labelStyle.font.getData().setScale(2f);
-                labelStyle.fontColor = Color.SALMON;
-                Label resourceLabel = new Label(incomingOffer.getWantedOfferResourceAmount(type).toString(), labelStyle);
-                resourceLabel.setPosition(x, 750);
-                Texture texture = new Texture("Cards/" + type.toString().toLowerCase() + "Card.png");
-                Image image = new Image(texture);
-                image.setPosition(x - 25, 800);
-                x += 75;
-                ResourceDisplay resourceDisplay = new ResourceDisplay(image, resourceLabel);
-                incomingOfferWantedDisplays.put(type, resourceDisplay);
-                resourceDisplay.draw(incomingOfferStage);
-            }
-        }
+    private void setUpIncomingOfferDisplay(String type, String value, int x, int y, HashMap<ResourceType, ResourceDisplay> displays) {
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = new BitmapFont();
+        labelStyle.font.getData().setScale(2f);
+        labelStyle.fontColor = Color.SALMON;
+        Label resourceLabel = new Label(value, labelStyle);
+        resourceLabel.setPosition(x, y);
+        Texture texture = new Texture("Cards/" + type.toLowerCase() + "Card.png");
+        Image image = new Image(texture);
+        image.setPosition(x - 25, y + 50);
+        ResourceDisplay resourceDisplay = new ResourceDisplay(image, resourceLabel);
+        displays.put(ResourceType.valueOf(type), resourceDisplay);
+        resourceDisplay.draw(incomingOfferStage);
     }
+
 
     private void setUpEndScreens() {
         Table winTable = new Table();
@@ -860,6 +870,7 @@ public class CatanPlayer extends ApplicationAdapter {
         resourceFieldStage.dispose();
         outgoingOfferStage.dispose();
         incomingOfferStage.dispose();
+        rulesStage.dispose();
         indicatorStage.dispose();
         backgroundBatch.dispose();
         playerIndicatorBatch.dispose();

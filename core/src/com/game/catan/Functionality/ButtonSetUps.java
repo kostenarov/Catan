@@ -27,6 +27,16 @@ public class ButtonSetUps {
         return button;
     }
 
+    public static ImageButton.ImageButtonStyle setUpCloseButton() {
+        ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
+        TextureRegionDrawable textureRegionDrawable = new TextureRegionDrawable(new Texture("Textures/xButtonUnclicked.png"));
+        TextureRegionDrawable textureRegionDrawableClicked = new TextureRegionDrawable(new Texture("Textures/xButtonClicked.png"));
+        imageButtonStyle.imageUp = textureRegionDrawable;
+        imageButtonStyle.imageDown = textureRegionDrawableClicked;
+
+        return imageButtonStyle;
+    }
+
     public static TextButton setUpEndTurnButtonFunc(TextButton endTurnButton, final ObjectOutputStream outputStream) {
         endTurnButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
