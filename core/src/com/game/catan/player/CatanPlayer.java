@@ -179,6 +179,7 @@ public class CatanPlayer extends ApplicationAdapter {
         setUpInitialLabels();
         setUpEndScreens();
         setUpSendOfferButton();
+        setUpResetOfferButton();
         setupConfirmOfferButton();
         setUpRejectOfferButton();
         setUpOutgoingOfferGivenButtons();
@@ -212,10 +213,10 @@ public class CatanPlayer extends ApplicationAdapter {
 
     private void rulesLogic(){
         backgroundBatch.begin();
-        backgroundBatch.draw(background, 0,0 );
+        backgroundBatch.draw(background, 0,0);
         backgroundBatch.end();
         ImageButton closeButton = new ImageButton(ButtonSetUps.setUpCloseButton());
-        closeButton.setPosition(1800, 1000);
+        closeButton.setPosition(1870, 1010);
         closeButton.setSize(50, 50);
         closeButton.addListener(new ClickListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -230,16 +231,23 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void addRules() {
-        Image buildingsRules = new Image(new Texture("Rules/Buildings.png"));
+        final Image buildingsRules = new Image(new Texture("Rules/Buildings.png"));
         Image resourceRules = new Image(new Texture("Rules/Resources.png"));
         Image diceRules = new Image(new Texture("Rules/Dice.png"));
-        buildingsRules.setPosition(100, 400);
+
+        buildingsRules.addListener(new InputListener(){
+            public boolean scrolled(InputEvent event, float x, float y, int amount){
+                buildingsRules.setPosition(buildingsRules.getX(), buildingsRules.getY() + amount);
+                return true;
+            }
+        });
+        buildingsRules.setPosition(100, 500);
         buildingsRules.setSize(rulesWidth, rulesHeight);
 
-        resourceRules.setPosition(500, 400);
+        resourceRules.setPosition(500, 500);
         resourceRules.setSize(rulesWidth, rulesHeight);
 
-        diceRules.setPosition(900, 400);
+        diceRules.setPosition(900, 500);
         diceRules.setSize(rulesWidth, rulesHeight);
         rulesStage.addActor(resourceRules);
         rulesStage.addActor(buildingsRules);
@@ -596,7 +604,28 @@ public class CatanPlayer extends ApplicationAdapter {
                     }
             }
         });
-        button.setPosition(600, 0);
+        button.setPosition(600, 30);
+        button.setSize(200, 100);
+        outgoingOfferStage.addActor(button);
+    }
+
+    private void setUpResetOfferButton() {
+        TextButton button = new TextButton("Reset Offer", textButtonStyleSetUp());
+        button.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                outgoingOffer = new Offer(id);
+                for(ResourceType type : ResourceType.values()) {
+                    if(type != ResourceType.EMPTY) {
+                        offerGivenButtons.get(type).changeAmount(0);
+                        offerWantedButtons.get(type).changeAmount(0);
+                    }
+                }
+                isOfferBeingCreated = false;
+                hasOfferBeenCreated = false;
+                return true;
+            }
+        });
+        button.setPosition(600, 130);
         button.setSize(200, 100);
         outgoingOfferStage.addActor(button);
     }
