@@ -17,12 +17,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class CatanServer {
-    private final int ROBBER_THROW = 7;
-    private final int REQUIRED_POINTS = 5;
-    private final int MAX_PLAYERS = 4;
-    private final int YOUR_TURN = 100;
-    private final int NOT_YOUR_TURN = 200;
-    private final int SOCKET_PORT = 12345;
+    private static final int ROBBER_THROW = 7;
+    private static final int REQUIRED_POINTS = 5;
+    private static final int MAX_PLAYERS = 4;
+    private static final int YOUR_TURN = 100;
+    private static final int NOT_YOUR_TURN = 200;
+    private static final int SOCKET_PORT = 12345;
     private ServerSocket serverSocket;
     private final List<ClientHandler> clients;
     private int currentPlayerIndex = 0;

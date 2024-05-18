@@ -36,19 +36,53 @@ public class CatanPlayer extends ApplicationAdapter {
     private int currentPlayerIndex = 0;
     private int diceThrow;
     private int points = 0;
-    private final int resourceX = 200;
-    private final int DEFAULT_WIDTH = 50;
-    private final int DEFAULT_HEIGHT = 50;
+    private static final int resourceX = 200;
 
+    private static final int SCREEN_WIDTH = 1920;
+    private static final int SCREEN_HEIGHT = 1080;
+    
+    private static final int DEFAULT_WIDTH = 50;
+    private static final int DEFAULT_HEIGHT = 50;
 
-    private int rulesHeight = 500;
-    private int rulesWidth = 400;
+    private static final int BUTTON_WIDTH = 200;
+    private static final int BUTTON_HEIGHT = 100;
+
+    private static final int RULES_HEIGHT = 500;
+    private static final int RULES_WIDTH = 400;
+
+    private static final int PLAYER_INDICATOR_X = 1770;
+    private static final int PLAYER_INDICATOR_Y = 700;
+
+    private static final int PLAYER_BACKGROUND_WIDTH = 150;
+    private static final int PLAYER_BACKGROUND_HEIGHT = 70;
+
+    private static final int START_MENU_BUTTON_X = 800;
+    private static final int START_MENU_BUTTON_Y = 400;
+
+    private static final int CLOSE_BUTTON_X = 1870;
+    private static final int CLOSE_BUTTON_Y = 1010;
+
+    private static final int RULES_X = 100;
+    private static final int RULES_Y = 500;
+
+    private static final int LABELS_X = 1500;
+    private static final int LABELS_Y = 50;
+
+    private static final int INCOMING_OFFER_DISPLAYS_X = 1400;
+    private static final int INCOMING_OFFER_DISPLAYS_Y = 700;
+
+    private static final int MANAGE_OFFER_X = 600;
+    private static final int MANAGE_OFFER_Y = 30;
+
+    private static final int OUTGOING_OFFER_X = 100;
+    private static final int OUTGOING_OFFER_Y = 500;
 
     private boolean isTurn = true;
     private boolean isLoss = false;
     private boolean isWin = false;
     private boolean hasStarted = false;
     private boolean rulesOn = false;
+    private boolean secondRulesOn = false;
     private boolean isDiceThrown = false;
     private boolean initialSequence = true;
     private boolean secondSequence = false;
@@ -69,6 +103,7 @@ public class CatanPlayer extends ApplicationAdapter {
     private Stage indicatorStage;
     private Stage startMenuStage;
     private Stage rulesStage;
+    private Stage secondRulesStage;
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
@@ -171,6 +206,7 @@ public class CatanPlayer extends ApplicationAdapter {
         indicatorStage = new Stage(new ScreenViewport());
         startMenuStage = new Stage(new ScreenViewport());
         rulesStage = new Stage(new ScreenViewport());
+        secondRulesStage = new Stage(new ScreenViewport());
     }
 
     private void setUps() {
@@ -188,6 +224,9 @@ public class CatanPlayer extends ApplicationAdapter {
         setUpResourceCards();
         setUpIncomingOfferDisplays();
         displayResources();
+        rulesLogic();
+        secondRulesLogic();
+        addRules();
         outgoingTradeBackground.setPosition(150, 100);
         incomingTradeBackground.setPosition(1600, 800);
     }
@@ -195,9 +234,15 @@ public class CatanPlayer extends ApplicationAdapter {
     @Override
     public void render() {
         if(!hasStarted) {
-            startMenuLogic();
-            if(rulesOn) {
-                rulesLogic();
+            if(rulesOn && !secondRulesOn) {
+                rulesMenuLogic();
+            }
+            else if(secondRulesOn && rulesOn) {
+                secondRulesMenuLogic();
+            }
+            else if(!rulesOn) {
+                startMenuLogic();
+                secondRulesOn = false;
             }
         }
         else if(!isLoss && !isWin) {
@@ -207,51 +252,91 @@ public class CatanPlayer extends ApplicationAdapter {
             endGameLogic();
         }
         Gdx.graphics.setContinuousRendering(false);
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, startMenuStage, rulesStage, UIStage, resourceFieldStage,
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, startMenuStage, rulesStage, secondRulesStage, UIStage, resourceFieldStage,
                 outgoingOfferStage, incomingOfferStage, indicatorStage));
     }
 
     private void rulesLogic(){
-        backgroundBatch.begin();
-        backgroundBatch.draw(background, 0,0);
-        backgroundBatch.end();
         ImageButton closeButton = new ImageButton(ButtonSetUps.setUpCloseButton());
-        closeButton.setPosition(1870, 1010);
-        closeButton.setSize(50, 50);
+        closeButton.setPosition(CLOSE_BUTTON_X, CLOSE_BUTTON_Y);
+        closeButton.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         closeButton.addListener(new ClickListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                rulesOn = false;
+                System.out.println("Close button clicked");
+                return true;
+            }
+        });
+        TextButton secondRulesButton = ButtonSetUps.setUpTextButton("Next page", 150);
+        secondRulesButton.setPosition(1700, START_MENU_BUTTON_Y - 200);
+        secondRulesButton.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        secondRulesButton.setStyle(textButtonStyleSetUp());
+        secondRulesButton.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if(!secondRulesOn){
+                    secondRulesOn = true;
+                }
+                return true;
+            }
+        });
+        secondRulesStage.addActor(closeButton);
+        rulesStage.addActor(closeButton);
+        rulesStage.addActor(secondRulesButton);
+
+    }
+    
+    private void secondRulesLogic(){
+        ImageButton closeButton = new ImageButton(ButtonSetUps.setUpCloseButton());
+        closeButton.setPosition(CLOSE_BUTTON_X, CLOSE_BUTTON_Y);
+        closeButton.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        closeButton.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                secondRulesOn = false;
                 rulesOn = false;
                 return true;
             }
         });
-        rulesStage.addActor(closeButton);
-        addRules();
-        rulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        rulesStage.draw();
+
+        TextButton rulesButton = ButtonSetUps.setUpTextButton("Previous page", 150);
+        rulesButton.setPosition(200, START_MENU_BUTTON_Y - 100);
+        rulesButton.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        rulesButton.setStyle(textButtonStyleSetUp());
+        rulesButton.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if(secondRulesOn){
+                    secondRulesOn = false;
+                    System.out.println("Close button clicked");
+                }
+                System.out.println("Close button clicked");
+
+                return true;
+            }
+        });
+        secondRulesStage.addActor(rulesButton);
+        secondRulesStage.addActor(closeButton);
     }
 
     private void addRules() {
         final Image buildingsRules = new Image(new Texture("Rules/Buildings.png"));
         Image resourceRules = new Image(new Texture("Rules/Resources.png"));
         Image diceRules = new Image(new Texture("Rules/Dice.png"));
+        Image tradingRules = new Image(new Texture("Rules/Trading.png"));
 
-        buildingsRules.addListener(new InputListener(){
-            public boolean scrolled(InputEvent event, float x, float y, int amount){
-                buildingsRules.setPosition(buildingsRules.getX(), buildingsRules.getY() + amount);
-                return true;
-            }
-        });
-        buildingsRules.setPosition(100, 500);
-        buildingsRules.setSize(rulesWidth, rulesHeight);
+        buildingsRules.setPosition(RULES_X, RULES_Y);
+        buildingsRules.setSize(RULES_WIDTH, RULES_HEIGHT);
 
-        resourceRules.setPosition(500, 500);
-        resourceRules.setSize(rulesWidth, rulesHeight);
+        resourceRules.setPosition(RULES_X + 400, RULES_Y);
+        resourceRules.setSize(RULES_WIDTH, RULES_HEIGHT);
 
-        diceRules.setPosition(900, 500);
-        diceRules.setSize(rulesWidth, rulesHeight);
+        diceRules.setPosition(RULES_X + 800, RULES_Y);
+        diceRules.setSize(RULES_WIDTH, RULES_HEIGHT);
+        
+        tradingRules.setPosition(RULES_X, RULES_Y);
+        tradingRules.setSize(RULES_WIDTH * 2 - 100, RULES_HEIGHT);
         rulesStage.addActor(resourceRules);
         rulesStage.addActor(buildingsRules);
         rulesStage.addActor(diceRules);
+        secondRulesStage.addActor(tradingRules);
     }
 
     private void startMenuLogic(){
@@ -260,6 +345,22 @@ public class CatanPlayer extends ApplicationAdapter {
         backgroundBatch.end();
         startMenuStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         startMenuStage.draw();
+    }
+
+    private void rulesMenuLogic () {
+        backgroundBatch.begin();
+        backgroundBatch.draw(background, 0,0);
+        backgroundBatch.end();
+        rulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        rulesStage.draw();
+    }
+
+    private void secondRulesMenuLogic () {
+        backgroundBatch.begin();
+        backgroundBatch.draw(background, 0,0);
+        backgroundBatch.end();
+        secondRulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        secondRulesStage.draw();
     }
 
     private void mainLoopLogic() {
@@ -285,6 +386,12 @@ public class CatanPlayer extends ApplicationAdapter {
             indicatorStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
             indicatorStage.draw();
             drawOutcomingOfferIndicators();
+        }
+        if(rulesOn && !secondRulesOn) {
+            rulesMenuLogic();
+        }
+        else if(secondRulesOn && rulesOn) {
+            secondRulesMenuLogic();
         }
         if(isOfferBeingReceived) {
             incomingOfferStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -327,20 +434,19 @@ public class CatanPlayer extends ApplicationAdapter {
         pointsLabelStyle.font.getData().setScale(2f);
         pointsLabelStyle.fontColor = Color.SALMON;
         pointsLabel = new Label("Points: " + points, pointsLabelStyle);
-        pointsLabel.setPosition(1500, 50);
+        pointsLabel.setPosition(LABELS_X, LABELS_Y);
         diceThrowLabel = new Label("Dice throw: " + diceThrow, pointsLabelStyle);
-        diceThrowLabel.setPosition(1500, 100);
+        diceThrowLabel.setPosition(LABELS_X, LABELS_Y + 50);
         UIStage.addActor(pointsLabel);
         UIStage.addActor(diceThrowLabel);
     }
-    
+
     private void setUpIncomingOfferDisplays() {
-        int x = 1400;
-        int y = 700;
+        int x = INCOMING_OFFER_DISPLAYS_X;
         for(ResourceType type : ResourceType.values()) {
             if (type != ResourceType.EMPTY) {
-                setUpIncomingOfferDisplay(type.toString(), incomingOffer.getGivenOfferResourceAmount(type).toString(), x, y + 200, incomingOfferGivenDisplays);
-                setUpIncomingOfferDisplay(type.toString(), incomingOffer.getWantedOfferResourceAmount(type).toString(), x, y, incomingOfferWantedDisplays);
+                setUpIncomingOfferDisplay(type.toString(), incomingOffer.getGivenOfferResourceAmount(type).toString(), x, INCOMING_OFFER_DISPLAYS_Y + 200, incomingOfferGivenDisplays);
+                setUpIncomingOfferDisplay(type.toString(), incomingOffer.getWantedOfferResourceAmount(type).toString(), x, INCOMING_OFFER_DISPLAYS_Y, incomingOfferWantedDisplays);
                 x += 75;
             }
         }
@@ -360,7 +466,6 @@ public class CatanPlayer extends ApplicationAdapter {
         displays.put(ResourceType.valueOf(type), resourceDisplay);
         resourceDisplay.draw(incomingOfferStage);
     }
-
 
     private void setUpEndScreens() {
         Table winTable = new Table();
@@ -382,8 +487,8 @@ public class CatanPlayer extends ApplicationAdapter {
                 return true;
             }
         });
-        startButton.setPosition(800, 400);
-        startButton.setSize(200, 100);
+        startButton.setPosition(START_MENU_BUTTON_X, START_MENU_BUTTON_Y);
+        startButton.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         startButton.setStyle(textButtonStyleSetUp());
 
         rulesButton.addListener(new ClickListener() {
@@ -398,12 +503,12 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         });
         startMenuStage.addActor(startButton);
-        rulesButton.setPosition(800, 300);
-        rulesButton.setSize(200, 100);
+        rulesButton.setPosition(START_MENU_BUTTON_X, START_MENU_BUTTON_Y - 100);
+        rulesButton.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         rulesButton.setStyle(textButtonStyleSetUp());
         startMenuStage.addActor(rulesButton);
     }
-
+    
     private void drawBackgrounds() {
         backgroundBatch.begin();
         backgroundBatch.draw(background, 0,0 );
@@ -420,6 +525,16 @@ public class CatanPlayer extends ApplicationAdapter {
     private void drawButtons() {
         endTurnButton();
         diceThrowButton();
+        TextButton rules = ButtonSetUps.setUpTextButton("Rules", 230);
+        rules.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if(!rulesOn){
+                    rulesOn = true;
+                }
+                return true;
+            }
+        });
+        UIStage.addActor(rules);
     }
 
     private void endTurnButton() {
@@ -583,6 +698,7 @@ public class CatanPlayer extends ApplicationAdapter {
         }
     }
 
+
     private void setUpSendOfferButton() {
         TextButton button = new TextButton("Send Offer", textButtonStyleSetUp());
         button.addListener(new ClickListener() {
@@ -604,8 +720,8 @@ public class CatanPlayer extends ApplicationAdapter {
                     }
             }
         });
-        button.setPosition(600, 30);
-        button.setSize(200, 100);
+        button.setPosition(MANAGE_OFFER_X, MANAGE_OFFER_Y);
+        button.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         outgoingOfferStage.addActor(button);
     }
 
@@ -625,10 +741,12 @@ public class CatanPlayer extends ApplicationAdapter {
                 return true;
             }
         });
-        button.setPosition(600, 130);
-        button.setSize(200, 100);
+        button.setPosition(MANAGE_OFFER_X, MANAGE_OFFER_Y + 100);
+        button.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         outgoingOfferStage.addActor(button);
     }
+    
+
 
     private synchronized void setUpRejectOfferButton() {
         TextButton button = new TextButton("Reject Offer", textButtonStyleSetUp());
@@ -645,7 +763,7 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         });
         button.setPosition(900, 100);
-        button.setSize(200, 100);
+        button.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         incomingOfferStage.addActor(button);
     }
 
@@ -664,7 +782,7 @@ public class CatanPlayer extends ApplicationAdapter {
             }
         });
         button.setPosition(900, 0);
-        button.setSize(200, 100);
+        button.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         incomingOfferStage.addActor(button);
     }
 
@@ -727,14 +845,13 @@ public class CatanPlayer extends ApplicationAdapter {
 
             }
         }
-
     }
 
     private void addIncomingAcceptance(int id) {
         playerIndicatorBatch.begin();
         String color = colorHelper(id);
         Texture texture = new Texture("Indicators/" + color + "Accepted.png");
-        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.draw(texture, OUTGOING_OFFER_X, OUTGOING_OFFER_Y - id * 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         playerIndicatorBatch.end();
     }
 
@@ -742,7 +859,7 @@ public class CatanPlayer extends ApplicationAdapter {
         playerIndicatorBatch.begin();
         String color = colorHelper(id);
         Texture texture = new Texture("Indicators/" + color + "Declined.png");
-        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.draw(texture, OUTGOING_OFFER_X, OUTGOING_OFFER_Y - id * 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         playerIndicatorBatch.end();
     }
 
@@ -750,7 +867,7 @@ public class CatanPlayer extends ApplicationAdapter {
         playerIndicatorBatch.begin();
         String color = colorHelper(id);
         Texture texture = new Texture("Indicators/" + color + "Indicator.png");
-        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.draw(texture, OUTGOING_OFFER_X, OUTGOING_OFFER_Y - id * 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         playerIndicatorBatch.end();
     }
 
@@ -760,39 +877,37 @@ public class CatanPlayer extends ApplicationAdapter {
                 addOutgoingAcceptance(id);
             }
             else if(outgoingOffer.getPlayers().get(id) == 2) {
-                addOutcomingRejection(id);
+                addOutgoingRejection(id);
             }
             else {
-                addOutcomingIndicator(id);
+                addOutgoingIndicator(id);
             }
         }
     }
 
-
-    public void addOutcomingIndicator(int id) {
+    public void addOutgoingIndicator(int id) {
         playerIndicatorBatch.begin();
         String color = colorHelper(id);
         Texture texture = new Texture("Indicators/" + color + "Indicator.png");
-        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.draw(texture, OUTGOING_OFFER_X, OUTGOING_OFFER_Y - id * 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         playerIndicatorBatch.end();
     }
-    public void addOutcomingRejection(int id) {
+    public void addOutgoingRejection(int id) {
         playerIndicatorBatch.begin();
         String color = colorHelper(id);
         Texture texture = new Texture("Indicators/" + color + "Declined.png");
-        playerIndicatorBatch.draw(texture, 100, 500 - id * 100, 50, 50);
+        playerIndicatorBatch.draw(texture, OUTGOING_OFFER_X, OUTGOING_OFFER_Y - id * 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         playerIndicatorBatch.end();
     }
 
     public void addOutgoingAcceptance(final int id) {
-
         String color = colorHelper(id);
         Texture texture = new Texture("Indicators/" + color + "Accepted.png");
         ImageButton.ImageButtonStyle imageButtonStyle = new ImageButton.ImageButtonStyle();
         imageButtonStyle.imageUp = new TextureRegionDrawable(texture);
         ImageButton imageButton = new ImageButton(imageButtonStyle);
-        imageButton.setPosition(100, 500 - id * 100);
-        imageButton.setSize(50, 50);
+        imageButton.setPosition(OUTGOING_OFFER_X, OUTGOING_OFFER_Y - id * 100);
+        imageButton.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         imageButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 try {
@@ -869,19 +984,21 @@ public class CatanPlayer extends ApplicationAdapter {
         batch.end();
     }
 
+
+
     private void displayPlayers() {
-        int y = 700;
+        int y = PLAYER_INDICATOR_Y;
         for(int i = 0; i < playersAmount; i++) {
             if(i == currentPlayerIndex) {
                 isTurnBackground.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-                playerIndicatorBatch.draw(isTurnBackground, 1770, y - 10, 150, 70);
+                playerIndicatorBatch.draw(isTurnBackground, PLAYER_INDICATOR_X, y - 10, PLAYER_BACKGROUND_WIDTH, PLAYER_BACKGROUND_HEIGHT);
             }
             else {
                 isNotTurnBackground.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-                playerIndicatorBatch.draw(isNotTurnBackground, 1770, y - 10, 150, 70);
+                playerIndicatorBatch.draw(isNotTurnBackground, PLAYER_INDICATOR_X, y - 10, PLAYER_BACKGROUND_WIDTH, PLAYER_BACKGROUND_HEIGHT);
             }
             playerIndicators.get(i).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            playerIndicatorBatch.draw(playerIndicators.get(i), 1800, y, 50, 50);
+            playerIndicatorBatch.draw(playerIndicators.get(i), PLAYER_INDICATOR_X, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
             y -= 100;
         }
     }

@@ -15,9 +15,9 @@ public class UpdateListenerThread extends Thread{
     private final CatanPlayer player;
     private final ObjectInputStream in;
     private boolean isWorking = true;
-    private final int MAX_DICE_THROW = 12;
-    private final int YOUR_TURN = 100;
-    private final int NOT_YOUR_TURN = 200;
+    private static final int MAX_DICE_THROW = 12;
+    private static final int YOUR_TURN = 100;
+    private static final int NOT_YOUR_TURN = 200;
 
     public UpdateListenerThread(CatanPlayer player, ObjectInputStream in) {
         this.player = player;
