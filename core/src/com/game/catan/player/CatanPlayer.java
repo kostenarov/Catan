@@ -493,10 +493,7 @@ public class CatanPlayer extends ApplicationAdapter {
 
         rulesButton.addListener(new ClickListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if(rulesOn){
-                    rulesOn = false;
-                }
-                else{
+                if(!rulesOn){
                     rulesOn = true;
                 }
                 return true;
@@ -1130,7 +1127,7 @@ public class CatanPlayer extends ApplicationAdapter {
         for(ResourceType type : ResourceType.values()) {
             if(type != ResourceType.EMPTY) {
                 offerGivenButtons.get(type).changeAmount(0);
-                offerWantedButtons.get(type).changeAmount(0);;
+                offerWantedButtons.get(type).changeAmount(0);
             }
         }
         isOfferBeingCreated = false;
