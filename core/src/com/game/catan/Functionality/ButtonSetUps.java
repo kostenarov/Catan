@@ -41,7 +41,6 @@ public class ButtonSetUps {
         endTurnButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 try {
-                    System.out.println("End turn");
                     outputStream.writeObject("End Turn");
                     outputStream.reset();
                 } catch (IOException e) {
@@ -57,7 +56,6 @@ public class ButtonSetUps {
         diceThrowButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
                 try {
-                    System.out.println("Dice throw");
                     outputStream.writeObject("Dice Throw");
                     outputStream.reset();
                 } catch (IOException e) {

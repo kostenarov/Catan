@@ -23,6 +23,7 @@ import com.game.catan.Map.Cell.*;
 import com.game.catan.Map.Cell.Cell;
 
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -103,15 +104,18 @@ public class CatanPlayer extends ApplicationAdapter {
     private Stage indicatorStage;
     private Stage startMenuStage;
     private Stage rulesStage;
-    private Stage secondRulesStage;
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
     private SpriteBatch playerIndicatorBatch;
+    private SpriteBatch rulesBatch;
     private Texture background;
     private Texture resourceBackground;
     private Texture isTurnBackground;
     private Texture isNotTurnBackground;
     private Texture robber;
+
+    private ArrayList<Texture> rules;
+
     private Image robberImage;
     private Image outgoingTradeBackground;
     private Image incomingTradeBackground;
@@ -139,6 +143,7 @@ public class CatanPlayer extends ApplicationAdapter {
     public CatanPlayer(Map map) {
         this.map = map;
         this.deck = new Deck(true);
+        this.rules = new ArrayList<>();
         this.outgoingOffer = new Offer(this.id);
         this.incomingOffer = new Offer(this.id);
         this.incomingOfferGivenDisplays = new HashMap<>();
@@ -176,6 +181,7 @@ public class CatanPlayer extends ApplicationAdapter {
         batch = new SpriteBatch();
         backgroundBatch = new SpriteBatch();
         playerIndicatorBatch = new SpriteBatch();
+        rulesBatch = new SpriteBatch();
         setUpStages();
         background = new Texture("Backgrounds/background.png");
         resourceBackground = new Texture("Backgrounds/resourceBackground.png");
@@ -195,6 +201,13 @@ public class CatanPlayer extends ApplicationAdapter {
         setUps();
     }
 
+    private void addRulesToList() {
+        rules.add(new Texture("Rules/Buildings.png"));
+        rules.add(new Texture("Rules/Resources.png"));
+        rules.add(new Texture("Rules/Dice.png"));
+        rules.add(new Texture("Rules/Trading.png"));
+    }
+
     private void setUpStages() {
         UIStage = new Stage(new ScreenViewport());
         resourceFieldStage = new Stage(new ScreenViewport());
@@ -206,7 +219,6 @@ public class CatanPlayer extends ApplicationAdapter {
         indicatorStage = new Stage(new ScreenViewport());
         startMenuStage = new Stage(new ScreenViewport());
         rulesStage = new Stage(new ScreenViewport());
-        secondRulesStage = new Stage(new ScreenViewport());
     }
 
     private void setUps() {
@@ -224,9 +236,8 @@ public class CatanPlayer extends ApplicationAdapter {
         setUpResourceCards();
         setUpIncomingOfferDisplays();
         displayResources();
-        rulesLogic();
-        secondRulesLogic();
-        addRules();
+        rulesNavigation();
+        addRulesToList();
         outgoingTradeBackground.setPosition(150, 100);
         incomingTradeBackground.setPosition(1600, 800);
     }
@@ -236,6 +247,7 @@ public class CatanPlayer extends ApplicationAdapter {
         if(!hasStarted) {
             if(rulesOn && !secondRulesOn) {
                 rulesMenuLogic();
+
             }
             else if(secondRulesOn && rulesOn) {
                 secondRulesMenuLogic();
@@ -252,11 +264,11 @@ public class CatanPlayer extends ApplicationAdapter {
             endGameLogic();
         }
         Gdx.graphics.setContinuousRendering(false);
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, startMenuStage, rulesStage, secondRulesStage, UIStage, resourceFieldStage,
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, startMenuStage, rulesStage,  UIStage, resourceFieldStage,
                 outgoingOfferStage, incomingOfferStage, indicatorStage));
     }
 
-    private void rulesLogic(){
+    private void rulesNavigation() {
         ImageButton closeButton = new ImageButton(ButtonSetUps.setUpCloseButton());
         closeButton.setPosition(CLOSE_BUTTON_X, CLOSE_BUTTON_Y);
         closeButton.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -267,8 +279,22 @@ public class CatanPlayer extends ApplicationAdapter {
                 return true;
             }
         });
-        TextButton secondRulesButton = ButtonSetUps.setUpTextButton("Next page", 150);
-        secondRulesButton.setPosition(1700, START_MENU_BUTTON_Y - 200);
+
+        TextButton firstRulesButton = ButtonSetUps.setUpTextButton("First page", 350);
+        firstRulesButton.setPosition(200, 0);
+        firstRulesButton.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        firstRulesButton.setStyle(textButtonStyleSetUp());
+        firstRulesButton.addListener(new ClickListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if(secondRulesOn){
+                    secondRulesOn = false;
+                }
+                return true;
+            }
+        });
+
+        TextButton secondRulesButton = ButtonSetUps.setUpTextButton("Second page", 450);
+        secondRulesButton.setPosition(400, 0);
         secondRulesButton.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         secondRulesButton.setStyle(textButtonStyleSetUp());
         secondRulesButton.addListener(new ClickListener() {
@@ -279,64 +305,9 @@ public class CatanPlayer extends ApplicationAdapter {
                 return true;
             }
         });
-        secondRulesStage.addActor(closeButton);
         rulesStage.addActor(closeButton);
+        rulesStage.addActor(firstRulesButton);
         rulesStage.addActor(secondRulesButton);
-
-    }
-    
-    private void secondRulesLogic(){
-        ImageButton closeButton = new ImageButton(ButtonSetUps.setUpCloseButton());
-        closeButton.setPosition(CLOSE_BUTTON_X, CLOSE_BUTTON_Y);
-        closeButton.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        closeButton.addListener(new ClickListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                secondRulesOn = false;
-                rulesOn = false;
-                return true;
-            }
-        });
-
-        TextButton rulesButton = ButtonSetUps.setUpTextButton("Previous page", 150);
-        rulesButton.setPosition(200, START_MENU_BUTTON_Y - 100);
-        rulesButton.setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-        rulesButton.setStyle(textButtonStyleSetUp());
-        rulesButton.addListener(new ClickListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if(secondRulesOn){
-                    secondRulesOn = false;
-                    System.out.println("Close button clicked");
-                }
-                System.out.println("Close button clicked");
-
-                return true;
-            }
-        });
-        secondRulesStage.addActor(rulesButton);
-        secondRulesStage.addActor(closeButton);
-    }
-
-    private void addRules() {
-        final Image buildingsRules = new Image(new Texture("Rules/Buildings.png"));
-        Image resourceRules = new Image(new Texture("Rules/Resources.png"));
-        Image diceRules = new Image(new Texture("Rules/Dice.png"));
-        Image tradingRules = new Image(new Texture("Rules/Trading.png"));
-
-        buildingsRules.setPosition(RULES_X, RULES_Y);
-        buildingsRules.setSize(RULES_WIDTH, RULES_HEIGHT);
-
-        resourceRules.setPosition(RULES_X + 400, RULES_Y);
-        resourceRules.setSize(RULES_WIDTH, RULES_HEIGHT);
-
-        diceRules.setPosition(RULES_X + 800, RULES_Y);
-        diceRules.setSize(RULES_WIDTH, RULES_HEIGHT);
-        
-        tradingRules.setPosition(RULES_X, RULES_Y);
-        tradingRules.setSize(RULES_WIDTH * 2 - 100, RULES_HEIGHT);
-        rulesStage.addActor(resourceRules);
-        rulesStage.addActor(buildingsRules);
-        rulesStage.addActor(diceRules);
-        secondRulesStage.addActor(tradingRules);
     }
 
     private void startMenuLogic(){
@@ -348,19 +319,39 @@ public class CatanPlayer extends ApplicationAdapter {
     }
 
     private void rulesMenuLogic () {
+        float textureWidth = rules.get(0).getWidth();
+        float textureHeight = rules.get(0).getHeight();
+
+        float scale = Math.min((float) RULES_WIDTH / textureWidth, (float) RULES_HEIGHT / textureHeight);
+
         backgroundBatch.begin();
         backgroundBatch.draw(background, 0,0);
         backgroundBatch.end();
+        rulesBatch.begin();
+        rulesBatch.draw(rules.get(0), RULES_X, RULES_Y, textureWidth * scale, textureHeight * scale);
+        rulesBatch.draw(rules.get(1), RULES_X + 400, RULES_Y, textureWidth * scale, textureHeight * scale);
+        rulesBatch.draw(rules.get(2), RULES_X + 800, RULES_Y, textureWidth * scale, textureHeight * scale);
+        rulesBatch.end();
         rulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         rulesStage.draw();
     }
 
     private void secondRulesMenuLogic () {
+        float maxWidth = RULES_WIDTH * 2 - 100;
+
+        float textureWidth = rules.get(3).getWidth();
+        float textureHeight = rules.get(3).getHeight();
+
+        float scale = Math.min(maxWidth / textureWidth, (float) RULES_HEIGHT / textureHeight);
+
         backgroundBatch.begin();
         backgroundBatch.draw(background, 0,0);
         backgroundBatch.end();
-        secondRulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        secondRulesStage.draw();
+        rulesBatch.begin();
+        rulesBatch.draw(rules.get(3), RULES_X, RULES_Y, textureWidth * scale, textureHeight * scale);
+        rulesBatch.end();
+        rulesStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        rulesStage.draw();
     }
 
     private void mainLoopLogic() {
@@ -583,7 +574,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         if(isDiceThrown && isTurn) {
-                            System.out.println("Offer Button for " + type + " clicked");
                             return increaseTradeOfferWantedLabel(type);
                         }
                         return false;
@@ -615,7 +605,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         if(isDiceThrown && isTurn) {
-                            System.out.println("Offer Button for " + type + " clicked");
                             return decreaseTradeOfferWantedLabel(type);
                         }
                         return false;
@@ -647,7 +636,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         if(isDiceThrown && isTurn) {
-                            System.out.println("Offer Button for " + type + " clicked");
                             return decreaseTradeOfferGivenLabel(type);
                         }
                         return false;
@@ -678,7 +666,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 imageButton.addListener(new InputListener() {
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         if(isDiceThrown && isTurn) {
-                            System.out.println("Offer Button for " + type + " clicked");
                             if(!isOfferBeingCreated)
                                 isOfferBeingCreated = true;
                             return increaseTradeOfferGivenLabel(type);
@@ -752,7 +739,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 try {
                     outputStream.writeObject("Offer rejected by:" + id);
                     outputStream.reset();
-                    System.out.println("Offer rejected");
                     return true;
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -771,7 +757,6 @@ public class CatanPlayer extends ApplicationAdapter {
                 try {
                     outputStream.writeObject("Offer confirmed by:" + id);
                     outputStream.reset();
-                    System.out.println("Offer confirmed");
                     return true;
                 } catch (IOException e) {
                     throw new RuntimeException(e);

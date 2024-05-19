@@ -91,7 +91,6 @@ public class CatanServer {
     }
 
     private void broadcastTurnNotification() {
-        System.out.println("Current player index: " + currentPlayerIndex);
         sendTurnNotifications();
 
     }
@@ -106,7 +105,6 @@ public class CatanServer {
         for(ClientHandler client : clients) {
             client.sendOffer();
         }
-        System.out.println("Offer sent");
     }
 
     private void broadcastMap() {
@@ -221,9 +219,7 @@ public class CatanServer {
             try {
                 while (isWorking) {
                     Object input = inputStream.readObject();
-                    System.out.println("Received from client: " + input);
                     if(isInitialVillagePhase || isSecondVillagePhase) {
-                        System.out.println("Initial phase");
                         initialVillagePhaseChecker(input);
                     }
                     else {
@@ -403,7 +399,6 @@ public class CatanServer {
         private void resourcePressFunc(String input) {
             if(input.contains("Resource") && diceThrow == 7 && isDiceThrown && !isRobberMoved && currentPlayerIndex == clients.indexOf(this)) {
                 isRobberMoved = true;
-                System.out.println(input + " by user " + currentPlayerIndex);
                 int resourceId = Integer.parseInt(input.split(":")[1]);
                 map.moveRobber(resourceId);
                 isRobberMoved = true;

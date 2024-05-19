@@ -11,7 +11,9 @@ import java.util.HashSet;
 
 public class Functionality {
     public static int diceThrow() {
-        return (int) (Math.random() * 10 + 2);
+        int amount = 1 + (int) (Math.random() * 6);
+        amount += 1 + (int) (Math.random() * 6);
+        return amount;
     }
 
     public static int getNumberOfPlayerVillages(ResourceCell cell, int playerId) {
