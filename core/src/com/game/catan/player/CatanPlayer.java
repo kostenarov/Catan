@@ -358,6 +358,7 @@ public class CatanPlayer extends ApplicationAdapter {
         drawBackgrounds();
         backgroundBatch.begin();
         backgroundBatch.draw(background, 0,0 );
+        backgroundBatch.draw(resourceBackground, 0, 0);
         backgroundBatch.end();
         resourceFieldStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         resourceFieldStage.draw();
